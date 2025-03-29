@@ -182,7 +182,7 @@ extern "C" {
 
 
 /* Watch dog module */
-#define MODULE_WATCHDOG_ENABLE						ON
+#define MODULE_WATCHDOG_ENABLE						OFF
 
 /* UART module */
 #define	MODULE_UART_ENABLE							OFF

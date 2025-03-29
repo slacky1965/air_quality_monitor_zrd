@@ -77,6 +77,8 @@ void epd_io_init(void);
 uint8_t epd_init(void);
 uint8_t epd_init_partial(void);
 void epd_enter_deepsleepmode(uint8_t mode);
+uint8_t epd_wait_busy();
+uint8_t epd_hibernating();
 void epd_reset(void);
 uint8_t epd_power_on(void);
 uint8_t epd_power_off(void);

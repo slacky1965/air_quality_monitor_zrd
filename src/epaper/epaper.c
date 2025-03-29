@@ -73,13 +73,16 @@ void epd_write_data(uint8_t data) {
 
 uint8_t epd_wait_busy() {
     uint32_t timeout = 0;
+
     while (epd_is_busy()) {
         timeout++;
         if (timeout > 40000) {
+            printf("timeout exit 1: %d\r\n", timeout);
             return 1;
         }
         epd_delay(1);
     }
+    printf("timeout exit 0: %d\r\n", timeout);
     return 0;
 }
 
@@ -201,6 +204,10 @@ uint8_t epd_init_partial(void) {
     return 0;
 }
 
+uint8_t epd_hibernating() {
+
+    return _hibernating;
+}
 void epd_enter_deepsleepmode(uint8_t mode) {
     epd_power_off();
     epd_write_cmd(0x10);
@@ -685,42 +692,42 @@ void epd_paint_showNum(uint16_t x, uint16_t y, uint32_t num, uint16_t len, uint1
     }
 }
 
-void epd_paint_showChinese(uint16_t x, uint16_t y, uint16_t num, uint16_t size1, uint16_t color) {
-    uint16_t m, temp;
-    uint16_t x0, y0;
-    uint16_t i, size3 = (size1 / 8 + ((size1 % 8) ? 1 : 0)) * size1;
-    x += 1, y += 1, x0 = x, y0 = y;
-    for (i = 0; i < size3; i++) {
-        if (size1 == 16) {
-            temp = Hzk1[num][i];
-        } // 16*16
-        else if (size1 == 24) {
-            temp = Hzk2[num][i];
-        } // 24*24
-        else if (size1 == 32) {
-            temp = Hzk3[num][i];
-        } // 32*32
-        else if (size1 == 64) {
-            temp = Hzk4[num][i];
-        } // 64*64
-        else
-            return;
-        for (m = 0; m < 8; m++) {
-            if (temp & 0x01)
-                epd_paint_drawPoint(x, y, color);
-            else
-                epd_paint_drawPoint(x, y, !color);
-            temp >>= 1;
-            y++;
-        }
-        x++;
-        if ((x - x0) == size1) {
-            x = x0;
-            y0 = y0 + 8;
-        }
-        y = y0;
-    }
-}
+//void epd_paint_showChinese(uint16_t x, uint16_t y, uint16_t num, uint16_t size1, uint16_t color) {
+//    uint16_t m, temp;
+//    uint16_t x0, y0;
+//    uint16_t i, size3 = (size1 / 8 + ((size1 % 8) ? 1 : 0)) * size1;
+//    x += 1, y += 1, x0 = x, y0 = y;
+//    for (i = 0; i < size3; i++) {
+//        if (size1 == 16) {
+//            temp = Hzk1[num][i];
+//        } // 16*16
+//        else if (size1 == 24) {
+//            temp = Hzk2[num][i];
+//        } // 24*24
+//        else if (size1 == 32) {
+//            temp = Hzk3[num][i];
+//        } // 32*32
+//        else if (size1 == 64) {
+//            temp = Hzk4[num][i];
+//        } // 64*64
+//        else
+//            return;
+//        for (m = 0; m < 8; m++) {
+//            if (temp & 0x01)
+//                epd_paint_drawPoint(x, y, color);
+//            else
+//                epd_paint_drawPoint(x, y, !color);
+//            temp >>= 1;
+//            y++;
+//        }
+//        x++;
+//        if ((x - x0) == size1) {
+//            x = x0;
+//            y0 = y0 + 8;
+//        }
+//        y = y0;
+//    }
+//}
 
 void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color) {
     uint16_t j = 0;

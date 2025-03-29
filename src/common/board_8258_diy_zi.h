@@ -35,9 +35,10 @@ enum {
 
 /* Busy pin */
 #define EPD_BUSY                GPIO_PB1
-#define PB1_INPUT_ENABLE        ON
 #define PB1_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB1     PM_PIN_PULLUP_1M
+#define PB1_INPUT_ENABLE        ON
+#define PB1_OUTPUT_ENABLE       OFF
+#define PULL_WAKEUP_SRC_PB1     PM_PIN_PULLDOWN_100K
 
 /* DC pin */
 #define EPD_DC                  GPIO_PA1

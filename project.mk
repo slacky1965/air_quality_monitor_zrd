@@ -10,9 +10,11 @@ $(OUT_PATH)/$(SRC_PATH)/common/main.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_concentration_measurement.o \
 $(OUT_PATH)/$(SRC_PATH)/epaper/epaper.o \
 $(OUT_PATH)/$(SRC_PATH)/app_epd.o \
+$(OUT_PATH)/$(SRC_PATH)/app_config.o \
 $(OUT_PATH)/$(SRC_PATH)/app_endpoint_cfg.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_utility.o \
+$(OUT_PATH)/$(SRC_PATH)/app_time.o \
 $(OUT_PATH)/$(SRC_PATH)/app_main.o \
 $(OUT_PATH)/$(SRC_PATH)/zb_appCb.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl_appCb.o

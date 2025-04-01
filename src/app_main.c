@@ -114,6 +114,7 @@ void user_app_init(void)
     af_endpointRegister(APP_ENDPOINT1, (af_simple_descriptor_t *)&app_ep1Desc, zcl_rx_handler, NULL);
 
     zcl_reportingTabInit();
+    config_restore();
 
     /* Register ZCL specific cluster information */
     zcl_register(APP_ENDPOINT1, APP_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp1ClusterList);
@@ -127,8 +128,6 @@ void user_app_init(void)
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&app_ep1Desc, &app_otaInfo, &app_otaCb);
 #endif
 
-    app_epd_init();
-    //test_epd();
 }
 
 void app_task(void) {
@@ -202,5 +201,7 @@ void user_init(bool isRetention) {
 
     /* Initialize BDB */
     bdb_init((af_simple_descriptor_t *)&app_ep1Desc, &g_bdbCommissionSetting, &g_zbBdbCb, 1);
-}
 
+    TL_ZB_TIMER_SCHEDULE(app_time_cmdCb, NULL, TIMEOUT_10SEC);
+    app_epd_init();
+}

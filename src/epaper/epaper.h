@@ -53,6 +53,7 @@ extern "C"
 #define EPD_FONT_SIZE12x6 (12)
 #define EPD_FONT_SIZE16x8 (16)
 #define EPD_FONT_SIZE24x12 (24)
+#define EPD_FONT_SIZE36x22 (36)
 
 #define EPD_DEEPSLEEP_MODE1 (0x01)
 #define EPD_DEEPSLEEP_MODE2 (0x03)

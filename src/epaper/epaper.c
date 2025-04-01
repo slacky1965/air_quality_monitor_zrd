@@ -82,7 +82,7 @@ uint8_t epd_wait_busy() {
         }
         epd_delay(1);
     }
-    printf("timeout exit 0: %d\r\n", timeout);
+//    printf("timeout exit 0: %d\r\n", timeout);
     return 0;
 }
 
@@ -607,9 +607,13 @@ void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, uint16_t size1, ui
     }
     if (size1 == 8)
         size2 = 6;
+//    else if (size1 == 36)
+//        size2 = 108;
     else
         size2 = (size1 / 8 + ((size1 % 8) ? 1 : 0)) * (size1 / 2);
     chr1 = chr - ' ';
+
+//    printf("size2: %d\r\n", size2);
     for (i = 0; i < size2; i++) {
         if (size1 == 8) {
             temp = asc2_0806[chr1][i];

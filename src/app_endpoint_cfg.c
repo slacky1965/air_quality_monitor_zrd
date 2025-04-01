@@ -181,6 +181,21 @@ const zclAttrInfo_t scene_attr1Tbl[] = {
 
 #endif
 
+zcl_timeAttr_t g_zcl_timeAttrs = {
+    .time_utc   = 0xffffffff,
+    .time_local = 0xffffffff,
+};
+
+const zclAttrInfo_t time_attrTbl[] =
+{
+    { ZCL_ATTRID_TIME,                      ZCL_UTC,    RW, (uint8_t*)&g_zcl_timeAttrs.time_utc         },
+    { ZCL_ATTRID_LOCAL_TIME,                ZCL_UINT32, R,  (uint8_t*)&g_zcl_timeAttrs.time_local       },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
+};
+
+#define ZCL_TIME_ATTR_NUM    sizeof(time_attrTbl) / sizeof(zclAttrInfo_t)
+
 
 #ifdef ZCL_CO2_MEASUREMENT
 
@@ -208,6 +223,7 @@ const zclAttrInfo_t co2_attrTbl[] = {
 const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_GEN_BASIC,     MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM,     basic_attrTbl,      zcl_basic_register,     app_basicCb},
     {ZCL_CLUSTER_GEN_IDENTIFY,  MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,  identify_attrTbl,   zcl_identify_register,  app_identifyCb},
+    {ZCL_CLUSTER_GEN_TIME,      MANUFACTURER_CODE_NONE, ZCL_TIME_ATTR_NUM,      time_attrTbl,       zcl_time_register,      app_timeCb},
 #ifdef ZCL_GROUP
     {ZCL_CLUSTER_GEN_GROUPS,    MANUFACTURER_CODE_NONE, ZCL_GROUP_1ATTR_NUM,    group_attr1Tbl,     zcl_group_register,     NULL},
 #endif

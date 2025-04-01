@@ -137,41 +137,41 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  */
 static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
-//    printf("app_zclReadRspCmd\n");
+    //printf("app_zclReadRspCmd\n");
     uint8_t numAttr = pReadRspCmd->numAttr;
-//    zclReadRspStatus_t *attrList = pReadRspCmd->attrList;
+    zclReadRspStatus_t *attrList = pReadRspCmd->attrList;
 
-//    uint32_t utc;
-//    uint32_t time_local;
-//    bool time_sent = false;
+    uint32_t utc;
+    uint32_t time_local;
+    bool time_sent = false;
 
     for (uint8_t i = 0; i < numAttr; i++) {
-//        if (attrList[i].attrID == ZCL_ATTRID_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
-//            utc = attrList[i].data[0] & 0xff;
-//            utc |= (attrList[i].data[1] << 8)  & 0x0000ffff;
-//            utc |= (attrList[i].data[2] << 16) & 0x00ffffff;
-//            utc |= (attrList[i].data[3] << 24) & 0xffffffff;
-//            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, (uint8_t*)&utc);
-//            time_sent = true;
-//#if UART_PRINTF_MODE && DEBUG_TIME
-//            printf("Sync UTC:        %d\r\n", utc+UNIX_TIME_CONST);
-//#endif
-//        } else if (attrList[i].attrID == ZCL_ATTRID_LOCAL_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
-//            time_local = attrList[i].data[0] & 0xff;
-//            time_local |= (attrList[i].data[1] << 8)  & 0x0000ffff;
-//            time_local |= (attrList[i].data[2] << 16) & 0x00ffffff;
-//            time_local |= (attrList[i].data[3] << 24) & 0xffffffff;
-//            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, (uint8_t*)&time_local);
-//            time_sent = true;
-//#if UART_PRINTF_MODE && DEBUG_TIME
-//            printf("Sync Local Time: %d\r\n", time_local+UNIX_TIME_CONST);
-//#endif
-//        }
+        if (attrList[i].attrID == ZCL_ATTRID_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
+            utc = attrList[i].data[0] & 0xff;
+            utc |= (attrList[i].data[1] << 8)  & 0x0000ffff;
+            utc |= (attrList[i].data[2] << 16) & 0x00ffffff;
+            utc |= (attrList[i].data[3] << 24) & 0xffffffff;
+            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, (uint8_t*)&utc);
+            time_sent = true;
+#if UART_PRINTF_MODE && DEBUG_TIME
+            printf("Sync UTC:        %d\r\n", utc+UNIX_TIME_CONST);
+#endif
+        } else if (attrList[i].attrID == ZCL_ATTRID_LOCAL_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
+            time_local = attrList[i].data[0] & 0xff;
+            time_local |= (attrList[i].data[1] << 8)  & 0x0000ffff;
+            time_local |= (attrList[i].data[2] << 16) & 0x00ffffff;
+            time_local |= (attrList[i].data[3] << 24) & 0xffffffff;
+            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, (uint8_t*)&time_local);
+            time_sent = true;
+#if UART_PRINTF_MODE && DEBUG_TIME
+            printf("Sync Local Time: %d\r\n", time_local+UNIX_TIME_CONST);
+#endif
+        }
     }
 
-//    if (time_sent) {
-//        set_time_sent();
-//    }
+    if (time_sent) {
+        set_time_sent();
+    }
 }
 #endif	/* ZCL_READ */
 
@@ -1007,4 +1007,23 @@ status_t app_co2Cb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPay
 }
 
 #endif /* ZCL_CO2_MEASUREMENT */
+
+/*********************************************************************
+ * @fn      app_timeCb
+ *
+ * @brief   Handler for ZCL Time command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+//    printf("app_timeCb. cmd: 0x%x\r\n", cmdId);
+
+    return ZCL_STA_SUCCESS;
+}
+
 

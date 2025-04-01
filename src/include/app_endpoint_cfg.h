@@ -59,6 +59,15 @@ typedef struct {
     float   max;
 } zcl_co2Attr_t;
 
+/**
+ *  @brief Defined for time cluster attributes
+ */
+typedef struct {
+    uint32_t time_utc;
+    uint32_t time_local;
+} zcl_timeAttr_t;
+
+
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;
 
 /* Attributes */

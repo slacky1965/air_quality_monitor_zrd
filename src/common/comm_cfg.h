@@ -81,3 +81,9 @@
 #define IMAGE_TYPE_LIGHT					(0x01 | (IMAGE_TYPE_BOOT_FLAG << 7))
 #define IMAGE_TYPE_SWITCH					(0x02 | (IMAGE_TYPE_BOOT_FLAG << 7))
 #define IMAGE_TYPE_CONTACT_SENSOR			(0x03 | (IMAGE_TYPE_BOOT_FLAG << 7))
+
+#ifndef MCU_CORE_8258
+#define MCU_CORE_8258   1
+#endif
+
+

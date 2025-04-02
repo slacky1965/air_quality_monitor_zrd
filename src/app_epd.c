@@ -4,28 +4,15 @@
 #include "bmp.h"
 #include "app_epd.h"
 #include "app_epd_images.h"
-#include "app_epd_fonts.h"
+//#include "app_epd_fonts.h"
 
 static uint8_t image_bw[EPD_W_BUFF_SIZE * EPD_H];
 
 static uint16_t real_rotate = EPD_ROTATE_270;
 
-/* data */
-static uint16_t year = 0;
-static uint8_t month = 0;
-static uint8_t day = 0;
-static uint8_t wday = 10;
-/* time */
-static uint8_t hour = 25;
 static uint8_t minutes = 61;
-//static uint8_t seconds = 61;
 
 static epd_screen_variable_t epd_screen_variable = {
-        .year = 0,
-        .month = 0,
-        .day = 0,
-        .wday = 0,
-        .hour = 25,
         .minutes = 61,
         .temp_in = 0,
         .temp_out = 0,
@@ -49,13 +36,15 @@ static void epd_screen_var(void *args) {
     uint16_t attr_len;
     uint32_t counter;
 
-    uint8_t octet2[4];
-    uint8_t octet4[5];
+    /*                    0123456789012345678901*/
+    uint8_t datetime[] = "01-01-2025  Wed  10:00";
+    uint8_t idx;
+
     uint8_t color;
     uint8_t refresh = 0;
 
     uint8_t wday_str[][4] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
-
+    uint8_t *p_wday_str;
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
         color = EPD_COLOR_BLACK;
@@ -70,103 +59,43 @@ static void epd_screen_var(void *args) {
 
         ftime = get_ftime(counter);
 
-        if (day !=  ftime->day) {
-            day =  ftime->day;
-            octet2[0] = (day / 10) + 0x30;
-            octet2[1] = (day % 10) + 0x30;
-            octet2[2] = '-';
-            octet2[3] = 0;
+        if (minutes !=  ftime->minute) {
+            minutes =  ftime->minute;
+            idx = 0;
+            datetime[idx++] = (ftime->day / 10) + 0x30;
+            datetime[idx++] = (ftime->day % 10) + 0x30;
+            datetime[idx++] = '-';
+            datetime[idx++] = (ftime->month / 10) + 0x30;
+            datetime[idx++] = (ftime->month % 10) + 0x30;
+            datetime[idx++] = '-';
+            datetime[idx++] = (ftime->year / 1000) + 0x30;
+            y = ftime->year % 1000;
+            datetime[idx++] = (y / 100) + 0x30;
+            m = y % 100;
+            datetime[idx++] = (m / 10) + 0x30;
+            datetime[idx++] = (m % 10) + 0x30;
+            datetime[idx++] = ' ';
+            datetime[idx++] = ' ';
+            p_wday_str = wday_str[ftime->wday];
+            datetime[idx++] = *p_wday_str++;
+            datetime[idx++] = *p_wday_str++;
+            datetime[idx++] = *p_wday_str;
+            datetime[idx++] = ' ';
+            datetime[idx++] = ' ';
+            datetime[idx++] = (ftime->hour / 10) + 0x30;
+            datetime[idx++] = (ftime->hour % 10) + 0x30;
+            datetime[idx++] = ':';
+            datetime[idx++] = (ftime->minute / 10) + 0x30;
+            datetime[idx++] = (ftime->minute % 10) + 0x30;
+            datetime[idx] = 0;
+
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(DATE_0_X, DATE_0_Y, octet2, EPD_FONT_SIZE24x12, color);
+                epd_paint_showString(DATETIME_0_X, DATETIME_0_Y, datetime, EPD_FONT_SIZE24x12, color);
             } else {
-                epd_paint_showString(DATE_90_X, DATE_90_Y, octet2, EPD_FONT_SIZE24x12, color);
+                epd_paint_showString(DATETIME_90_X, DATETIME_90_Y, datetime, EPD_FONT_SIZE24x12, color);
             }
             refresh |= 0x01;
         }
-
-        if (month !=  ftime->month) {
-            month =  ftime->month;
-            octet2[0] = (month / 10) + 0x30;
-            octet2[1] = (month % 10) + 0x30;
-            octet2[2] = '-';
-            octet2[3] = 0;
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(DATE_0_X + 3*12, DATE_0_Y, octet2, EPD_FONT_SIZE24x12, color);
-            } else {
-                epd_paint_showString(DATE_90_X + 3*12, DATE_90_Y, octet2, EPD_FONT_SIZE24x12, color);
-            }
-            refresh |= 0x02;
-        }
-
-        if (year !=  ftime->year) {
-            year =  ftime->year;
-            octet4[0] = (year / 1000) + 0x30;
-            y = year % 1000;
-            octet4[1] = (y / 100) + 0x30;
-            m = y % 100;
-            octet4[2] = (m / 10) + 0x30;
-            octet4[3] = (m % 10) + 0x30;
-            octet4[4] = 0;
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(DATE_0_X + 6*12, DATE_0_Y, octet4, EPD_FONT_SIZE24x12, color);
-            } else {
-                epd_paint_showString(DATE_90_X + 6*12, DATE_90_Y, octet4, EPD_FONT_SIZE24x12, color);
-            }
-            refresh |= 0x04;
-        }
-
-
-        if (wday != ftime->wday) {
-            wday = ftime->wday;
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(WDAY_0_X, WDAY_0_Y, wday_str[wday], EPD_FONT_SIZE24x12, color);
-            } else {
-                epd_paint_showString(WDAY_90_X, WDAY_90_Y, wday_str[wday], EPD_FONT_SIZE24x12, color);
-            }
-            refresh |= 0x08;
-        }
-
-        if (hour !=  ftime->hour) {
-            hour =  ftime->hour;
-            octet2[0] = (hour / 10) + 0x30;
-            octet2[1] = (hour % 10) + 0x30;
-            octet2[2] = ':';
-            octet2[3] = 0;
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(TIME_0_X, TIME_0_Y, octet2, EPD_FONT_SIZE24x12, color);
-            } else {
-                epd_paint_showString(TIME_90_X, TIME_90_Y, octet2, EPD_FONT_SIZE24x12, color);
-            }
-            refresh |= 0x10;
-        }
-
-        if (minutes !=  ftime->minute) {
-            minutes =  ftime->minute;
-            octet2[0] = (minutes / 10) + 0x30;
-            octet2[1] = (minutes % 10) + 0x30;
-            octet2[2] = 0;
-//            octet2[2] = ':';
-//            octet2[3] = 0;
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(TIME_0_X + 3*12, TIME_0_Y, octet2, EPD_FONT_SIZE24x12, color);
-            } else {
-                epd_paint_showString(TIME_90_X + 3*12, TIME_90_Y, octet2, EPD_FONT_SIZE24x12, color);
-            }
-            refresh |= 0x20;
-        }
-
-//        if (seconds !=  ftime->second) {
-//            seconds =  ftime->second;
-//            octet2[0] = (seconds / 10) + 0x30;
-//            octet2[1] = (seconds % 10) + 0x30;
-//            octet2[2] = 0;
-//            if (config.rotate == APP_EPD_ROTATE_0) {
-//                epd_paint_showString(TIME_0_X + 6*12, TIME_0_Y, octet2, EPD_FONT_SIZE24x12, color);
-//            } else {
-//                epd_paint_showString(TIME_90_X + 6*12, TIME_90_Y, octet2, EPD_FONT_SIZE24x12, color);
-//            }
-//            refresh = true;
-//        }
 
     }
 
@@ -188,7 +117,7 @@ static void epd_screen_var(void *args) {
             } else {
                 epd_paint_showPicture(ZB_90_X, ZB_90_Y, 24, 24, zb_logo, color);
             }
-            refresh |= 0x40;
+            refresh |= 0x02;
         }
 
     }
@@ -199,6 +128,13 @@ static void epd_screen_var(void *args) {
         epd_displayBW_partial(image_bw);
 //        epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
     }
+
+    uint16_t lqi;
+    int8_t rssi = ZB_RADIO_RSSI_GET() / 2;
+    ZB_RADIO_RSSI_TO_LQI(1, rssi, lqi);
+    printf("LQI: %d\r\n", lqi);;
+    printf("ZB_RADIO_RSSI_GET: %d\r\n", ZB_RADIO_RSSI_GET());
+
 }
 
 static int32_t epd_screen_varCb(void *args) {
@@ -340,32 +276,3 @@ void app_epd_init() {
 //    }
 }
 
-void epd_zb() {
-
-    uint8_t color;
-
-    if (config.inversion == APP_EPD_INVERSION_OFF) {
-        color = EPD_COLOR_WHITE;
-    } else {
-        color = EPD_COLOR_BLACK;
-    }
-    if (config.rotate == APP_EPD_ROTATE_0) {
-        epd_paint_showPicture(ZB_0_X, ZB_0_Y, 24, 24, zb_logo, color);
-    } else {
-        epd_paint_showPicture(ZB_90_X, ZB_90_Y, 24, 24, zb_logo, color);
-    }
-    epd_displayBW_partial(image_bw);
-
-//    printf("const uint8_t  zb_logo[] = {\r\n");
-//    uint8_t ch;
-//    for (uint8_t i = 0; i < sizeof(zb_logo1); i++) {
-//        ch = zb_logo1[i];
-//        ch = ~ch;
-//        if (ch > 9) {
-//            printf("\"0x%x\", ", ch);
-//        } else {
-//            printf("\"0x0%x\", ", ch);
-//        }
-//    }
-//    printf("};\r\n");
-}

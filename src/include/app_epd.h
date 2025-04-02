@@ -55,20 +55,25 @@
 #define LINE4_90_Y_START    373
 #define LINE4_90_Y_END      373
 
-#define DATE_0_X            60
-#define DATE_0_Y            0
-#define DATE_90_X           24
-#define DATE_90_Y           373
+#define DATETIME_0_X        60
+#define DATETIME_0_Y        0
+#define DATETIME_90_X       18
+#define DATETIME_90_Y       373
 
-#define WDAY_0_X            206
-#define WDAY_0_Y            0
-#define WDAY_90_X           162
-#define WDAY_90_Y           373
-
-#define TIME_0_X            270
-#define TIME_0_Y            0
-#define TIME_90_X           216
-#define TIME_90_Y           373
+//#define DATE_0_X            60
+//#define DATE_0_Y            0
+//#define DATE_90_X           24
+//#define DATE_90_Y           373
+//
+//#define WDAY_0_X            206
+//#define WDAY_0_Y            0
+//#define WDAY_90_X           162
+//#define WDAY_90_Y           373
+//
+//#define TIME_0_X            270
+//#define TIME_0_Y            0
+//#define TIME_90_X           216
+//#define TIME_90_Y           373
 
 #define ZB_0_X              6
 #define ZB_0_Y              0
@@ -86,11 +91,6 @@ typedef enum {
 } epd_inversion_t;
 
 typedef struct {
-    uint16_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t wday;
-    uint8_t hour;
     uint8_t minutes;
     int16_t temp_in;
     int16_t temp_out;

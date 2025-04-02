@@ -37,6 +37,15 @@ static void buttonCheckCommand(uint8_t btNum) {
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 1 time\r\n");
 #endif
+    } else if (g_appCtx.button[btNum-1].ctn == 2) {
+#if UART_PRINTF_MODE && DEBUG_BUTTON
+        printf("Button push 2 times. Rotate\r\n");
+#endif
+        config.rotate = ~config.rotate;
+        config.rotate &= 0x01;
+        printf("config rotate: %d\r\n", config.rotate);
+        config_save();
+        zb_resetDevice();
     }
 
     g_appCtx.button[btNum-1].ctn = 0;

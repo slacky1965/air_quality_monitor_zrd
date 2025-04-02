@@ -42,7 +42,7 @@ extern "C" {
  * Product Information
  */
 /* Debug mode config */
-#define	UART_PRINTF_MODE				0
+#define	UART_PRINTF_MODE				1
 #define USB_PRINTF_MODE         		0
 
 /* Voltage detect module */
@@ -82,7 +82,7 @@ extern "C" {
 #define BOARD_B91_EVK					8
 #define BOARD_B91_DONGLE				9
 #define BOARD_TUYA_ZT3L                 10
-#define BOARD_DIY_ZI                    11
+#define BOARD_ZTU_DIY                   11
 
 /* Board define */
 #if defined(MCU_CORE_826xx)
@@ -92,7 +92,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
 	#define FLASH_CAP_SIZE_1M			1
 #endif
-	#define BOARD						BOARD_DIY_ZI //BOARD_TUYA_ZT3L
+	#define BOARD						BOARD_ZTU_DIY //BOARD_TUYA_ZT3L
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #elif defined(MCU_CORE_8278)
 	#define FLASH_CAP_SIZE_1M		  	1
@@ -127,8 +127,8 @@ extern "C" {
 	#include "board_b91_dongle.h"
 #elif (BOARD == BOARD_TUYA_ZT3L)
     #include "board_tuya.h"
-#elif (BOARD == BOARD_DIY_ZI)
-    #include "board_8258_diy_zi.h"
+#elif (BOARD == BOARD_ZTU_DIY)
+    #include "board_ztu_diy.h"
 #endif
 
 

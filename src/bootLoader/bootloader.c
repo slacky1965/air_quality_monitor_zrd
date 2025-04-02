@@ -123,7 +123,7 @@ static bool is_valid_fw_bootloader(u32 addr_fw){
 	u32 startup_flag = 0;
     flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&startup_flag);
 
-//    printf("startup_flag: 0x%x, FW_START_UP_FLAG_WHOLE: 0x%x\r\n", startup_flag, FW_START_UP_FLAG_WHOLE);
+    printf("startup_flag: 0x%x, FW_START_UP_FLAG_WHOLE: 0x%x\r\n", startup_flag, FW_START_UP_FLAG_WHOLE);
 
     return ((startup_flag == FW_START_UP_FLAG_WHOLE) ? TRUE : FALSE);
 }
@@ -202,12 +202,15 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 	}
 
     if(is_valid_fw_bootloader(addr_load)){
+        printf("is_valid_fw_bootloader: true\r\n");
 #if !defined(MCU_CORE_B91)
     	u32 ramcode_size = 0;
         flash_read(addr_load + 0x0c, 2, (u8 *)&ramcode_size);
         ramcode_size *= 16;
 
-        if(ramcode_size > FW_RAMCODE_SIZE_MAX){
+        printf("ramcode_size: %d, FW_RAMCODE_SIZE_MAX: %d\r\n", ramcode_size, FW_RAMCODE_SIZE_MAX);
+
+        if(ramcode_size > ramcode_size){
             ramcode_size = FW_RAMCODE_SIZE_MAX; // error, should not run here
         }
         flash_read(addr_load, ramcode_size, (u8 *)MCU_RAM_START_ADDR); // copy ram code
@@ -553,7 +556,7 @@ void bootloader_keyPressProc(void){
 
 
 void bootloader_init(bool isBoot){
-//    printf("bootloader_init\r\n");
+    printf("bootloader_init\r\n");
 	if(isBoot){
 		drv_gpio_write(LED_POWER, 1);
 		drv_gpio_write(LED_PERMIT, 1);

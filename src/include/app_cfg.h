@@ -38,10 +38,6 @@ extern "C" {
 #define LOW                     0
 #define HIGH                    1
 
-#ifndef MCU_CORE_8258
-#define MCU_CORE_8258   1
-#endif
-
 //#define ZB_DEFAULT_TX_POWER_IDX RF_POWER_P0p04dBm
 #define MY_RF_POWER_INDEX   RF_POWER_N5p03dBm   //RF_POWER_N0p14dBm   //RF_POWER_P0p04dBm   //
 
@@ -103,7 +99,7 @@ extern "C" {
 #define BOARD_B91_EVK                   8
 #define BOARD_B91_DONGLE                9
 #define BOARD_TUYA_ZT3L                 10
-#define BOARD_DIY_ZI                    11
+#define BOARD_ZTU_DIY                  11
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -117,7 +113,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
     #define FLASH_CAP_SIZE_1M           1
 #endif
-    #define BOARD                       BOARD_DIY_ZI //BOARD_TUYA_ZT3L
+    #define BOARD                       BOARD_ZTU_DIY //BOARD_TUYA_ZT3L
     #define CLOCK_SYS_CLOCK_HZ          48000000
     #define NV_ITEM_APP_USER_CFG        (NV_ITEM_APP_GP_TRANS_TABLE + 1)    // see sdk/proj/drivers/drv_nv.h
 #elif defined(MCU_CORE_8278)
@@ -155,8 +151,8 @@ extern "C" {
     #include "board_b91_dongle.h"
 #elif (BOARD == BOARD_TUYA_ZT3L)
     #include "board_tuya.h"
-#elif (BOARD == BOARD_DIY_ZI)
-    #include "board_8258_diy_zi.h"
+#elif (BOARD == BOARD_ZTU_DIY)
+    #include "board_ztu_diy.h"
 #endif
 
 

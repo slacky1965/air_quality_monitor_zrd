@@ -1,6 +1,11 @@
 #ifndef SRC_COMMON_BOARD_ZTU_DIY_H_
 #define SRC_COMMON_BOARD_ZTU_DIY_H_
 
+#if 1 //VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN      GPIO_PC5
+#endif
+
+
 /************************* Configure KEY GPIO ***************************************/
 #define MAX_BUTTON_NUM  1
 
@@ -96,7 +101,6 @@ enum {
 
 #if UART_PRINTF_MODE
 #define DEBUG_INFO_TX_PIN       UART_TX_PB1    //printf
-//#define DEBUG_INFO_TX_PIN       GPIO_PD3    //printf
 #define DEBUG_BAUDRATE          115200
 
 #endif /* UART_PRINTF_MODE */

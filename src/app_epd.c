@@ -130,10 +130,11 @@ static void epd_screen_var(void *args) {
     }
 
     uint16_t lqi;
-    int8_t rssi = ZB_RADIO_RSSI_GET() / 2;
+    int8_t rssi = ZB_RADIO_RSSI_GET();
+//    if (rssi < -100) rssi = -90;
     ZB_RADIO_RSSI_TO_LQI(1, rssi, lqi);
     printf("LQI: %d\r\n", lqi);;
-    printf("ZB_RADIO_RSSI_GET: %d\r\n", ZB_RADIO_RSSI_GET());
+    printf("ZB_RADIO_RSSI_GET: %d\r\n", rssi);
 
 }
 

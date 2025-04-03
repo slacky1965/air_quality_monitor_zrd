@@ -168,13 +168,13 @@ extern "C" {
  */
 #define VOLTAGE_DETECT_ENABLE						ON
 
-#if defined(MCU_CORE_826x)
-    #define VOLTAGE_DETECT_ADC_PIN                  0
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-    #define VOLTAGE_DETECT_ADC_PIN                  GPIO_PA2
-#elif defined(MCU_CORE_B91)
-    #define VOLTAGE_DETECT_ADC_PIN                  ADC_GPIO_PB0
-#endif
+//#if defined(MCU_CORE_826x)
+//    #define VOLTAGE_DETECT_ADC_PIN                  0
+//#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+//    #define VOLTAGE_DETECT_ADC_PIN                  GPIO_PC4
+//#elif defined(MCU_CORE_B91)
+//    #define VOLTAGE_DETECT_ADC_PIN                  ADC_GPIO_PB0
+//#endif
 
 
 /* Watch dog module */

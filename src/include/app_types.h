@@ -13,4 +13,14 @@ typedef s32 int32_t;
 typedef u64 uint64_t;
 typedef s64 int64_t;
 
+#define S8_C(x)  x
+#define U8_C(x)  x
+#define S16_C(x) x
+#define U16_C(x) x
+#define S32_C(x) x
+#define U32_C(x) x
+#define S64_C(x) x
+#define U64_C(x) x
+
+
 #endif /* SRC_INCLUDE_APP_TYPES_H_ */

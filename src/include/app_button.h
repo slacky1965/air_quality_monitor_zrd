@@ -17,6 +17,8 @@ typedef struct {
     uint8_t     state;
 } button_t;
 
+extern bool factory_reset;
+
 void button_handler(void);
 u8 button_idle();
 

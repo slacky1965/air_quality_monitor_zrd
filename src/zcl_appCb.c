@@ -137,7 +137,7 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  */
 static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
-    //printf("app_zclReadRspCmd\n");
+//    printf("app_zclReadRspCmd\r\n");
     uint8_t numAttr = pReadRspCmd->numAttr;
     zclReadRspStatus_t *attrList = pReadRspCmd->attrList;
 
@@ -166,6 +166,8 @@ static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
 #if UART_PRINTF_MODE && DEBUG_TIME
             printf("Sync Local Time: %d\r\n", time_local+UNIX_TIME_CONST);
 #endif
+        } else if (attrList[i].attrID == ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI && attrList[i].status == ZCL_STA_SUCCESS) {
+            printf("LQI\r\n");
         }
     }
 
@@ -233,7 +235,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
  */
 static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-//    printf("app_zclDfltRspCmd\r\n");
+    printf("app_zclDfltRspCmd\r\n");
 
 }
 
@@ -1026,4 +1028,94 @@ status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPa
     return ZCL_STA_SUCCESS;
 }
 
+
+/*********************************************************************
+ * @fn      app_diagnosticsCb
+ *
+ * @brief   Handler for ZCL Time command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_diagnosticsCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+    printf("app_diagnosticsCb. cmd: 0x%x\r\n", cmdId);
+
+    return ZCL_STA_SUCCESS;
+}
+
+
+///***********************************************************************************************************
+// * @brief       Send AF data
+// *
+// * @param[in]   srcEp       - source endpoint
+// * @param[in]   pDstEpInfo  - destination information
+// * @param[in]   clusterId   - cluster identifier
+// * @param[in]   cmdPldLen   - data length
+// * @param[in]   cmdPld      - data payload
+// * @param[in]   apsCnt      - the APS count
+// *
+// * @return      Status
+// */
+//u8 af_dataSend(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 cmdPldLen, u8 *cmdPld, u8 *apsCnt);
+//
+//void send_lqi_request_to_coordinator()
+//{
+//    u8 dummy = 0x01; // payload для примера
+//
+//    af_dataSend(0x0000, // адрес координатора
+//                1,      // dst endpoint
+//                0x1234, // произвольный cluster ID (например, "LQI request")
+//                1,      // длина
+//                &dummy,
+//                1);     // security enable
+//}
+
+int32_t app_diagnostics_cmdCb(void *arg) {
+
+
+    printf("app_diagnostics_cmdCb()\r\n");
+
+    if(zb_isDeviceJoinedNwk()) {
+
+
+        epInfo_t dstEpInfo;
+        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+        dstEpInfo.profileId = HA_PROFILE_ID;
+//#if FIND_AND_BIND_SUPPORT
+//        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//#else
+        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+        dstEpInfo.dstEp = APP_ENDPOINT1;
+        dstEpInfo.dstAddr.shortAddr = 0x0;
+//#endif
+
+        uint8_t apsCnt = 0;
+        u8 dummy = 0x01;
+        u8 ret = af_dataSend(APP_ENDPOINT1, &dstEpInfo, 0x1234, 1, &dummy, &apsCnt);
+
+        printf("af_dataSend ret: %d\r\n", ret);
+
+//
+//        zclAttrInfo_t *pAttrEntry;
+//        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1, ZCL_CLUSTER_GEN_DIAGNOSTICS, ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI);
+//
+//        zclReadCmd_t *pReadCmd = (zclReadCmd_t *)ev_buf_allocate(sizeof(zclReadCmd_t)+sizeof(uint16_t));
+//        if(pReadCmd){
+//            pReadCmd->numAttr = 1;
+//            pReadCmd->attrID[0] = ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI;
+//
+//            zcl_read(APP_ENDPOINT1, &dstEpInfo, ZCL_CLUSTER_GEN_DIAGNOSTICS, MANUFACTURER_CODE_NONE, 0, 0, 0, pReadCmd);
+//
+//            ev_buf_free((uint8_t *)pReadCmd);
+//        }
+
+    }
+
+    return 0;
+}
 

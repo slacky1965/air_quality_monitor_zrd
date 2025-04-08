@@ -61,6 +61,8 @@ const uint16_t app_ep1_inClusterList[] = {
  *  @brief Definition for Outgoing cluster / Client Cluster
  */
 const uint16_t app_ep1_outClusterList[] = {
+    ZCL_CLUSTER_GEN_DIAGNOSTICS,
+    ZCL_CLUSTER_GEN_TIME,
 #ifdef ZCL_OTA
     ZCL_CLUSTER_OTA,
 #endif
@@ -138,6 +140,21 @@ const zclAttrInfo_t identify_attrTbl[] =
 };
 
 #define ZCL_IDENTIFY_ATTR_NUM           sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t)
+
+/* Identify */
+zcl_diagnosticsAttr_t g_zcl_diagnosticsAttrs =
+{
+    .lastMessageLQI = 0,
+};
+
+const zclAttrInfo_t diagnostics_attrTbl[] =
+{
+    { ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI,  ZCL_UINT8,      RW, (uint8_t*)&g_zcl_diagnosticsAttrs.lastMessageLQI},
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_DIAGNOSTICS_ATTR_NUM           sizeof(diagnostics_attrTbl) / sizeof(zclAttrInfo_t)
 
 #ifdef ZCL_GROUP
 /* Group */
@@ -221,17 +238,18 @@ const zclAttrInfo_t co2_attrTbl[] = {
  *  @brief Definition for simple switch ZCL specific cluster
  */
 const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
-    {ZCL_CLUSTER_GEN_BASIC,     MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM,     basic_attrTbl,      zcl_basic_register,     app_basicCb},
-    {ZCL_CLUSTER_GEN_IDENTIFY,  MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,  identify_attrTbl,   zcl_identify_register,  app_identifyCb},
-    {ZCL_CLUSTER_GEN_TIME,      MANUFACTURER_CODE_NONE, ZCL_TIME_ATTR_NUM,      time_attrTbl,       zcl_time_register,      app_timeCb},
+    {ZCL_CLUSTER_GEN_BASIC,         MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM,         basic_attrTbl,          zcl_basic_register,         app_basicCb},
+    {ZCL_CLUSTER_GEN_IDENTIFY,      MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,      identify_attrTbl,       zcl_identify_register,      app_identifyCb},
+    {ZCL_CLUSTER_GEN_DIAGNOSTICS,   MANUFACTURER_CODE_NONE, ZCL_DIAGNOSTICS_ATTR_NUM,   diagnostics_attrTbl,    zcl_diagnostics_register,   app_diagnosticsCb},
+    {ZCL_CLUSTER_GEN_TIME,          MANUFACTURER_CODE_NONE, ZCL_TIME_ATTR_NUM,          time_attrTbl,           zcl_time_register,          app_timeCb},
 #ifdef ZCL_GROUP
-    {ZCL_CLUSTER_GEN_GROUPS,    MANUFACTURER_CODE_NONE, ZCL_GROUP_1ATTR_NUM,    group_attr1Tbl,     zcl_group_register,     NULL},
+    {ZCL_CLUSTER_GEN_GROUPS,        MANUFACTURER_CODE_NONE, ZCL_GROUP_1ATTR_NUM,        group_attr1Tbl,         zcl_group_register,         NULL},
 #endif
 #ifdef ZCL_SCENE
-    {ZCL_CLUSTER_GEN_SCENES,    MANUFACTURER_CODE_NONE, ZCL_SCENE_1ATTR_NUM,    scene_attr1Tbl,     zcl_scene_register,     app_sceneCb},
+    {ZCL_CLUSTER_GEN_SCENES,        MANUFACTURER_CODE_NONE, ZCL_SCENE_1ATTR_NUM,        scene_attr1Tbl,         zcl_scene_register,         app_sceneCb},
 #endif
 #ifdef ZCL_CO2_MEASUREMENT
-    {ZCL_CLUSTER_MS_CO2_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_CO2_ATTR_NUM,  co2_attrTbl,    zcl_co2_measurement_register,   app_co2Cb},
+    {ZCL_CLUSTER_MS_CO2_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_CO2_ATTR_NUM,          co2_attrTbl,        zcl_co2_measurement_register,   app_co2Cb},
 #endif
 };
 

@@ -46,15 +46,6 @@ int32_t delayedMcuResetCb(void *arg) {
     return -1;
 }
 
-int32_t delayedFactoryResetCb(void *arg) {
-
-    zb_resetDevice2FN();
-
-    g_appCtx.timerFactoryReset = NULL;
-
-    return -1;
-}
-
 int32_t delayedFullResetCb(void *arg) {
 
     //printf("full reset\r\n");

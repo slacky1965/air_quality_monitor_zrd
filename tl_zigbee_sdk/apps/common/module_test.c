@@ -798,7 +798,7 @@ void moduleTest_spi(void){
 #endif
 
 
-#define MODULE_TEST_I2C		0
+#define MODULE_TEST_I2C		1
 
 #if MODULE_TEST_I2C
 

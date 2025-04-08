@@ -55,7 +55,7 @@
 #define LINE4_90_Y_START    373
 #define LINE4_90_Y_END      373
 
-#define DATETIME_0_X        60
+#define DATETIME_0_X        65
 #define DATETIME_0_Y        0
 #define DATETIME_90_X       18
 #define DATETIME_90_Y       373
@@ -79,6 +79,31 @@
 #define ZB_0_Y              0
 #define ZB_90_X             6
 #define ZB_90_Y             0
+
+#define LEVEL_0_X           361
+#define LEVEL_0_Y           0
+#define LEVEL_90_X          261
+#define LEVEL_90_Y          0
+
+#define STR_MANUF_0_X       6
+#define STR_MANUF_0_Y       0
+#define STR_MANUF_90_X      6
+#define STR_MANUF_90_Y      0
+
+#define STR_MODEL_0_X       88
+#define STR_MODEL_0_Y       100
+#define STR_MODEL_90_X      36
+#define STR_MODEL_90_Y      142
+
+#define STR_JOINED_0_X      80
+#define STR_JOINED_0_Y      160
+#define STR_JOINED_90_X     22
+#define STR_JOINED_90_Y     202
+
+#define STR_FW_0_X      299
+#define STR_FW_0_Y      290
+#define STR_FW_90_X     199
+#define STR_FW_90_Y     390
 
 typedef enum {
     APP_EPD_ROTATE_0 = 0,

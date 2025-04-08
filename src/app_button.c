@@ -3,6 +3,20 @@
 
 #include "app_main.h"
 
+bool factory_reset = false;
+
+int32_t delayedFactoryResetCb(void *arg) {
+
+    printf("2 factory reset\r\n");
+
+    zb_resetDevice2FN();
+
+    factory_reset = true;
+    g_appCtx.timerFactoryReset = NULL;
+
+    return -1;
+}
+
 static void buttonKeepPressed(uint8_t btNum) {
     g_appCtx.button[btNum-1].state = APP_FACTORY_NEW_DOING;
     g_appCtx.button[btNum-1].ctn = 0;
@@ -11,22 +25,24 @@ static void buttonKeepPressed(uint8_t btNum) {
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("The button was keep pressed for 5 seconds\r\n");
 #endif
-//        light_blink_stop();
-//        light_blink_start(1, 1500, 1);
+        led_blink_stop();
+        led_blink_start(20, 5, 1500, LED_ON_R);
 
-        if(!zb_isDeviceJoinedNwk()) {
-            if (g_appCtx.timerFactoryReset) {
-                TL_ZB_TIMER_CANCEL(&g_appCtx.timerFactoryReset);
+        if (zb_getLocalShortAddr() == 0xFFFF) {
+            if (!factory_reset) {
+                printf("addr == ffff, fr: %d\r\n", factory_reset);
+                factory_reset = true;
                 zb_resetDevice2FN();
             }
-            return;
+        } else {
+            printf("1 factory reset\r\n");
+            zb_resetDevice2FN();
+            if (g_appCtx.timerFactoryReset) {
+                TL_ZB_TIMER_CANCEL(&g_appCtx.timerFactoryReset);
+            }
+            g_appCtx.timerFactoryReset = TL_ZB_TIMER_SCHEDULE(delayedFactoryResetCb, NULL, TIMEOUT_5SEC);
         }
 
-        zb_resetDevice2FN();
-        if (g_appCtx.timerFactoryReset) {
-            TL_ZB_TIMER_CANCEL(&g_appCtx.timerFactoryReset);
-        }
-        g_appCtx.timerFactoryReset = TL_ZB_TIMER_SCHEDULE(delayedFactoryResetCb, NULL, TIMEOUT_5SEC);
     }
 }
 

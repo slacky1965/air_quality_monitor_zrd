@@ -33,6 +33,13 @@ typedef struct{
 }zcl_identifyAttr_t;
 
 /**
+ *  @brief Defined for diagnostics cluster attributes
+ */
+typedef struct{
+    uint8_t lastMessageLQI;
+}zcl_diagnosticsAttr_t;
+
+/**
  *  @brief Defined for group cluster attributes
  */
 typedef struct{
@@ -76,5 +83,8 @@ extern zcl_identifyAttr_t g_zcl_identifyAttrs;
 extern zcl_groupAttr_t g_zcl_group1Attrs;
 extern zcl_sceneAttr_t g_zcl_scene1Attrs;
 extern zcl_co2Attr_t g_zcl_co2Attrs;
+extern zcl_diagnosticsAttr_t g_zcl_diagnosticsAttrs;
+
+int32_t app_diagnostics_cmdCb(void *arg);
 
 #endif /* SRC_INCLUDE_APP_ENDPOINT_CFG_H_ */

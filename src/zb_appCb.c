@@ -123,6 +123,7 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork) {
          *
          */
         if (joinedNetwork) {
+            factory_reset = false;
             zb_setPollRate(POLL_RATE * 3);
 #ifdef ZCL_OTA
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
@@ -203,6 +204,10 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
 
     switch (status) {
         case BDB_COMMISSION_STA_SUCCESS:
+            factory_reset = false;
+            led_blink_stop();
+            led_blink_start(1, 1000, 1, LED_ON_G);
+
             zb_setPollRate(POLL_RATE * 3);
 
             if(steerTimerEvt){
@@ -400,7 +405,7 @@ void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
  */
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-    //printf("app_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
+    printf("app_leaveIndHandler, rejoin = %d\r\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
 }
 

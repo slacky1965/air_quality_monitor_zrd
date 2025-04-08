@@ -128,8 +128,12 @@ void user_app_init(void)
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&app_ep1Desc, &app_otaInfo, &app_otaCb);
 #endif
 
-    TL_ZB_TIMER_SCHEDULE(app_time_cmdCb, NULL, TIMEOUT_10SEC);
-    app_epd_init();
+//    TL_ZB_TIMER_SCHEDULE(app_time_cmdCb, NULL, TIMEOUT_10SEC);
+//    app_epd_init();
+
+//    TL_ZB_TIMER_SCHEDULE(app_diagnostics_cmdCb, NULL, TIMEOUT_10SEC);
+
+    app_i2c_init();
 }
 
 void app_task(void) {
@@ -171,6 +175,7 @@ void user_init(bool isRetention) {
     (void)isRetention;
 
     start_message();
+    led_init();
 
     /* Initialize Stack */
     stack_init();

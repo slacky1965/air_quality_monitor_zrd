@@ -55,7 +55,7 @@ extern "C" {
  */
 
 #define ZCL_BASIC_MFG_NAME     {10,'S','l','a','c','k','y','-','D','I','Y'}
-#define ZCL_BASIC_MODEL_ID     {16, 'A','i','r','Q','_','M','o','n','i','t','o','r','_','r','0','1'}
+#define ZCL_BASIC_MODEL_ID     {16, 'A','i','r','Q','_','M','o','n','i','t','o','r','_','S','0','1'}
 
 
 /**********************************************************************
@@ -196,6 +196,7 @@ extern "C" {
 #define ZCL_GP_SUPPORT                              ON
 #define ZCL_TIME_SUPPORT                            ON
 #define ZCL_CO2_MEASUREMENT_SUPPORT                 ON
+#define ZCL_DIAGNOSTICS_SUPPORT                     ON
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT               ON
 #endif

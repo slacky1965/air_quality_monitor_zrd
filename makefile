@@ -54,6 +54,7 @@ INCLUDE_PATHS := \
 -I$(SRC_PATH)/common \
 -I$(SRC_PATH)/zcl \
 -I$(SRC_PATH)/epaper \
+-I$(SRC_PATH)/bme280 \
 -I./common
  
 

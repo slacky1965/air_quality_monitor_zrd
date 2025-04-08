@@ -33,10 +33,10 @@ enum {
 /************************ Configure SPI and other for EPD ***************************/
 
 /* Reset pin */
-#define EPD_RST                 GPIO_PC0
-#define PC0_FUNC                AS_GPIO
-#define PC0_OUTPUT_ENABLE       ON
-#define PC0_INPUT_ENABLE        OFF
+#define EPD_RST                 GPIO_PD4
+#define PD4_FUNC                AS_GPIO
+#define PD4_OUTPUT_ENABLE       ON
+#define PD4_INPUT_ENABLE        OFF
 
 /* Busy pin */
 #define EPD_BUSY                GPIO_PB5
@@ -78,20 +78,25 @@ enum {
 #define PD7_FUNC                AS_GPIO
 #define PD7_OUTPUT_ENABLE       ON
 #define PD7_INPUT_ENABLE        OFF
-#else
-#define LED_STATUS              GPIO_PB4
-#define PB4_FUNC                AS_GPIO
-#define PB4_OUTPUT_ENABLE       ON
-#define PB4_INPUT_ENABLE        OFF
-#endif
-
-#define LED_POWER               GPIO_PC2
-#define PC2_FUNC                AS_GPIO
-#define PC2_OUTPUT_ENABLE       ON
-#define PC2_INPUT_ENABLE        OFF
 
 #define LED_PERMIT              LED_STATUS
+#else
 
+#define LED_RED                 GPIO_PC0
+#define PC0_FUNC                AS_GPIO
+#define PC0_OUTPUT_ENABLE       ON
+#define PC0_INPUT_ENABLE        OFF
+
+#define LED_GREEN               GPIO_PC1
+#define PC1_FUNC                AS_GPIO
+#define PC1_OUTPUT_ENABLE       ON
+#define PC1_INPUT_ENABLE        OFF
+
+#define LED_BLUE                GPIO_PD3
+#define PD3_FUNC                AS_GPIO
+#define PD3_OUTPUT_ENABLE       ON
+#define PD3_INPUT_ENABLE        OFF
+#endif
 
 ///************************* Configure Temperature ***********************************/
 //#define GPIO_TEMP               GPIO_PC3

@@ -45,8 +45,8 @@
 void start_message();
 int32_t poll_rateAppCb(void *arg);
 int32_t delayedMcuResetCb(void *arg);
-int32_t delayedFactoryResetCb(void *arg);
 int32_t delayedFullResetCb(void *arg);
+int32_t delayedFactoryResetCb(void *arg);
 uint8_t *itoa(uint32_t value, uint8_t *ptr);
 //char *strcat(char *str1, const char str2);
 uint32_t reverse32(uint32_t in);

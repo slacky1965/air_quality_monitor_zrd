@@ -89,9 +89,9 @@
 /******************************************************************************/
 #ifndef BME280_64BIT_ENABLE /*< Check if 64-bit integer (using BME280_64BIT_ENABLE) is enabled */
 #ifndef BME280_32BIT_ENABLE /*< Check if 32-bit integer (using BME280_32BIT_ENABLE) is enabled */
-#ifndef BME280_DOUBLE_ENABLE /*< If any of the integer data types not enabled then enable BME280_DOUBLE_ENABLE */
-#define BME280_DOUBLE_ENABLE
-#endif
+//#ifndef BME280_DOUBLE_ENABLE /*< If any of the integer data types not enabled then enable BME280_DOUBLE_ENABLE */
+//#define BME280_DOUBLE_ENABLE
+//#endif
 #endif
 #endif
 

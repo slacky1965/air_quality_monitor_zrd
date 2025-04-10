@@ -69,6 +69,8 @@ enum {
 #define EPD_SPI_PIN_GROUP      SPI_GPIO_GROUP_B6B7D2D7
 #define EPD_SPI_PIN_CS         EPD_CS
 
+#define PULL_WAKEUP_SRC_PC2     PM_PIN_PULLUP_10K //PM_PIN_PULLUP_1M //
+#define PULL_WAKEUP_SRC_PC3     PM_PIN_PULLUP_10K //PM_PIN_PULLUP_1M //
 
 
 /********************* Configure fake LED for bootloader ***************************/
@@ -78,6 +80,11 @@ enum {
 #define PD7_FUNC                AS_GPIO
 #define PD7_OUTPUT_ENABLE       ON
 #define PD7_INPUT_ENABLE        OFF
+
+#define LED_POWER               GPIO_PC0
+#define PC0_FUNC                AS_GPIO
+#define PC0_OUTPUT_ENABLE       ON
+#define PC0_INPUT_ENABLE        OFF
 
 #define LED_PERMIT              LED_STATUS
 #else

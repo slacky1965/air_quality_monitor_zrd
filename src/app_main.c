@@ -134,6 +134,8 @@ void user_app_init(void)
 //    TL_ZB_TIMER_SCHEDULE(app_diagnostics_cmdCb, NULL, TIMEOUT_10SEC);
 
     app_i2c_init();
+//    init_i2c();
+//    bme280_init();
 }
 
 void app_task(void) {

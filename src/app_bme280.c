@@ -1,6 +1,8 @@
 #include "app_main.h"
 #include "app_bme280.h"
 
+#define SAMPLE_COUNT  UINT8_C(3)
+
 static struct bme280_dev dev;
 static struct bme280_data comp_data;
 static struct bme280_settings settings;
@@ -44,6 +46,7 @@ static void bme280_error_codes_print_result(const char api_name[], int8_t rslt) 
 
 
 void app_bme280_init() {
+
     dev_addr = BME280_I2C_ADDR_PRIM; //BME280_I2C_ADDR_SEC; //
     dev.intf_ptr = &dev_addr;
     dev.intf = BME280_I2C_INTF;
@@ -54,16 +57,38 @@ void app_bme280_init() {
     rslt = bme280_init(&dev);
     bme280_error_codes_print_result("bme280_init", rslt);
 
+    /* Always read the current settings before writing, especially when all the configuration is not modified */
+    rslt = bme280_get_sensor_settings(&settings, &dev);
+    bme280_error_codes_print_result("bme280_get_sensor_settings", rslt);
+
+    /* Configuring the over-sampling rate, filter coefficient and standby time */
+    /* Overwrite the desired settings */
+    settings.filter = BME280_FILTER_COEFF_2;
+
+//    /* Over-sampling rate for humidity, temperature and pressure */
+//    settings.osr_h = BME280_OVERSAMPLING_1X;
+//    settings.osr_p = BME280_OVERSAMPLING_1X;
+//    settings.osr_t = BME280_OVERSAMPLING_1X;
+
     settings.osr_h = BME280_OVERSAMPLING_1X;
     settings.osr_p = BME280_OVERSAMPLING_16X;
     settings.osr_t = BME280_OVERSAMPLING_2X;
     settings.filter = BME280_FILTER_COEFF_16;
+//    rslt = bme280_set_sensor_settings(BME280_OSR_PRESS_SEL | BME280_OSR_TEMP_SEL | BME280_OSR_HUM_SEL | BME280_FILTER_SEL, &dev);
 
-//    /* Setting the standby time */
-//    settings.standby_time = BME280_STANDBY_TIME_0_5_MS;
+
+    /* Setting the standby time */
+    settings.standby_time = BME280_STANDBY_TIME_0_5_MS;
 
     rslt = bme280_set_sensor_settings(BME280_SEL_ALL_SETTINGS, &settings, &dev);
     bme280_error_codes_print_result("bme280_set_sensor_settings", rslt);
+
+//    /* Always set the power mode after setting the configuration */
+//    rslt = bme280_set_sensor_mode(BME280_POWERMODE_NORMAL, &dev);
+//    bme280_error_codes_print_result("bme280_set_power_mode", rslt);
+
+    rslt = bme280_set_sensor_mode(BME280_POWERMODE_FORCED, &dev);
+    bme280_error_codes_print_result("bme280_set_power_mode", rslt);
 
 }
 
@@ -73,20 +98,8 @@ int8_t bme280_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *
 
     printf("bme280_i2c_read. reg_addr: 0x%x\r\n", reg_addr);
 
-//    drv_i2c_write_byte(dev_addr, I2C_SLAVE_ADDR, I2C_SLAVE_ADDR_LEN, reg_addr);
-    drv_i2c_write_series(dev_addr, 0, 0, &reg_addr, 1);
-
-    dev.delay_us(100, intf_ptr);
-
-    drv_i2c_read_series(dev_addr, 0, 0, reg_data, len);
-//    *reg_data = drv_i2c_read_byte(dev_addr, reg_addr, 1);
-
-//    drv_i2c_read_series(dev_addr, reg_addr, 1, reg_data, len);
+    drv_i2c_read_series(dev_addr << 1, reg_addr, 1, reg_data, len);
     printf("reg_data: 0x%x\r\n", *reg_data);
-//    uint8_t buffer[6];
-//    buffer[0] = reg_addr;
-//    i2c_set_id(dev_addr);
-//    i2c_write_series(0, 0, buffer, 1);
     return 0;
 }
 
@@ -94,7 +107,15 @@ int8_t bme280_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
 
     dev_addr = *(uint8_t*)intf_ptr;
 
-    drv_i2c_write_series(dev_addr, reg_addr, 1, (uint8_t*)reg_data, len);
+    printf("bme280_i2c_write. reg_addr: 0x%x\r\n", reg_addr);
+    drv_i2c_write_series(dev_addr << 1, reg_addr, 1, (uint8_t*)reg_data, len);
+    printf("reg_data: 0x");
+    for (uint8_t i = 0; i < len; i++) {
+        if (reg_data[i] < 0x10)
+            printf("0");
+        printf("%x", reg_data[i]);
+    }
+    printf("\r\n");
     return 0;
 }
 
@@ -102,10 +123,46 @@ void bme280_delay_us(uint32_t period, void *intf_ptr) {
   sleep_us(period);
 }
 
-void app_test_bme280() {
+/*!
+ *  @brief This internal API is used to get compensated temperature data.
+ */
+static int8_t get_temperature(uint32_t period, struct bme280_dev *dev)
+{
+    int8_t rslt = BME280_E_NULL_PTR;
+    int8_t idx = 0;
+    uint8_t status_reg;
 
-    rslt = bme280_set_sensor_mode(BME280_POWERMODE_FORCED, &dev);
-    bme280_error_codes_print_result("bme280_set_power_mode", rslt);
+    while (idx < SAMPLE_COUNT)
+    {
+        rslt = bme280_get_regs(BME280_REG_STATUS, &status_reg, 1, dev);
+        bme280_error_codes_print_result("bme280_get_regs", rslt);
+
+        if (status_reg & BME280_STATUS_MEAS_DONE)
+        {
+            /* Measurement time delay given to read sample */
+            dev->delay_us(period, dev->intf_ptr);
+
+            /* Read compensated data */
+            rslt = bme280_get_sensor_data(BME280_TEMP, &comp_data, dev);
+            bme280_error_codes_print_result("bme280_get_sensor_data", rslt);
+
+#ifndef BME280_DOUBLE_ENABLE
+            comp_data.temperature = comp_data.temperature / 100;
+#endif
+
+#ifdef BME280_DOUBLE_ENABLE
+            printf("Temperature[%d]:   %lf deg C\n", idx, comp_data.temperature);
+#else
+            printf("Temperature[%d]:   %d deg C\n", idx, (long int)comp_data.temperature);
+#endif
+            idx++;
+        }
+    }
+
+    return rslt;
+}
+
+void app_test_bme280() {
 
     dev.delay_us(40000, dev.intf_ptr);
 
@@ -113,8 +170,27 @@ void app_test_bme280() {
     bme280_error_codes_print_result("bme280_get_sensor_data", rslt);
 
     if(rslt == BME280_OK) {
+        printf("comp_data.temperature: %d\r\n", comp_data.temperature);
+//        printf("comp_data.humidity: %d\r\n", comp_data.humidity);
+//        printf("comp_data.pressure: %d\r\n", comp_data.pressure);
 //        temperature = comp_data.temperature / 100.0; /* °C  */
 //        humidity = comp_data.humidity / 1024.0; /* %   */
 //        pressure = comp_data.pressure / 10000.0; /* hPa */
     }
+
+//    uint32_t period;
+//
+//    /* Calculate measurement time in microseconds */
+//    rslt = bme280_cal_meas_delay(&period, &settings);
+//    bme280_error_codes_print_result("bme280_cal_meas_delay", rslt);
+//
+//    printf("\nTemperature calculation (Data displayed are compensated values)\n");
+//    printf("Measurement time : %d us\r\n\r\n", (long unsigned int)period);
+//
+//
+//    rslt = get_temperature(period, &dev);
+//    bme280_error_codes_print_result("get_temperature", rslt);
+
+
 }
+

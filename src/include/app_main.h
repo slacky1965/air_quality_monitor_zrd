@@ -13,6 +13,7 @@
 #include "app_utility.h"
 #include "app_endpoint_cfg.h"
 #include "app_epd.h"
+//#include "i2c.h"
 #include "app_i2c.h"
 #include "app_bme280.h"
 #include "app_co2sensor.h"

@@ -1,5 +1,6 @@
 #include "epaper.h"
-#include "epdfont.h"
+#include "app_button.h"
+
 
 #define epd_delay(a) sleep_ms(a)
 
@@ -80,6 +81,7 @@ uint8_t epd_wait_busy() {
             printf("timeout exit 1: %d\r\n", timeout);
             return 1;
         }
+        button_handler();
         epd_delay(1);
     }
 //    printf("timeout exit 0: %d\r\n", timeout);
@@ -594,82 +596,88 @@ void epd_paint_drawCircle(uint16_t X_Center, uint16_t Y_Center, uint16_t Radius,
     }
 }
 
-void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, uint16_t size1, uint16_t color) {
-    uint16_t i, m, temp, size2, chr1;
-    uint16_t x0, y0;
-    x += 1, y += 1, x0 = x, y0 = y;
+void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, sFont *font, uint16_t color) {
+    uint16_t i, j;
+    unsigned int char_offset = (chr - ' ') * font->height * (font->width / 8 + (font->width % 8 ? 1 : 0));
+    const unsigned char* ptr = &font->table[char_offset];
+
     if (EPD_Paint.Rotate == EPD_ROTATE_90 || EPD_Paint.Rotate == EPD_ROTATE_270) {
-        if (x - size1 > EPD_W)
+        if (x + font->width > EPD_W)
+            return;
+        if (y + font->height > EPD_H)
             return;
     } else {
-        if (x - size1 > EPD_H)
+        if (x + font->width > EPD_H)
+            return;
+        if (y + font->height > EPD_W)
             return;
     }
-    if (size1 == 8)
-        size2 = 6;
-//    else if (size1 == 36)
-//        size2 = 108;
-    else
-        size2 = (size1 / 8 + ((size1 % 8) ? 1 : 0)) * (size1 / 2);
-    chr1 = chr - ' ';
 
-//    printf("size2: %d\r\n", size2);
-    for (i = 0; i < size2; i++) {
-        if (size1 == 8) {
-            temp = asc2_0806[chr1][i];
-        } // 0806
-        else if (size1 == 12) {
-            temp = asc2_1206[chr1][i];
-        } // 1206
-        else if (size1 == 16) {
-            temp = asc2_1608[chr1][i];
-        } // 1608
-        else if (size1 == 24) {
-            temp = asc2_2412[chr1][i];
-        } // 2412
-        else
-            return;
-        for (m = 0; m < 8; m++) {
-            if (temp & 0x01)
-                epd_paint_drawPoint(x, y, color);
-            else
-                epd_paint_drawPoint(x, y, !color);
-            temp >>= 1;
-            y++;
+    x += 1, y += 1;
+
+    for (j = 0; j < font->height; j++) {
+        button_handler();
+        for (i = 0; i < font->width; i++) {
+            if (*ptr & (0x80 >> (i % 8))) {
+                epd_paint_drawPoint(x+i, y+j, color);
+            } else {
+                epd_paint_drawPoint(x+i, y+j, !color);
+            }
+            if (i % 8 == 7) {
+                ptr++;
+            }
         }
-        x++;
-        if ((size1 != 8) && ((x - x0) == size1 / 2)) {
-            x = x0;
-            y0 = y0 + 8;
+        if (font->width % 8 != 0) {
+            ptr++;
         }
-        y = y0;
     }
 }
 
-void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, uint16_t size1, uint16_t color) {
-    while (*chr != '\0') {
-        epd_paint_showChar(x, y, *chr, size1, color);
-        chr++;
-        if (size1 == 8) {
-            x += 6;
-            if (EPD_Paint.Rotate == EPD_ROTATE_90 || EPD_Paint.Rotate == EPD_ROTATE_270) {
-                if (x > EPD_W - 6)
-                    break;
-            } else {
-                if (x > EPD_H - 6)
-                    break;
-            }
-        } else {
-            x += size1 / 2;
-            if (EPD_Paint.Rotate == EPD_ROTATE_90 || EPD_Paint.Rotate == EPD_ROTATE_270) {
-                if (x > EPD_W - size1 / 2)
-                    break;
-            } else {
-                if (x > EPD_H - size1 / 2)
-                    break;
-            }
-        }
+void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *text, sFont *font, uint16_t color) {
+
+    uint8_t *p_text = text;
+    uint16_t counter = 0;
+    uint16_t refcolumn = x;
+
+    /* Send the string character by character on EPD */
+    while (*p_text != 0) {
+        /* Display one character on EPD */
+        epd_paint_showChar(refcolumn, y, *p_text, font, color);
+        /* Decrement the column position by 16 */
+        if (font->width > 9)
+            refcolumn += font->width-2;
+        else
+            refcolumn += font->width;
+        /* Point on the next character */
+        p_text++;
+        counter++;
     }
+
+
+//    uint16_t size1 = font->height;
+//    while (*chr != '\0') {
+//        epd_paint_showChar(x, y, *chr, font, color);
+//        chr++;
+//        if (size1 == 8) {
+//            x += 6;
+//            if (EPD_Paint.Rotate == EPD_ROTATE_90 || EPD_Paint.Rotate == EPD_ROTATE_270) {
+//                if (x > EPD_W - 6)
+//                    break;
+//            } else {
+//                if (x > EPD_H - 6)
+//                    break;
+//            }
+//        } else {
+//            x += size1 / 2;
+//            if (EPD_Paint.Rotate == EPD_ROTATE_90 || EPD_Paint.Rotate == EPD_ROTATE_270) {
+//                if (x > EPD_W - size1 / 2)
+//                    break;
+//            } else {
+//                if (x > EPD_H - size1 / 2)
+//                    break;
+//            }
+//        }
+//    }
 }
 
 // m^n
@@ -681,57 +689,21 @@ static uint32_t _Pow(uint16_t m, uint16_t n) {
     return result;
 }
 
-void epd_paint_showNum(uint16_t x, uint16_t y, uint32_t num, uint16_t len, uint16_t size1, uint16_t color) {
+void epd_paint_showNum(uint16_t x, uint16_t y, uint32_t num, uint16_t len, sFont *font, uint16_t color) {
+    uint16_t size1 = font->height;
     uint8_t t, temp, m = 0;
     if (size1 == 8)
         m = 2;
     for (t = 0; t < len; t++) {
         temp = (num / _Pow(10, len - t - 1)) % 10;
         if (temp == 0) {
-            epd_paint_showChar(x + (size1 / 2 + m) * t, y, '0', size1, color);
+            epd_paint_showChar(x + (size1 / 2 + m) * t, y, '0', font, color);
         } else {
-            epd_paint_showChar(x + (size1 / 2 + m) * t, y, temp + '0', size1,
-                    color);
+            epd_paint_showChar(x + (size1 / 2 + m) * t, y, temp + '0', font, color);
         }
     }
 }
 
-//void epd_paint_showChinese(uint16_t x, uint16_t y, uint16_t num, uint16_t size1, uint16_t color) {
-//    uint16_t m, temp;
-//    uint16_t x0, y0;
-//    uint16_t i, size3 = (size1 / 8 + ((size1 % 8) ? 1 : 0)) * size1;
-//    x += 1, y += 1, x0 = x, y0 = y;
-//    for (i = 0; i < size3; i++) {
-//        if (size1 == 16) {
-//            temp = Hzk1[num][i];
-//        } // 16*16
-//        else if (size1 == 24) {
-//            temp = Hzk2[num][i];
-//        } // 24*24
-//        else if (size1 == 32) {
-//            temp = Hzk3[num][i];
-//        } // 32*32
-//        else if (size1 == 64) {
-//            temp = Hzk4[num][i];
-//        } // 64*64
-//        else
-//            return;
-//        for (m = 0; m < 8; m++) {
-//            if (temp & 0x01)
-//                epd_paint_drawPoint(x, y, color);
-//            else
-//                epd_paint_drawPoint(x, y, !color);
-//            temp >>= 1;
-//            y++;
-//        }
-//        x++;
-//        if ((x - x0) == size1) {
-//            x = x0;
-//            y0 = y0 + 8;
-//        }
-//        y = y0;
-//    }
-//}
 
 void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color) {
     uint16_t j = 0;
@@ -740,6 +712,7 @@ void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t size
     x += 1, y += 1, x0 = x, y0 = y;
     sizey = sizey / 8 + ((sizey % 8) ? 1 : 0);
     for (n = 0; n < sizey; n++) {
+        button_handler();
         for (i = 0; i < sizex; i++) {
             temp = BMP[j];
             j++;

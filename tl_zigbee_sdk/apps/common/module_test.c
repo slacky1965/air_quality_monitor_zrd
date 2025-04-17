@@ -637,7 +637,7 @@ void moduleTest_pwm(void){
 #endif
 #endif
 
-#define MODULE_TEST_SPI 	1
+#define MODULE_TEST_SPI 	0
 
 #if MODULE_TEST_SPI
 /*********************************************
@@ -798,7 +798,7 @@ void moduleTest_spi(void){
 #endif
 
 
-#define MODULE_TEST_I2C		1
+#define MODULE_TEST_I2C		0
 
 #if MODULE_TEST_I2C
 

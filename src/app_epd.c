@@ -1,6 +1,7 @@
 #include "app_main.h"
 
 #include "epaper.h"
+//#include "epdfont.h"
 #include "bmp.h"
 #include "app_epd.h"
 #include "app_epd_images.h"
@@ -12,12 +13,14 @@ static uint16_t real_rotate = EPD_ROTATE_270;
 
 static uint8_t minutes = 61;
 
+static bool show_logo = false;
+
 static epd_screen_variable_t epd_screen_variable = {
         .minutes = 61,
-        .temp_in = 0,
-        .temp_out = 0,
-        .humidity_in = 0,
-        .humidity_out = 0,
+        .temp_in = 0x8000,
+        .temp_out = 0x8000,
+        .humidity_in = 0xffff,
+        .humidity_out = 0xffff,
         .pressure = 0,
         .level = 6,
         .zbIcon = false,
@@ -38,20 +41,24 @@ static void epd_screen_var(void *args) {
 
     uint16_t attr_len;
     uint32_t counter;
+    int16_t temp;
+    uint16_t rh;
     uint8_t lqi;
     status_t ret;
 
-    /*                    0123456789012345678901*/
-    uint8_t datetime[] = "01-01-2025  Wed  10:00";
+    /*                    01234567890123456789*/
+    uint8_t datetime[] = "01-01-2025 Wed 10:00";
     uint8_t idx;
 
     uint8_t zb_clear[] = "   ";
 
     uint8_t color;
-    uint8_t refresh = 0;
+    uint32_t refresh = 0;
 
     uint8_t wday_str[][4] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
     uint8_t *p_wday_str;
+
+    button_handler();
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
         color = EPD_COLOR_BLACK;
@@ -81,12 +88,10 @@ static void epd_screen_var(void *args) {
             datetime[idx++] = (m / 10) + 0x30;
             datetime[idx++] = (m % 10) + 0x30;
             datetime[idx++] = ' ';
-            datetime[idx++] = ' ';
             p_wday_str = wday_str[ftime->wday];
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str;
-            datetime[idx++] = ' ';
             datetime[idx++] = ' ';
             datetime[idx++] = (ftime->hour / 10) + 0x30;
             datetime[idx++] = (ftime->hour % 10) + 0x30;
@@ -96,9 +101,9 @@ static void epd_screen_var(void *args) {
             datetime[idx] = 0;
 
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(DATETIME_0_X, DATETIME_0_Y, datetime, EPD_FONT_SIZE24x12, color);
+                epd_paint_showString(DATETIME_0_X, DATETIME_0_Y, datetime, &font26, color);
             } else {
-                epd_paint_showString(DATETIME_90_X, DATETIME_90_Y, datetime, EPD_FONT_SIZE24x12, color);
+                epd_paint_showString(DATETIME_90_X, DATETIME_90_Y, datetime, &font26, color);
             }
             refresh |= 0x01;
         }
@@ -107,9 +112,14 @@ static void epd_screen_var(void *args) {
 
     uint16_t sh_addr = zb_getLocalShortAddr();
 
-    if (sh_addr != 0xFFFF) {
+    if (sh_addr < 0xFFF8) {
 
         led_blink_stop();
+
+//        if (!config.joined) {
+//            config.joined = true;
+//            config_save();
+//        }
 
 //        printf("zb_getLocalShortAddr != ffff: 0x%x\r\n", sh_addr);
 
@@ -134,6 +144,11 @@ static void epd_screen_var(void *args) {
 
     } else {
 
+//        if (config.joined) {
+//            config.joined = false;
+//            config_save();
+//        }
+
 //        printf("zb_getLocalShortAddr == ffff: 0x%x\r\n", sh_addr);
         if (epd_screen_variable.zbIcon) {
 //            printf("epd_screen_variable.zbIcon\r\n");
@@ -142,15 +157,17 @@ static void epd_screen_var(void *args) {
                 TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
             }
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(ZB_0_X, ZB_0_Y, zb_clear, EPD_FONT_SIZE24x12, color);
+                epd_paint_showString(ZB_0_X, ZB_0_Y, zb_clear, &font24, color);
             } else {
-                epd_paint_showString(ZB_90_X, ZB_90_Y, zb_clear, EPD_FONT_SIZE24x12, color);
+                epd_paint_showString(ZB_90_X, ZB_90_Y, zb_clear, &font24, color);
             }
             refresh |= 0x02;
         }
 
 
     }
+
+    button_handler();
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_DIAGNOSTICS, ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI, &attr_len, (uint8_t*)&lqi);
 
@@ -192,6 +209,81 @@ static void epd_screen_var(void *args) {
         }
     }
 
+    ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, &attr_len, (uint8_t*)&temp);
+
+    if (ret == ZCL_STA_SUCCESS && epd_screen_variable.temp_in != temp) {
+        epd_screen_variable.temp_in = temp;
+
+        temp /= 100;
+        if (epd_screen_variable.temp_in % 100 >= 50)
+            temp++;
+
+        uint8_t str_temp[5] = {0};
+        uint8_t *str = itoa(temp, str_temp);
+
+        uint8_t str_degree[] = "@C";
+
+        if (str) {
+            if (config.inversion == APP_EPD_INVERSION_OFF) {
+                color = EPD_COLOR_BLACK;
+            } else {
+                color = EPD_COLOR_WHITE;
+            }
+
+            if (config.rotate == APP_EPD_ROTATE_0) {
+                epd_paint_showString(STR_TEMP_IN_0_X, STR_TEMP_IN_0_Y, str_temp, &font58, color);
+                epd_paint_showString(STR_DEGREE_IN_0_X, STR_DEGREE_IN_0_Y, str_degree, &font24, color);
+            } else {
+                epd_paint_showString(STR_TEMP_IN_90_X, STR_TEMP_IN_90_Y, str_temp, &font68, color);
+                epd_paint_showString(STR_DEGREE_IN_90_X, STR_DEGREE_IN_90_Y, str_degree, &font24, color);
+            }
+
+            refresh |= 0x08;
+        }
+    }
+
+    button_handler();
+
+    ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, ZCL_ATTRID_HUMIDITY_MEASUREDVALUE, &attr_len, (uint8_t*)&rh);
+
+    if (ret == ZCL_STA_SUCCESS && epd_screen_variable.humidity_in != rh) {
+        epd_screen_variable.humidity_in = rh;
+
+        rh /= 100;
+
+        if (epd_screen_variable.humidity_in % 100 >= 50)
+            rh++;
+
+        uint8_t str_hum[5] = {0};
+        uint8_t *str = itoa(rh, str_hum);
+
+        if (str) {
+            if (config.inversion == APP_EPD_INVERSION_OFF) {
+                color = EPD_COLOR_BLACK;
+            } else {
+                color = EPD_COLOR_WHITE;
+            }
+
+            uint8_t str_rh[] = "Rh";
+
+            if (config.rotate == APP_EPD_ROTATE_0) {
+                epd_paint_showString(STR_HUMIDITY_IN_0_X, STR_HUMIDITY_IN_0_Y, str_hum, &font58, color);
+                epd_paint_showString(STR_RH_IN_0_X, STR_RH_IN_0_Y, str_rh, &font24, color);
+                epd_paint_showChar(CH_PERCENT_0_X, CH_PERCENT_0_Y, '%', &font26, color);
+            } else {
+                epd_paint_showString(STR_HUMIDITY_IN_90_X, STR_HUMIDITY_IN_90_Y, str_hum, &font68, color);
+                epd_paint_showString(STR_RH_IN_90_X, STR_RH_IN_90_Y, str_rh, &font24, color);
+                epd_paint_showChar(CH_PERCENT_90_X, CH_PERCENT_90_Y, '%', &font26, color);
+            }
+
+            refresh |= 0x10;
+
+        }
+
+    }
+
+    button_handler();
+
     if (refresh) {
 //        printf("refresh: 0x%x\r\n", refresh);
 //        uint8_t ret = epd_init_partial();
@@ -220,7 +312,7 @@ static void epd_screen_var(void *args) {
 
 }
 
-static int32_t epd_screen_varCb(void *args) {
+int32_t epd_screen_varCb(void *args) {
 
     TL_SCHEDULE_TASK(epd_screen_var, NULL);
     return 0;
@@ -231,8 +323,8 @@ static void epd_screen_invar() {
     uint8_t color, clear;
     uint8_t external[] = EPD_EXTERNAL;
     uint8_t internal[] = EPD_INTERNAL;
-    uint8_t temp[] = EPD_TEMP;
-    uint8_t rh[] = EPD_RH;
+//    uint8_t temp[] = EPD_TEMP;
+//    uint8_t rh[] = EPD_RH;
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
         color = EPD_COLOR_BLACK;
@@ -251,19 +343,16 @@ static void epd_screen_invar() {
 //        epd_paint_drawLine(LINE1_0_X_START, LINE1_0_Y_START, LINE1_0_X_END, LINE1_0_Y_END, color);
         epd_paint_drawLine(LINE2_0_X_START, LINE2_0_Y_START, LINE2_0_X_END, LINE2_0_Y_END, color);
         epd_paint_drawLine(LINE3_0_X_START, LINE3_0_Y_START, LINE3_0_X_END, LINE3_0_Y_END, color);
-        epd_paint_showString(EXTERNAL_0_X, EXTERNAL_0_Y, external, EPD_FONT_SIZE24x12, color);
-        epd_paint_showString(INTERNAL_0_X, INTERNAL_0_Y, internal, EPD_FONT_SIZE24x12, color);
-//        epd_paint_showString(EXTERNAL_0_X, EXTERNAL_0_Y, external, EPD_FONT_SIZE36x22, EPD_COLOR_WHITE);
-//        epd_paint_showString(EXTERNAL_0_X, EXTERNAL_0_Y+10, external, EPD_FONT_SIZE12x6, color);
-//        epd_paint_showString(EXTERNAL_0_X, EXTERNAL_0_Y+30, external, EPD_FONT_SIZE16x8, color);
-//        epd_paint_showString(EXTERNAL_0_X, EXTERNAL_0_Y+60, external, EPD_FONT_SIZE24x12, color);
-
+        epd_paint_showString(EXTERNAL_0_X, EXTERNAL_0_Y, external, &font24, color);
+        epd_paint_showString(INTERNAL_0_X, INTERNAL_0_Y, internal, &font24, color);
     } else {
         epd_paint_drawRectangle(BORDER_90_X_START, BORDER_90_Y_START, BORDER_90_X_END, BORDER_90_Y_END, color, 0);
 //        epd_paint_drawLine(LINE1_90_X_START, LINE1_90_Y_START, LINE1_90_X_END, LINE1_90_Y_END, color);
         epd_paint_drawLine(LINE2_90_X_START, LINE2_90_Y_START, LINE2_90_X_END, LINE2_90_Y_END, color);
         epd_paint_drawLine(LINE3_90_X_START, LINE3_90_Y_START, LINE3_90_X_END, LINE3_90_Y_END, color);
         epd_paint_drawLine(LINE4_90_X_START, LINE4_90_Y_START, LINE4_90_X_END, LINE4_90_Y_END, color);
+        epd_paint_showString(EXTERNAL_90_X, EXTERNAL_90_Y, external, &font24, color);
+        epd_paint_showString(INTERNAL_90_X, INTERNAL_90_Y, internal, &font24, color);
     }
 
     epd_displayBW_partial(image_bw);
@@ -280,6 +369,8 @@ static void epd_logo() {
     uint8_t manufacturer[] = "Slacky-DIY";
     uint8_t joined1[] = "To connect to the ZigBee network,";
     uint8_t joined2[] = "press and hold the button for 5 seconds";
+    uint8_t joined3[] = "press and hold the button";
+    uint8_t joined4[] = "for 5 seconds";
     uint8_t color, clear;
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
@@ -297,24 +388,23 @@ static void epd_logo() {
     epd_paint_clear(clear);
 
     if (config.rotate == APP_EPD_ROTATE_0) {
-        epd_paint_showString(STR_MANUF_0_X, STR_MANUF_0_Y, manufacturer, EPD_FONT_SIZE16x8, color);
-        epd_paint_showString(STR_MODEL_0_X, STR_MODEL_0_Y, name, EPD_FONT_SIZE24x12, color);
-        epd_paint_showString(STR_JOINED_0_X, STR_JOINED_0_Y, joined1, EPD_FONT_SIZE16x8, color);
-        epd_paint_showString(STR_JOINED_0_X-22, STR_JOINED_0_Y+20, joined2, EPD_FONT_SIZE16x8, color);
-        epd_paint_showString(STR_FW_0_X, STR_FW_0_Y, vers, EPD_FONT_SIZE8x6, color);
+        epd_paint_showString(STR_MANUF_0_X, STR_MANUF_0_Y, manufacturer, &font16, color);
+        epd_paint_showString(STR_MODEL_0_X, STR_MODEL_0_Y, name, &font26, color);
+        epd_paint_showString(STR_JOINED_0_X, STR_JOINED_0_Y, joined1, &font13, color);
+        epd_paint_showString(STR_JOINED_0_X-26, STR_JOINED_0_Y+20, joined2, &font13, color);
+        epd_paint_showString(STR_FW_0_X-20, STR_FW_0_Y, vers, &font12, color);
     } else {
-        epd_paint_showString(STR_MANUF_90_X, STR_MANUF_90_Y, manufacturer, EPD_FONT_SIZE16x8, color);
-        epd_paint_showString(STR_MODEL_90_X, STR_MODEL_90_Y, name, EPD_FONT_SIZE24x12, color);
-        epd_paint_showString(STR_JOINED_90_X, STR_JOINED_90_Y, joined1, EPD_FONT_SIZE16x8, color);
-        epd_paint_showString(STR_JOINED_90_X-22, STR_JOINED_90_Y+20, joined2, EPD_FONT_SIZE16x8, color);
-        epd_paint_showString(STR_FW_90_X, STR_FW_90_Y, vers, EPD_FONT_SIZE8x6, color);
+        epd_paint_showString(STR_MANUF_90_X, STR_MANUF_90_Y, manufacturer, &font16, color);
+        epd_paint_showString(STR_MODEL_90_X, STR_MODEL_90_Y, name, &font26, color);
+        epd_paint_showString(STR_JOINED_90_X, STR_JOINED_90_Y, joined1, &font13, color);
+        epd_paint_showString(STR_JOINED_90_X+32, STR_JOINED_90_Y+20, joined3, &font13, color);
+        epd_paint_showString(STR_JOINED_90_X+82, STR_JOINED_90_Y+40, joined4, &font13, color);
+        epd_paint_showString(STR_FW_90_X, STR_FW_90_Y, vers, &font12, color);
     }
 
-//    epd_paint_showString(x+18, y+30, vers, EPD_FONT_SIZE24x12, color);
-//    epd_paint_showString(x, y+60, manufacturer, EPD_FONT_SIZE24x12, color);
     epd_displayBW_partial(image_bw);
 
-    sleep_ms(TIMEOUT_3SEC);
+    sleep_ms(TIMEOUT_5SEC);
 }
 
  static void epd_newimage() {
@@ -347,25 +437,16 @@ void app_epd_init() {
     epd_init_partial();
 
     //epd_newimage();
-
-    if (zb_getLocalShortAddr() == 0xFFFF) {
+    if (/*!config.joined*/zb_getLocalShortAddr() >= 0xFFF8) {
         epd_logo();
         epd_clear();
+        show_logo = true;
     }
+}
+
+void app_first_start_epd() {
 
     epd_screen_invar();
     epd_screen_var(NULL);
     TL_ZB_TIMER_SCHEDULE(epd_screen_varCb, NULL, TIMEOUT_10SEC);
-    //d_zb();
-
-//    for (uint16_t i = 0; i < sizeof(Font36_Table); i++) {
-//        if (i % 108 == 0) {
-//            printf("{0x%s%x,", Font36_Table[i]>0x0f?"":"0", Font36_Table[i]);
-//        } else if (i % 108 == 107) {
-//            printf("0x%s%x},\r\n", Font36_Table[i]>0x0f?"":"0", Font36_Table[i]);
-//        } else {
-//            printf("0x%s%x,", Font36_Table[i]>0x0f?"":"0", Font36_Table[i]);
-//        }
-//    }
 }
-

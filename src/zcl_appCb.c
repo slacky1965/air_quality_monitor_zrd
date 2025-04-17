@@ -235,7 +235,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
  */
 static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-    printf("app_zclDfltRspCmd\r\n");
+    //printf("app_zclDfltRspCmd\r\n");
 
 }
 
@@ -1030,6 +1030,43 @@ status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPa
 
 
 /*********************************************************************
+ * @fn      app_temperatureCb
+ *
+ * @brief   Handler for ZCL Temperature command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_temperatureCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+//    printf("app_tepmeratureCb. cmd: 0x%x\r\n", cmdId);
+
+    return ZCL_STA_SUCCESS;
+}
+
+
+/*********************************************************************
+ * @fn      app_humidityCb
+ *
+ * @brief   Handler for ZCL Humidity command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_humidityCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+//    printf("app_humidityCb. cmd: 0x%x\r\n", cmdId);
+
+    return ZCL_STA_SUCCESS;
+}
+
+/*********************************************************************
  * @fn      app_diagnosticsCb
  *
  * @brief   Handler for ZCL Time command.
@@ -1042,7 +1079,7 @@ status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPa
  */
 status_t app_diagnosticsCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
 
-    printf("app_diagnosticsCb. cmd: 0x%x\r\n", cmdId);
+    //printf("app_diagnosticsCb. cmd: 0x%x\r\n", cmdId);
 
     return ZCL_STA_SUCCESS;
 }
@@ -1077,7 +1114,7 @@ status_t app_diagnosticsCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void
 int32_t app_diagnostics_cmdCb(void *arg) {
 
 
-    printf("app_diagnostics_cmdCb()\r\n");
+    //printf("app_diagnostics_cmdCb()\r\n");
 
     if(zb_isDeviceJoinedNwk()) {
 
@@ -1096,9 +1133,9 @@ int32_t app_diagnostics_cmdCb(void *arg) {
 
         uint8_t apsCnt = 0;
         u8 dummy = 0x01;
-        u8 ret = af_dataSend(APP_ENDPOINT1, &dstEpInfo, 0x1234, 1, &dummy, &apsCnt);
+        /*u8 ret = */af_dataSend(APP_ENDPOINT1, &dstEpInfo, 0x1234, 1, &dummy, &apsCnt);
 
-        printf("af_dataSend ret: %d\r\n", ret);
+        //printf("af_dataSend ret: %d\r\n", ret);
 
 //
 //        zclAttrInfo_t *pAttrEntry;

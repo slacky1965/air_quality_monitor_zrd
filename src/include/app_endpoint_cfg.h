@@ -74,6 +74,23 @@ typedef struct {
     uint32_t time_local;
 } zcl_timeAttr_t;
 
+/**
+ *  @brief Defined for tempearute cluster attributes
+ */
+typedef struct {
+    int16_t value;
+    int16_t minValue;
+    int16_t maxValue;
+} zcl_temperatureAttr_t;
+
+/**
+ *  @brief Defined for humidity cluster attributes
+ */
+typedef struct {
+    int16_t value;
+    int16_t minValue;
+    int16_t maxValue;
+} zcl_humidityAttr_t;
 
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;
 
@@ -83,6 +100,8 @@ extern zcl_identifyAttr_t g_zcl_identifyAttrs;
 extern zcl_groupAttr_t g_zcl_group1Attrs;
 extern zcl_sceneAttr_t g_zcl_scene1Attrs;
 extern zcl_co2Attr_t g_zcl_co2Attrs;
+extern zcl_temperatureAttr_t g_zcl_temperatureAttrs;
+extern zcl_humidityAttr_t g_zcl_humidityAttrs;
 extern zcl_diagnosticsAttr_t g_zcl_diagnosticsAttrs;
 
 int32_t app_diagnostics_cmdCb(void *arg);

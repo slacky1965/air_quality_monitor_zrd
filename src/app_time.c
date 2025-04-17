@@ -124,7 +124,7 @@ int32_t app_time_cmdCb(void *arg) {
 
             ev_buf_free((uint8_t *)pReadCmd);
 
-            if (time_sent) return TIMEOUT_30MIN;
+            if (time_sent) return TIMEOUT_15MIN;
         }
 
     }

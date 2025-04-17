@@ -2,9 +2,11 @@
 #define SRC_INCLUDE_APP_CONFIG_H_
 
 typedef struct __attribute__((packed)) {
-    uint8_t rotate;
-    uint8_t inversion;
-    uint8_t crc;
+    uint8_t     rotate;
+    uint8_t     inversion;
+    uint16_t    mesurement_period;
+    uint8_t     joined;
+    uint8_t     crc;
 } config_t;
 
 extern config_t config;

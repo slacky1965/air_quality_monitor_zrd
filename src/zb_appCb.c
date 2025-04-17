@@ -405,7 +405,7 @@ void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
  */
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-    printf("app_leaveIndHandler, rejoin = %d\r\n", pLeaveInd->rejoin);
+    //printf("app_leaveIndHandler, rejoin = %d\r\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
 }
 

@@ -219,6 +219,8 @@ clean:
 clean-project:
 	-$(RM) $(FLASH_IMAGE) $(ELFS) $(SIZEDUMMY) $(LST_FILE) $(ELF_FILE) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin $(BIN_PATH)/*.zigbee
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/epaper/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/bme280/*.o
 	-@echo ' '
 	
 pre-build:

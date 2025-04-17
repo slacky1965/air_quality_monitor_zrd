@@ -7,8 +7,6 @@ bool factory_reset = false;
 
 int32_t delayedFactoryResetCb(void *arg) {
 
-    printf("2 factory reset\r\n");
-
     zb_resetDevice2FN();
 
     factory_reset = true;
@@ -28,14 +26,12 @@ static void buttonKeepPressed(uint8_t btNum) {
         led_blink_stop();
         led_blink_start(20, 5, 1500, LED_ON_R);
 
-        if (zb_getLocalShortAddr() == 0xFFFF) {
+        if (zb_getLocalShortAddr() >= 0xFFF8) {
             if (!factory_reset) {
-                printf("addr == ffff, fr: %d\r\n", factory_reset);
                 factory_reset = true;
                 zb_resetDevice2FN();
             }
         } else {
-            printf("1 factory reset\r\n");
             zb_resetDevice2FN();
             if (g_appCtx.timerFactoryReset) {
                 TL_ZB_TIMER_CANCEL(&g_appCtx.timerFactoryReset);
@@ -60,6 +56,15 @@ static void buttonCheckCommand(uint8_t btNum) {
         config.rotate = ~config.rotate;
         config.rotate &= 0x01;
         printf("config rotate: %d\r\n", config.rotate);
+        config_save();
+        zb_resetDevice();
+    } else if (g_appCtx.button[btNum-1].ctn == 3) {
+#if UART_PRINTF_MODE && DEBUG_BUTTON
+        printf("Button push 3 times. Inversion\r\n");
+#endif
+        config.inversion = ~config.inversion;
+        config.inversion &= 0x01;
+        printf("config inversion: %d\r\n", config.inversion);
         config_save();
         zb_resetDevice();
     }

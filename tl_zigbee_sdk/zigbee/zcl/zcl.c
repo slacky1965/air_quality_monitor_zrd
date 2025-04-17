@@ -1075,8 +1075,6 @@ _CODE_ZCL_ zclReadCmd_t *zcl_parseInReadCmd(zclIncoming_t *pCmd)
 
 _CODE_ZCL_ status_t zcl_readHandler(zclIncoming_t *pCmd)
 {
-    printf("zcl_readHandler\r\n");
-
 	u8 status = ZCL_STA_SUCCESS;
 	u16 clusterId = pCmd->msg->indInfo.cluster_id;
 	u8 endpoint = pCmd->msg->indInfo.dst_ep;

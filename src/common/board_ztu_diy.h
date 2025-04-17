@@ -65,13 +65,11 @@ enum {
  *          SDO  SDI  SCK  CN
  *          A2   A3   A4   D6
  *          B7   B6   D7   D2
+ *
+ *          B7 - SDA on epaper
  */
 #define EPD_SPI_PIN_GROUP      SPI_GPIO_GROUP_B6B7D2D7
 #define EPD_SPI_PIN_CS         EPD_CS
-
-#define PULL_WAKEUP_SRC_PC2     PM_PIN_PULLUP_10K //PM_PIN_PULLUP_1M //
-#define PULL_WAKEUP_SRC_PC3     PM_PIN_PULLUP_10K //PM_PIN_PULLUP_1M //
-
 
 /********************* Configure fake LED for bootloader ***************************/
 

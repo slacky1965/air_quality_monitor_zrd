@@ -55,6 +55,10 @@ const uint16_t app_ep1_inClusterList[] = {
 #ifdef ZCL_CO2_MEASUREMENT
     ZCL_CLUSTER_MS_CO2_MEASUREMENT,
 #endif
+#ifdef ZCL_TEMPERATURE_MEASUREMENT
+    ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+#endif
+    ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
 };
 
 /**
@@ -66,6 +70,10 @@ const uint16_t app_ep1_outClusterList[] = {
 #ifdef ZCL_OTA
     ZCL_CLUSTER_OTA,
 #endif
+#ifdef ZCL_TEMPERATURE_MEASUREMENT
+    ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+#endif
+    ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
 };
 
 /**
@@ -233,6 +241,42 @@ const zclAttrInfo_t co2_attrTbl[] = {
 
 #endif
 
+#ifdef ZCL_TEMPERATURE_MEASUREMENT
+zcl_temperatureAttr_t g_zcl_temperatureAttrs = {
+        .value = 0x8000,    /* temperature unknown  */
+        .minValue = 0xF060, /* -40.00               */
+        .maxValue = 0x2134, /* +85.00               */
+};
+
+
+const zclAttrInfo_t temperature_attrTbl[] = {
+        { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE,     ZCL_INT16, RR, (uint8_t*)&g_zcl_temperatureAttrs.value      },
+        { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MINMEASUREDVALUE,  ZCL_INT16, R,  (uint8_t*)&g_zcl_temperatureAttrs.minValue   },
+        { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MAXMEASUREDVALUE,  ZCL_INT16, R,  (uint8_t*)&g_zcl_temperatureAttrs.maxValue   },
+
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,           ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
+};
+
+#define ZCL_TEMPERATURE_ATTR_NUM   sizeof(temperature_attrTbl) / sizeof(zclAttrInfo_t)
+#endif
+
+
+zcl_humidityAttr_t g_zcl_humidityAttrs = {
+        .value = 0xffff,    /* temperature unknown  */
+        .minValue = 0x0000,
+        .maxValue = 0x2710, /* 100.00              */
+};
+
+
+const zclAttrInfo_t humidity_attrTbl[] = {
+        { ZCL_ATTRID_HUMIDITY_MEASUREDVALUE,     ZCL_UINT16, RR, (uint8_t*)&g_zcl_humidityAttrs.value      },
+        { ZCL_ATTRID_HUMIDITY_MINMEASUREDVALUE,  ZCL_UINT16, R,  (uint8_t*)&g_zcl_humidityAttrs.minValue   },
+        { ZCL_ATTRID_HUMIDITY_MAXMEASUREDVALUE,  ZCL_UINT16, R,  (uint8_t*)&g_zcl_humidityAttrs.maxValue   },
+
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,           ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
+};
+
+#define ZCL_HUMIDITY_ATTR_NUM   sizeof(humidity_attrTbl) / sizeof(zclAttrInfo_t)
 
 /**
  *  @brief Definition for simple switch ZCL specific cluster
@@ -251,6 +295,10 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
 #ifdef ZCL_CO2_MEASUREMENT
     {ZCL_CLUSTER_MS_CO2_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_CO2_ATTR_NUM,          co2_attrTbl,        zcl_co2_measurement_register,   app_co2Cb},
 #endif
+#ifdef ZCL_TEMPERATURE_MEASUREMENT
+    {ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_TEMPERATURE_ATTR_NUM,  temperature_attrTbl,    zcl_temperature_measurement_register,   app_temperatureCb},
+#endif
+    {ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, MANUFACTURER_CODE_NONE, ZCL_HUMIDITY_ATTR_NUM,  humidity_attrTbl,    zcl_humidity_measurement_register,   app_humidityCb},
 };
 
 uint8_t APP_EP1_CB_CLUSTER_NUM = (sizeof(g_appEp1ClusterList)/sizeof(g_appEp1ClusterList[0]));

@@ -16,6 +16,11 @@ typedef struct {
 
 extern sFont font68;
 extern sFont font58;
+extern sFont font48;
+extern sFont font41;
+extern sFont font40;
+extern sFont font38;
+extern sFont font30;
 extern sFont font32;
 extern sFont font24;
 extern sFont font26;
@@ -25,6 +30,7 @@ extern sFont font13;
 extern sFont font12;
 extern sFont font8;
 
+extern sFont roboto_font30;
 
 #ifdef __cplusplus
 }

@@ -80,7 +80,7 @@ char *strcat(char *str1, const char *str2) {
  * integer to ascii value and store them in array of  *
  * character with NULL at the end of the array        */
 
-uint8_t *itoa(uint32_t value, uint8_t *ptr) {
+uint8_t *itoa(int32_t value, uint8_t *ptr) {
     uint32_t count = 0, temp;
     uint8_t *str = ptr;
 

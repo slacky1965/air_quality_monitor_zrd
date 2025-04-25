@@ -644,9 +644,18 @@ void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *text, sFont *font, ui
         /* Display one character on EPD */
         epd_paint_showChar(refcolumn, y, *p_text, font, color);
         /* Decrement the column position by 16 */
-        if (font->width > 9)
-            refcolumn += font->width-2;
-        else
+        if (font->width > 11)
+            if (*(p_text+1) == '.' || *(p_text+1) == ',') {
+                refcolumn += font->width-1;
+            } else {
+                refcolumn += font->width-2;
+            }
+        else if (font->width > 9) {
+            if (counter && *(p_text-1) == ' ')
+                refcolumn += font->width-2;
+            else
+                refcolumn += font->width-1;
+        } else
             refcolumn += font->width;
         /* Point on the next character */
         p_text++;
@@ -706,30 +715,53 @@ void epd_paint_showNum(uint16_t x, uint16_t y, uint32_t num, uint16_t len, sFont
 
 
 void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color) {
-    uint16_t j = 0;
-    uint16_t i, n = 0, temp = 0, m = 0;
-    uint16_t x0 = 0, y0 = 0;
-    x += 1, y += 1, x0 = x, y0 = y;
-    sizey = sizey / 8 + ((sizey % 8) ? 1 : 0);
-    for (n = 0; n < sizey; n++) {
-        button_handler();
-        for (i = 0; i < sizex; i++) {
-            temp = BMP[j];
-            j++;
-            for (m = 0; m < 8; m++) {
-                if (temp & 0x01)
-                    epd_paint_drawPoint(x, y, !Color);
-                else
-                    epd_paint_drawPoint(x, y, Color);
-                temp >>= 1;
-                y++;
+    int i, j;
+    x += 1, y += 1;
+    const unsigned char* prt = BMP;
+      for (j = 0; j < sizey; j++) {
+          button_handler();
+          for (i = 0; i < sizex; i++) {
+            if (* prt & (0x80 >> (i % 8))){
+                epd_paint_drawPoint(x+i, y+j, Color);
+            } else {
+                epd_paint_drawPoint(x+i, y+j, !Color);
             }
-            x++;
-            if ((x - x0) == sizex) {
-                x = x0;
-                y0 = y0 + 8;
+            if (i % 8 == 7) {
+              prt++;
             }
-            y = y0;
-        }
-    }
+          }
+          if (sizex % 8 != 0) {
+            prt++;
+          }
+      }
 }
+
+
+//void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color) {
+//    uint16_t j = 0;
+//    uint16_t i, n = 0, temp = 0, m = 0;
+//    uint16_t x0 = 0, y0 = 0;
+//    x += 1, y += 1, x0 = x, y0 = y;
+//    sizey = sizey / 8 + ((sizey % 8) ? 1 : 0);
+//    for (n = 0; n < sizey; n++) {
+//        button_handler();
+//        for (i = 0; i < sizex; i++) {
+//            temp = BMP[j];
+//            j++;
+//            for (m = 0; m < 8; m++) {
+//                if (temp & 0x01)
+//                    epd_paint_drawPoint(x, y, !Color);
+//                else
+//                    epd_paint_drawPoint(x, y, Color);
+//                temp >>= 1;
+//                y++;
+//            }
+//            x++;
+//            if ((x - x0) == sizex) {
+//                x = x0;
+//                y0 = y0 + 8;
+//            }
+//            y = y0;
+//        }
+//    }
+//}

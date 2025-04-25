@@ -262,7 +262,7 @@ const zclAttrInfo_t temperature_attrTbl[] = {
 
 
 zcl_humidityAttr_t g_zcl_humidityAttrs = {
-        .value = 0xffff,    /* temperature unknown  */
+        .value = 0xffff,    /* humidity unknown  */
         .minValue = 0x0000,
         .maxValue = 0x2710, /* 100.00              */
 };

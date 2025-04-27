@@ -4,6 +4,7 @@ OUT_DIR += \
 /$(SRC_PATH)/zcl \
 /$(SRC_PATH)/epaper \
 /$(SRC_PATH)/bme280 \
+/$(SRC_PATH)/bh1750 \
 /$(SRC_PATH)/common
  
 OBJS += \
@@ -26,9 +27,11 @@ $(OUT_PATH)/$(SRC_PATH)/epaper/font58.o \
 $(OUT_PATH)/$(SRC_PATH)/epaper/font68.o \
 $(OUT_PATH)/$(SRC_PATH)/epaper/font8.o \
 $(OUT_PATH)/$(SRC_PATH)/bme280/bme280.o \
+$(OUT_PATH)/$(SRC_PATH)/bh1750/bh1750.o \
 $(OUT_PATH)/$(SRC_PATH)/app_arith64.o \
 $(OUT_PATH)/$(SRC_PATH)/app_i2c.o \
 $(OUT_PATH)/$(SRC_PATH)/app_bme280.o \
+$(OUT_PATH)/$(SRC_PATH)/app_bh1750.o \
 $(OUT_PATH)/$(SRC_PATH)/app_epd.o \
 $(OUT_PATH)/$(SRC_PATH)/app_sensors.o \
 $(OUT_PATH)/$(SRC_PATH)/app_config.o \

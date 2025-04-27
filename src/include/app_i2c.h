@@ -5,5 +5,6 @@
 #define I2C_CLOCK           200000//200K
 
 void app_i2c_init();
+int8_t scan_i2c_addr(int address);
 
 #endif /* SRC_INCLUDE_APP_I2C_H_ */

@@ -129,6 +129,13 @@ void user_app_init(void)
 #endif
 
 
+//    uint32_t res;
+//    for (uint32_t i = 2; i < 0xffff; i += 1357) {
+//        res = log10(i) * 1000;
+//        printf("i: %d, log10: %d\r\n", i, res);
+//
+//    }
+
     app_epd_init();
 
     app_i2c_init();
@@ -137,6 +144,10 @@ void user_app_init(void)
     TL_ZB_TIMER_SCHEDULE(app_time_cmdCb, NULL, TIMEOUT_10SEC);
 
     app_first_start_epd();
+
+    app_bme280_init();
+    app_bh1750_init();
+
 }
 
 void app_task(void) {

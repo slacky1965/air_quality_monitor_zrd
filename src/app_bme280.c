@@ -89,7 +89,7 @@ int8_t bme280_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *
 
     drv_i2c_read_series(dev_addr << 1, reg_addr, 1, reg_data, len);
 
-    return 0;
+    return (reg_i2c_status & FLD_I2C_NAK);
 }
 
 int8_t bme280_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr) {
@@ -98,7 +98,7 @@ int8_t bme280_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len,
 
     drv_i2c_write_series(dev_addr << 1, reg_addr, 1, (uint8_t*)reg_data, len);
 
-    return 0;
+    return (reg_i2c_status & FLD_I2C_NAK);
 }
 
 void bme280_delay_us(uint32_t period, void *intf_ptr) {

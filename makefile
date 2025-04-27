@@ -55,6 +55,7 @@ INCLUDE_PATHS := \
 -I$(SRC_PATH)/zcl \
 -I$(SRC_PATH)/epaper \
 -I$(SRC_PATH)/bme280 \
+-I$(SRC_PATH)/bh1750 \
 -I./common
  
 
@@ -221,6 +222,7 @@ clean-project:
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/*.o
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/epaper/*.o
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/bme280/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/bh1750/*.o
 	-@echo ' '
 	
 pre-build:

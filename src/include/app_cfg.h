@@ -74,6 +74,7 @@ extern "C" {
 #define DEBUG_OTA                       OFF
 #define DEBUG_STA_STATUS                OFF
 #define DEBUG_BME280                    OFF
+#define DEBUG_BH1750                    ON
 
 /* HCI interface */
 #define ZBHCI_UART                      OFF
@@ -199,6 +200,7 @@ extern "C" {
 #define ZCL_TEMPERATURE_MEASUREMENT_SUPPORT         ON
 #define ZCL_HUMIDITY_MEASUREMENT_SUPPORT            ON
 #define ZCL_CO2_MEASUREMENT_SUPPORT                 ON
+#define ZCL_ILLUMINANCE_MEASUREMENT_SUPPORT         ON
 #define ZCL_DIAGNOSTICS_SUPPORT                     ON
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT               ON

@@ -55,5 +55,7 @@ int32_t int32_from_str(uint8_t *data);
 int16_t int16_from_str(uint8_t *data);
 char * mystrstr(char * mainStr, char * subStr);
 uint8_t set_zcl_str(uint8_t *str_in, uint8_t *str_out, uint8_t len);
+uint8_t *digit64toString(uint64_t value);
+double log10(double x);
 
 #endif /* SRC_INCLUDE_APP_UTILITY_H_ */

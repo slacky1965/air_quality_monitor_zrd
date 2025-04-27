@@ -175,6 +175,115 @@ uint8_t set_zcl_str(uint8_t *str_in, uint8_t *str_out, uint8_t len) {
     return *str_len;
 }
 
+uint8_t *digit64toString(uint64_t value) {
+    static uint8_t buff[32] = {0};
+    uint8_t *buffer = buff;
+    buffer += 17;
+    *--buffer = 0;
+    do {
+        *--buffer = value % 10 + '0';
+        value /= 10;
+    } while (value != 0);
+
+    return buffer;
+}
+
+#define LN10 2.3025850929940456840179914546844
+
+float ln(float x) {
+    union {float f; uint32_t i;} u = {x};
+    uint32_t bx = u.i;
+    int32_t ex = bx >> 23;
+    int32_t t = ex - 127;
+    uint32_t s = (t < 0) ? (-t) : t;
+    bx = 0x3F800000 | (bx & 0x7FFFFF);
+    u.i = bx;
+    x = u.f;
+    return -1.49278 + (2.11263 + (-0.729104 + 0.10969 * x) * x) * x + 0.6931471806 * s;
+}
+
+double log10(double x) {
+    return ln(x) / LN10;
+}
+
+
+
+
+////#define log_10_of_2 (0.30102999566)
+//#define log_e_of_2 (0.69314718056)
+//#define log_10_of_2 (0.30102999566)
+//
+//unsigned int nbbits(unsigned int n)
+//{
+//    unsigned int count_bits = 0;
+//    while (n != 0)
+//    {
+//        n = n >> 1;
+//        ++count_bits;
+//    }
+//    return count_bits;
+//}
+//
+//double approx_decimal_log(double x)    /* assume x > 0 */
+//{
+//    if (x < 1)
+//        return -approx_decimal_log(1/x);
+//    return (nbbits((unsigned int) x) - 1.0) * log_10_of_2;
+//}
+
+//#ifndef INFINITY
+//#define INFINITY (1.0f/0.0f)
+//#endif
+//
+//static const float LOG10_2 = 0.30102999f;  // log10(2) константа
+//static const int N_SEGMENTS = 32;         // число сегментов на [1,2)
+//static const float log10_table[33] = {
+//    // Предвычисленные значения log10(1 + i/32) для i = 0..32
+//    0.00000f, 0.01334f, 0.02653f, 0.03958f, 0.05249f, 0.06524f, 0.07784f, 0.09027f,
+//    0.10255f, 0.11466f, 0.12659f, 0.13836f, 0.14995f, 0.16137f, 0.17261f, 0.18377f,
+//    0.19467f, 0.20545f, 0.21584f, 0.22610f, 0.23607f, 0.24583f, 0.25527f, 0.26453f,
+//    0.27337f, 0.28199f, 0.29018f, 0.29806f, 0.30546f, 0.31254f, 0.31915f, 0.32549f,
+//    0.33148f  // log10(2) ≈ 0.30103, последний элемент ~ log10(2) (чуть больше из-за интервала включения)
+//};
+//
+//float fast_log10(float x) {
+//    // Предполагаем x > 0. Можно добавить проверку и обработку x <= 0 при необходимости.
+//    union { float f; uint32_t i; } u;
+//    u.f = x;
+//    uint32_t bits = u.i;
+//
+//    // Извлекаем порядок и мантиссу
+//    int exp2 = (int)((bits >> 23) & 0xFF);
+//    if (exp2 == 0) {
+//        // x субнормальный (очень маленький): нормализация
+//        if (x == 0.0f) return -INFINITY;   // log10(0) -> -бесконечность, если требуется
+//        // для субнормальных чисел – привести к нормальному виду
+//        // (на практике для диапазона [0.1,10] это не встречается)
+//        exp2 = 1;
+//    }
+//    int E = exp2 - 127;                // действительный экспонент (порядок двоичный)
+//    uint32_t mantissa_bits = bits & 0x7FFFFF;
+//
+//    // Вычисляем индекс сегмента по старшим битам мантиссы
+//    // N_SEGMENTS=32 -> используем верхние 5 бит мантиссы (2^5 = 32 сегмента)
+//    int idx = mantissa_bits >> (23 - 5);            // верхние 5 бит из 23
+//    float log10_low = log10_table[idx];
+//    float log10_high = log10_table[idx + 1];
+//
+//    // Доля внутри сегмента (0.0 до 1.0)
+//    // Используем оставшиеся 18 бит мантиссы для дробной части прогресса по сегменту
+//    uint32_t frac_bits = mantissa_bits & ((1u << (23 - 5)) - 1);
+//    float frac = (float)frac_bits * (1.0f / (1u << (23 - 5)));
+//
+//    // Линейная интерполяция между log10_table[idx] и log10_table[idx+1]
+//    float log10_mant = log10_low + (log10_high - log10_low) * frac;
+//
+//    // Добавляем вклад порядка: E * log10(2)
+//    float result = log10_mant + ((float)E * LOG10_2);
+//    return result;
+//}
+
+
 //char * mystrstr(char * mainStr, char * subStr) {
 //    char *s1, *s2;
 //
@@ -208,4 +317,51 @@ uint8_t set_zcl_str(uint8_t *str_in, uint8_t *str_out, uint8_t len) {
 //    }
 //
 //    return NULL;
+//}
+//
+//
+//#define LOG10_2 0.30102999566f  // log10(2)
+//#define N_SEGMENTS 32           // Количество сегментов (5 бит)
+//
+//static const float log10_table[N_SEGMENTS + 1] = {
+//    0.00000f, 0.01334f, 0.02653f, 0.03958f, 0.05249f, 0.06524f, 0.07784f, 0.09027f,
+//    0.10255f, 0.11466f, 0.12659f, 0.13836f, 0.14995f, 0.16137f, 0.17261f, 0.18377f,
+//    0.19467f, 0.20545f, 0.21584f, 0.22610f, 0.23607f, 0.24583f, 0.25527f, 0.26453f,
+//    0.27337f, 0.28199f, 0.29018f, 0.29806f, 0.30546f, 0.31254f, 0.31915f, 0.32549f,
+//    0.33148f // log10(2) ≈ 0.30103, чуть выше на край
+//};
+//
+//// Подобранная табличка поправок для каждого сегмента
+//static const float curvature_table[N_SEGMENTS] = {
+//    0.00050f, 0.00048f, 0.00046f, 0.00044f, 0.00042f, 0.00040f, 0.00038f, 0.00037f,
+//    0.00036f, 0.00035f, 0.00034f, 0.00033f, 0.00032f, 0.00031f, 0.00030f, 0.00029f,
+//    0.00028f, 0.00027f, 0.00026f, 0.00025f, 0.00024f, 0.00023f, 0.00022f, 0.00021f,
+//    0.00020f, 0.00019f, 0.00018f, 0.00017f, 0.00016f, 0.00015f, 0.00014f, 0.00013f
+//};
+//
+//float fast_log10_quadratic(float x) {
+//    union { float f; uint32_t i; } u;
+//    u.f = x;
+//    uint32_t bits = u.i;
+//
+//    int exp2 = (int)((bits >> 23) & 0xFF);
+//    int E = exp2 - 127; // Реальный порядок двойки
+//    uint32_t mantissa_bits = bits & 0x7FFFFF;
+//
+//    int idx = mantissa_bits >> (23 - 5); // 5 старших бит — индекс сегмента
+//    float log10_low = log10_table[idx];
+//    float log10_high = log10_table[idx + 1];
+//
+//    uint32_t frac_bits = mantissa_bits & ((1u << (23 - 5)) - 1);
+//    float frac = (float)frac_bits * (1.0f / (1u << (23 - 5))); // От 0 до 1 в сегменте
+//
+//    // Линейная интерполяция
+//    float base = log10_low + (log10_high - log10_low) * frac;
+//
+//    // Квадратичная поправка
+//    float curvature = curvature_table[idx];
+//    base += curvature * frac * (1.0f - frac);
+//
+//    // Учет степени двойки
+//    return base + ((float)E * LOG10_2);
 //}

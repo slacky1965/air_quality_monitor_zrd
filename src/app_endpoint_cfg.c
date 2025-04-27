@@ -59,6 +59,9 @@ const uint16_t app_ep1_inClusterList[] = {
     ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
 #endif
     ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
+#ifdef ZCL_ILLUMINANCE_MEASUREMENT
+    ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT
+#endif
 };
 
 /**
@@ -278,6 +281,26 @@ const zclAttrInfo_t humidity_attrTbl[] = {
 
 #define ZCL_HUMIDITY_ATTR_NUM   sizeof(humidity_attrTbl) / sizeof(zclAttrInfo_t)
 
+
+zcl_illuminanceAttr_t g_zcl_illuminanceAttrs = {
+        .value = 0,    /* illuminance low  */
+        .minValue = 0x0001,
+        .maxValue = 0xfffe,
+};
+
+
+const zclAttrInfo_t illuminance_attrTbl[] = {
+        { ZCL_ATTRID_MEASURED_VALUE,            ZCL_UINT16, RR, (uint8_t*)&g_zcl_illuminanceAttrs.value     },
+        { ZCL_ATTRID_MIN_MEASURED_VALUE,        ZCL_UINT16, R,  (uint8_t*)&g_zcl_illuminanceAttrs.minValue  },
+        { ZCL_ATTRID_MAX_MEASURED_VALUE,        ZCL_UINT16, R,  (uint8_t*)&g_zcl_illuminanceAttrs.maxValue  },
+
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
+};
+
+#define ZCL_ILLUMINANCE_ATTR_NUM   sizeof(illuminance_attrTbl) / sizeof(zclAttrInfo_t)
+
+
+
 /**
  *  @brief Definition for simple switch ZCL specific cluster
  */
@@ -299,6 +322,7 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_TEMPERATURE_ATTR_NUM,  temperature_attrTbl,    zcl_temperature_measurement_register,   app_temperatureCb},
 #endif
     {ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, MANUFACTURER_CODE_NONE, ZCL_HUMIDITY_ATTR_NUM,  humidity_attrTbl,    zcl_humidity_measurement_register,   app_humidityCb},
+    {ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_ILLUMINANCE_ATTR_NUM,  illuminance_attrTbl,    zcl_illuminanceMeasure_register,   app_illuminanceCb},
 };
 
 uint8_t APP_EP1_CB_CLUSTER_NUM = (sizeof(g_appEp1ClusterList)/sizeof(g_appEp1ClusterList[0]));

@@ -127,7 +127,7 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
 //        epd_paint_showString(x, y, str_temp, &font41, color);
     epd_paint_showString(x+xx, y+yy, str_degree, &font30, color);
 
-    printf("str temp: '%s', temp: %d, neg: %d\r\n", str_temp, temp, negative);
+//    printf("str temp: '%s', temp: %d, neg: %d\r\n", str_temp, temp, negative);
 }
 
 static void epd_screen_var(void *args) {

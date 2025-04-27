@@ -92,6 +92,15 @@ typedef struct {
     int16_t maxValue;
 } zcl_humidityAttr_t;
 
+/**
+ *  @brief Defined for ILLUMINANCE cluster attributes
+ */
+typedef struct {
+    int16_t value;
+    int16_t minValue;
+    int16_t maxValue;
+} zcl_illuminanceAttr_t;
+
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;
 
 /* Attributes */

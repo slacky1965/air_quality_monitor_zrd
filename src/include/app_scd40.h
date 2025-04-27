@@ -1,0 +1,6 @@
+#ifndef SRC_INCLUDE_APP_SCD40_H_
+#define SRC_INCLUDE_APP_SCD40_H_
+
+
+
+#endif /* SRC_INCLUDE_APP_SCD40_H_ */

@@ -17,6 +17,7 @@
 #include "app_sensors.h"
 #include "app_i2c.h"
 #include "app_bme280.h"
+#include "app_bh1750.h"
 #include "app_co2sensor.h"
 #include "app_config.h"
 #include "app_time.h"
@@ -89,12 +90,14 @@ status_t app_temperatureCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void
 status_t app_humidityCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_diagnosticsCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
+status_t app_illuminanceCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 
 #define zcl_scene1AttrGet()         &g_zcl_scene1Attrs
 #define zcl_scene2AttrGet()         &g_zcl_scene2Attrs
 #define zcl_co2AttrGet()            &g_zcl_co2Attrs
 #define zcl_temperatureAttrGet()    &g_zcl_temperatureAttrs
 #define zcl_humidityAttrGet()       &g_zcl_humidityAttrs
+#define zcl_illuminanceAttrGet()    &g_zcl_illuminanceAttrs
 
 void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

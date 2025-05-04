@@ -16,6 +16,7 @@ typedef struct {
 
 extern sFont font68;
 extern sFont font58;
+extern sFont font54;
 extern sFont font48;
 extern sFont font41;
 extern sFont font40;
@@ -25,6 +26,7 @@ extern sFont font32;
 extern sFont font24;
 extern sFont font26;
 extern sFont font20;
+extern sFont font19;
 extern sFont font16;
 extern sFont font13;
 extern sFont font12;

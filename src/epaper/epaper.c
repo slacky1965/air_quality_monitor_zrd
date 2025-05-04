@@ -77,8 +77,9 @@ uint8_t epd_wait_busy() {
 
     while (epd_is_busy()) {
         timeout++;
-        if (timeout > 40000) {
+        if (timeout > 4000) {
             printf("timeout exit 1: %d\r\n", timeout);
+            epd_reset();
             return 1;
         }
         button_handler();
@@ -210,8 +211,9 @@ uint8_t epd_hibernating() {
 
     return _hibernating;
 }
+
 void epd_enter_deepsleepmode(uint8_t mode) {
-    epd_power_off();
+    //epd_power_off();
     epd_write_cmd(0x10);
     epd_write_data(mode);
     _hibernating = 1;
@@ -633,7 +635,7 @@ void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, sFont *font, uint1
     }
 }
 
-void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *text, sFont *font, uint16_t color) {
+void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *text, sFont *font, uint16_t color, bool reducing) {
 
     uint8_t *p_text = text;
     uint16_t counter = 0;
@@ -644,19 +646,23 @@ void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *text, sFont *font, ui
         /* Display one character on EPD */
         epd_paint_showChar(refcolumn, y, *p_text, font, color);
         /* Decrement the column position by 16 */
-        if (font->width > 11)
-            if (*(p_text+1) == '.' || *(p_text+1) == ',') {
-                refcolumn += font->width-1;
-            } else {
-                refcolumn += font->width-2;
-            }
-        else if (font->width > 9) {
-            if (counter && *(p_text-1) == ' ')
-                refcolumn += font->width-2;
-            else
-                refcolumn += font->width-1;
-        } else
+        if (reducing) {
+            if (font->width > 11)
+                if (*(p_text+1) == '.' || *(p_text+1) == ',' || *(p_text+1) == '0' || *(p_text+1) == ' ') {
+                    refcolumn += font->width-1;
+                } else {
+                    refcolumn += font->width-2;
+                }
+            else if (font->width > 9) {
+                if (counter && *(p_text-1) == ' ')
+                    refcolumn += font->width-2;
+                else
+                    refcolumn += font->width-1;
+            } else
+                refcolumn += font->width;
+        } else {
             refcolumn += font->width;
+        }
         /* Point on the next character */
         p_text++;
         counter++;

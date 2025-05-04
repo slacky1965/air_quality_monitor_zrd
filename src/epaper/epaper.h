@@ -104,7 +104,7 @@ void epd_paint_drawLine(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_
 void epd_paint_drawRectangle(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t Color, uint8_t mode);
 void epd_paint_drawCircle(uint16_t X_Center, uint16_t Y_Center, uint16_t Radius, uint16_t Color, uint8_t mode);
 void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, sFont *font, uint16_t color);
-void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, sFont *font, uint16_t color);
+void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, sFont *font, uint16_t color, bool reducing);
 void epd_paint_showNum(uint16_t x, uint16_t y, uint32_t num, uint16_t len, sFont *font, uint16_t color);
 void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color);
 

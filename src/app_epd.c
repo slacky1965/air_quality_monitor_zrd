@@ -172,10 +172,8 @@ static void epd_screen_var(void *args) {
 
     button_handler();
 
-    //epd_init_partial();
-//    epd_clear();
-//    epd_screen_invar();
     epd_reset();
+    //epd_init_partial();
 
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
@@ -794,7 +792,7 @@ static void epd_logo() {
      epd_paint_selectimage(image_bw);
      epd_paint_clear(EPD_COLOR_WHITE);
      epd_displayBW(image_bw);
-     //sleep_ms(TIMEOUT_1SEC);
+     sleep_ms(TIMEOUT_100MS);
  }
 
 void app_epd_init() {
@@ -807,10 +805,8 @@ void app_epd_init() {
 
     epd_init_partial();
 
-    //epd_newimage();
     if (zb_getLocalShortAddr() >= 0xFFF8) {
         epd_logo();
-//        while(1);
         epd_clear();
         show_logo = true;
     }

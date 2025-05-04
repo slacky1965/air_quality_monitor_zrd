@@ -77,7 +77,7 @@ uint8_t epd_wait_busy() {
 
     while (epd_is_busy()) {
         timeout++;
-        if (timeout > 4000) {
+        if (timeout > 40000) {
             printf("timeout exit 1: %d\r\n", timeout);
             epd_reset();
             return 1;

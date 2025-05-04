@@ -9,8 +9,8 @@ static struct bme280_settings settings;
 static int8_t rslt;
 static uint8_t dev_addr;
 
-static int32_t  temp;
-static uint32_t rh, hpa;
+static int16_t  temp;
+static uint16_t rh, kpa;
 
 #if UART_PRINTF_MODE && DEBUG_BME280
 static void bme280_error_codes_print_result(const char api_name[], int8_t rslt) {
@@ -121,19 +121,20 @@ void app_bme280_measurement() {
     if(rslt == BME280_OK) {
         float temperature = comp_data.temperature * 100;
         float humidity = comp_data.humidity * 100;
-        float pressure = comp_data.pressure * 1000;
+        float pressure = comp_data.pressure / 100;
 
-        temp = (int32_t)temperature;
-        rh = (uint32_t)humidity;
-        hpa = (uint32_t)pressure;
+        temp = (int16_t)temperature;
+        rh = (uint16_t)humidity;
+        kpa = (uint16_t)pressure;
 
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, (uint8_t*)&temp);
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, ZCL_ATTRID_HUMIDITY_MEASUREDVALUE, (uint8_t*)&rh);
+        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, ZCL_ATTRID_PRESSURE_MEASUREDVALUE, (uint8_t*)&kpa);
 
 #if UART_PRINTF_MODE && DEBUG_BME280
         printf("temperature: %d.%d C\r\n", temp/100, temp%100);
         printf("humidity: %d.%d% rh\r\n", rh/100, rh%100);
-        printf("pressure: %d.%d hpa\r\n", hpa/100, hpa%100);
+        printf("pressure: %d.%d kPa\r\n", kpa/10, kpa%10);
 #endif
     }
 }

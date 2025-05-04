@@ -60,8 +60,9 @@ const uint16_t app_ep1_inClusterList[] = {
 #endif
     ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
 #ifdef ZCL_ILLUMINANCE_MEASUREMENT
-    ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT
+    ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT,
 #endif
+    ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
 };
 
 /**
@@ -281,6 +282,23 @@ const zclAttrInfo_t humidity_attrTbl[] = {
 
 #define ZCL_HUMIDITY_ATTR_NUM   sizeof(humidity_attrTbl) / sizeof(zclAttrInfo_t)
 
+zcl_pressureAttr_t g_zcl_pressureAttrs = {
+        .value = 0x8000,    /* pressure unknown  */
+        .minValue = 0x8001,
+        .maxValue = 0x7fff,
+};
+
+
+const zclAttrInfo_t pressure_attrTbl[] = {
+        { ZCL_ATTRID_PRESSURE_MEASUREDVALUE,     ZCL_INT16, RR, (uint8_t*)&g_zcl_pressureAttrs.value      },
+        { ZCL_ATTRID_PRESSURE_MINMEASUREDVALUE,  ZCL_INT16, R,  (uint8_t*)&g_zcl_pressureAttrs.minValue   },
+        { ZCL_ATTRID_PRESSURE_MAXMEASUREDVALUE,  ZCL_INT16, R,  (uint8_t*)&g_zcl_pressureAttrs.maxValue   },
+
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,           ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
+};
+
+#define ZCL_PRESSURE_ATTR_NUM   sizeof(pressure_attrTbl) / sizeof(zclAttrInfo_t)
+
 
 zcl_illuminanceAttr_t g_zcl_illuminanceAttrs = {
         .value = 0,    /* illuminance low  */
@@ -322,6 +340,7 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_TEMPERATURE_ATTR_NUM,  temperature_attrTbl,    zcl_temperature_measurement_register,   app_temperatureCb},
 #endif
     {ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, MANUFACTURER_CODE_NONE, ZCL_HUMIDITY_ATTR_NUM,  humidity_attrTbl,    zcl_humidity_measurement_register,   app_humidityCb},
+    {ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_PRESSURE_ATTR_NUM,  pressure_attrTbl,    zcl_pressure_measurement_register,   app_pressureCb},
     {ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_ILLUMINANCE_ATTR_NUM,  illuminance_attrTbl,    zcl_illuminanceMeasure_register,   app_illuminanceCb},
 };
 

@@ -22,10 +22,17 @@ static epd_screen_variable_t epd_screen_variable = {
         .humidity_in = 0xffff,
         .humidity_out = 0xffff,
         .pressure = 0,
+        .co2 = 0,
+        .voc = 0,
+        .lux = 0,
+        .lqi = 256,
         .level = 6,
         .zbIcon = false,
         .timerZbIcon = NULL,
 };
+
+static void epd_screen_invar();
+static void epd_clear();
 
 static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t color) {
 
@@ -49,6 +56,8 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
     uint8_t str_degree[] = "@C"; // replacement in font30 @ -> °
     sFont *font = NULL;
     uint16_t xx, yy;
+
+    button_handler();
 
     if (temp < 0) {
         temp = -temp;
@@ -122,10 +131,10 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
     }
 
 //    if (negative)
-        epd_paint_showString(x-5, y, str_temp, font, color);
+        epd_paint_showString(x-5, y, str_temp, font, color, true);
 //    else
 //        epd_paint_showString(x, y, str_temp, &font41, color);
-    epd_paint_showString(x+xx, y+yy, str_degree, &font30, color);
+    epd_paint_showString(x+xx, y+yy, str_degree, &font30, color, true);
 
 //    printf("str temp: '%s', temp: %d, neg: %d\r\n", str_temp, temp, negative);
 }
@@ -137,7 +146,7 @@ static void epd_screen_var(void *args) {
 
     ftime_t *ftime;
     uint8_t m;
-    uint16_t y;
+    uint16_t x, y;
 
     uint8_t level;
     uint8_t *pLevel = NULL;
@@ -145,8 +154,8 @@ static void epd_screen_var(void *args) {
     uint16_t attr_len;
     uint32_t counter;
     int16_t temp;
-    uint16_t rh;
-    uint8_t lqi;
+    uint16_t rh, co2, voc, lux, kpa;
+//    uint8_t lqi;
     status_t ret;
 
     /*                    01234567890123456789*/
@@ -163,6 +172,12 @@ static void epd_screen_var(void *args) {
 
     button_handler();
 
+    //epd_init_partial();
+//    epd_clear();
+//    epd_screen_invar();
+    epd_reset();
+
+
     if (config.inversion == APP_EPD_INVERSION_OFF) {
         color = EPD_COLOR_BLACK;
     } else {
@@ -174,6 +189,8 @@ static void epd_screen_var(void *args) {
     if (ret == ZCL_STA_SUCCESS && counter != 0xFFFFFFFF) {
 
         ftime = get_ftime(counter);
+
+        uint8_t idx_date_stop, idx_time_start;
 
         if (minutes !=  ftime->minute) {
             minutes =  ftime->minute;
@@ -195,7 +212,9 @@ static void epd_screen_var(void *args) {
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str;
+            idx_date_stop = idx;
             datetime[idx++] = ' ';
+            idx_time_start = idx;
             datetime[idx++] = (ftime->hour / 10) + 0x30;
             datetime[idx++] = (ftime->hour % 10) + 0x30;
             datetime[idx++] = ':';
@@ -204,14 +223,18 @@ static void epd_screen_var(void *args) {
             datetime[idx] = 0;
 
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(DATETIME_0_X, DATETIME_0_Y, datetime, &font26, color);
+                epd_paint_showString(56, 0, datetime, &font26, color, true);
             } else {
-                epd_paint_showString(DATETIME_90_X, DATETIME_90_Y, datetime, &font26, color);
+                datetime[idx_date_stop] = 0;
+                epd_paint_showString(50, 373, datetime, &font26, color, true);
+                epd_paint_showString(180, 50, datetime+idx_time_start, &font38, color, false);
             }
             refresh |= 0x01;
         }
 
     }
+
+    button_handler();
 
     uint16_t sh_addr = zb_getLocalShortAddr();
 
@@ -219,40 +242,22 @@ static void epd_screen_var(void *args) {
 
         led_blink_stop();
 
-//        if (!config.joined) {
-//            config.joined = true;
-//            config_save();
-//        }
-
-//        printf("zb_getLocalShortAddr != ffff: 0x%x\r\n", sh_addr);
-
         if (!epd_screen_variable.zbIcon) {
 //            printf("!epd_screen_variable.zbIcon\r\n");
             epd_screen_variable.zbIcon = true;
             if (epd_screen_variable.timerZbIcon) {
                 TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
             }
-//            if (config.inversion == APP_EPD_INVERSION_OFF) {
-//                color = EPD_COLOR_WHITE;
-//            } else {
-//                color = EPD_COLOR_BLACK;
-//            }
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showPicture(ZB_0_X, ZB_0_Y, 24, 24, image_zbLogo, color);
+                epd_paint_showPicture(6, 0, 24, 24, image_zbLogo, color);
             } else {
-                epd_paint_showPicture(ZB_90_X, ZB_90_Y, 24, 24, image_zbLogo, color);
+                epd_paint_showPicture(6, 0, 24, 24, image_zbLogo, color);
             }
             refresh |= 0x02;
         }
 
     } else {
 
-//        if (config.joined) {
-//            config.joined = false;
-//            config_save();
-//        }
-
-//        printf("zb_getLocalShortAddr == ffff: 0x%x\r\n", sh_addr);
         if (epd_screen_variable.zbIcon) {
 //            printf("epd_screen_variable.zbIcon\r\n");
             epd_screen_variable.zbIcon = false;
@@ -260,11 +265,13 @@ static void epd_screen_var(void *args) {
                 TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
             }
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(ZB_0_X, ZB_0_Y, zb_clear, &font24, color);
+                epd_paint_showString(6, 0, zb_clear, &font24, color, true);
             } else {
-                epd_paint_showString(ZB_90_X, ZB_90_Y, zb_clear, &font24, color);
+                epd_paint_showString(6, 0, zb_clear, &font24, color, true);
             }
             refresh |= 0x02;
+
+            app_lqiCb(NULL);
         }
 
 
@@ -272,40 +279,39 @@ static void epd_screen_var(void *args) {
 
     button_handler();
 
-    ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_DIAGNOSTICS, ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI, &attr_len, (uint8_t*)&lqi);
+    uint8_t lqi = app_get_lqi();
 
-    if (ret == ZCL_STA_SUCCESS) {
-        if (lqi == 0) {
-            level = 0;
-            pLevel = (uint8_t*)image_level0;
-        } else if (lqi <= 51) {
-            level = 1;
-            pLevel = (uint8_t*)image_level1;
-        } else if (lqi <= 102) {
-            level = 2;
-            pLevel = (uint8_t*)image_level2;
-        } else if (lqi <= 153){
-            level = 3;
-            pLevel = (uint8_t*)image_level3;
-        } else if (lqi <= 204){
-            level = 4;
-            pLevel = (uint8_t*)image_level4;
-        } else {
-            level = 5;
-            pLevel = (uint8_t*)image_level5;
-        }
-
-        if (epd_screen_variable.level != level) {
-            epd_screen_variable.level = level;
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showPicture(LEVEL_0_X, LEVEL_0_Y, 32, 24, pLevel, color);
-            } else {
-                epd_paint_showPicture(LEVEL_90_X, LEVEL_90_Y, 32, 24, pLevel, color);
-            }
-            refresh |= 0x04;
-
-        }
+    if (lqi == 0) {
+        level = 0;
+        pLevel = (uint8_t*)image_level0;
+    } else if (lqi <= 51) {
+        level = 1;
+        pLevel = (uint8_t*)image_level1;
+    } else if (lqi <= 102) {
+        level = 2;
+        pLevel = (uint8_t*)image_level2;
+    } else if (lqi <= 153){
+        level = 3;
+        pLevel = (uint8_t*)image_level3;
+    } else if (lqi <= 204){
+        level = 4;
+        pLevel = (uint8_t*)image_level4;
+    } else {
+        level = 5;
+        pLevel = (uint8_t*)image_level5;
     }
+
+    if (epd_screen_variable.level != level) {
+        epd_screen_variable.level = level;
+        if (config.rotate == APP_EPD_ROTATE_0) {
+            epd_paint_showPicture(361, 0, 32, 24, pLevel, color);
+        } else {
+            epd_paint_showPicture(261, 0, 32, 24, pLevel, color);
+        }
+        refresh |= 0x04;
+    }
+
+    button_handler();
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, &attr_len, (uint8_t*)&temp);
 
@@ -353,16 +359,11 @@ static void epd_screen_var(void *args) {
                 color = EPD_COLOR_WHITE;
             }
 
-//            str_hum[0] = '0';
-//            str_hum[1] = '9';
-//            str_hum[2] = '0';
-//            str_hum[3] = 0;
-
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(56, 255, str_hum, &font41, color);
-                epd_paint_showString(146, 263, str_rh, &font30, color);
+                epd_paint_showString(56, 255, str_hum, &font41, color, true);
+                epd_paint_showString(146, 263, str_rh, &font30, color, true);
             } else {
-                epd_paint_showString(203, 277, str_hum, &font41, color);
+                epd_paint_showString(203, 277, str_hum, &font41, color, true);
                 epd_paint_showChar(273, 285, '%', &font30, color);
             }
 
@@ -371,6 +372,8 @@ static void epd_screen_var(void *args) {
         }
 
     }
+
+    button_handler();
 
     /* outsize temperature */
     if (1 == 1) {
@@ -391,6 +394,8 @@ static void epd_screen_var(void *args) {
         refresh |= 0x20;
 
     }
+
+    button_handler();
 
     /* outside humidity */
     rh = epd_screen_variable.humidity_in;
@@ -416,14 +421,11 @@ static void epd_screen_var(void *args) {
                 color = EPD_COLOR_WHITE;
             }
 
-//            uint8_t str_rh[] = "Rh";
-
             if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(261-5, 255, str_hum, &font41, color);
-//                epd_paint_showChar(150, 253, '%', &font26, color);
-                epd_paint_showString(346, 263, str_rh, &font30, color);
+                epd_paint_showString(261-5, 255, str_hum, &font41, color, true);
+                epd_paint_showString(346, 263, str_rh, &font30, color, true);
             } else {
-                epd_paint_showString(203, 330, str_hum, &font41, color);
+                epd_paint_showString(203, 330, str_hum, &font41, color, true);
                 epd_paint_showChar(273, 338, '%', &font30, color);
             }
 
@@ -435,31 +437,237 @@ static void epd_screen_var(void *args) {
 
     button_handler();
 
-    if (refresh) {
-//        printf("refresh: 0x%x\r\n", refresh);
-//        uint8_t ret = epd_init_partial();
-//        epd_init();
-//        printf("epd_init ret: %d\r\n", ret);
-        epd_displayBW_partial(image_bw);
-//        epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
+    co2 = app_scd4x_get_co2();
+
+    if (co2 != epd_screen_variable.co2) {
+
+        epd_screen_variable.co2 = co2;
+
+        uint8_t str_co2[8] = {0};
+        uint8_t str_co[] = "CO";
+        uint8_t str_ppm[] = "PPM";
+
+        if (itoa(co2, str_co2)) {
+
+            if (config.inversion == APP_EPD_INVERSION_OFF) {
+                color = EPD_COLOR_BLACK;
+            } else {
+                color = EPD_COLOR_WHITE;
+            }
+
+            sFont *fontCO2 = NULL;
+            uint16_t xCO2;
+
+            if (config.rotate == APP_EPD_ROTATE_0) {
+                fontCO2 = &font54;
+                xCO2 = 60 + fontCO2->width / 2;
+                epd_paint_showString(xCO2 - (4 / 2 * fontCO2->width), 60, (uint8_t*)"    ", fontCO2, color, false);
+                xCO2 = xCO2 - (strlen((char*)str_co2) * fontCO2->width / 2);
+                /* print value CO2 */
+                epd_paint_showString(xCO2, 60, str_co2, fontCO2, color, false);
+                /* print string "CO" */
+                epd_paint_showString(23, 140, str_co, &font30, color, true);
+                /* print number 2 */
+                epd_paint_showNum(60, 150, 2, 1, &font19, color);
+                /* print string "PPM" */
+                epd_paint_showString(76, 140, str_ppm, &font30, color, true);
+            } else {
+                fontCO2 = &font58;
+                xCO2 = 60 + fontCO2->width / 2;
+                epd_paint_showString(xCO2 - (4 / 2 * fontCO2->width), 40, (uint8_t*)"    ", fontCO2, color, false);
+                xCO2 = xCO2 - (strlen((char*)str_co2) * fontCO2->width / 2);
+                /* print value CO2 */
+                epd_paint_showString(xCO2, 40, str_co2, fontCO2, color, false);
+                /* print string "CO" */
+                epd_paint_showString(23, 100, str_co, &font30, color, true);
+                /* print number 2 */
+                epd_paint_showNum(60, 110, 2, 1, &font19, color);
+                /* print string "PPM" */
+                epd_paint_showString(78, 100, str_ppm, &font30, color, true);
+            }
+
+            refresh |= 0x80;
+        }
     }
 
-//    uint8_t buf[2048] = {0};
-//    zdo_mgmtLqiIndicate(buf);
-//
-//    printf("lqi buf: ");
-//
-//    for (uint8_t i = 0; i < 32; i++) {
-//        printf("%s%d", buf[i] < 0x10?"0":"", buf[i]);
-//    }
-//
-//    printf("\r\n");
-//    uint16_t lqi;
-//    int8_t rssi = ZB_RADIO_RSSI_GET();
-////    if (rssi < -100) rssi = -90;
-//    ZB_RADIO_RSSI_TO_LQI(1, rssi, lqi);
-//    printf("LQI: %d\r\n", lqi);;
-//    printf("ZB_RADIO_RSSI_GET: %d\r\n", rssi);
+    button_handler();
+
+    voc = epd_screen_variable.co2;
+    if (epd_screen_variable.voc != voc) {
+
+        epd_screen_variable.voc = voc;
+
+        uint8_t str_voc_val[8] = {0};
+        uint8_t str_voc[] = "VOC";
+        uint8_t str_ppm[] = "PPM";
+
+        if (itoa(voc, str_voc_val)) {
+
+            if (config.inversion == APP_EPD_INVERSION_OFF) {
+                color = EPD_COLOR_BLACK;
+            } else {
+                color = EPD_COLOR_WHITE;
+            }
+
+            sFont *fontVOC = NULL;
+            uint16_t xVOC;
+
+            if (config.rotate == APP_EPD_ROTATE_0) {
+                fontVOC = &font54;
+                xVOC = 195 + fontVOC->width / 2;
+                epd_paint_showString(xVOC - (4 / 2 * fontVOC->width), 60, (uint8_t*)"    ", fontVOC, color, false);
+                xVOC = xVOC - (strlen((char*)str_voc_val) * fontVOC->width / 2);
+                /* print value VOC */
+                epd_paint_showString(xVOC, 60, str_voc_val, fontVOC, color, false);
+                /* print string "VOC" */
+                epd_paint_showString(153, 140, str_voc, &font30, color, true);
+                /* print string "PPM" */
+                epd_paint_showString(215, 140, str_ppm, &font30, color, true);
+            } else {
+                fontVOC = &font58;
+                xVOC = 60 + fontVOC->width / 2;
+                epd_paint_showString(xVOC - (4 / 2 * fontVOC->width), 160, (uint8_t*)"    ", fontVOC, color, false);
+                xVOC = xVOC - (strlen((char*)str_voc_val) * fontVOC->width / 2);
+                /* print value VOC */
+                epd_paint_showString(xVOC, 160, str_voc_val, fontVOC, color, false);
+                /* print string "VOC" */
+                epd_paint_showString(22, 220, str_voc, &font30, color, true);
+                /* print string "PPM" */
+                epd_paint_showString(78, 220, str_ppm, &font30, color, true);
+            }
+
+            refresh |= 0x100;
+        }
+    }
+
+    button_handler();
+
+    lux = app_bh1750_get_lux();
+
+    uint8_t clear_buf[] = "       ";
+    uint8_t clear_cnt = 0;
+
+    sFont *font = &font24;
+
+    if (config.rotate == APP_EPD_ROTATE_0) {
+        x = 288;
+        y = 60;
+    } else {
+        x = 188;
+        y = 160;
+    }
+
+    if (epd_screen_variable.lux != lux) {
+        epd_screen_variable.lux = lux;
+
+        uint8_t str_lux_val[8] = {0};
+        uint8_t str_lux[] = "Lx";
+
+        if (itoa(lux, str_lux_val)) {
+
+            clear_cnt = strlen((const char*)str_lux_val);
+
+            if (config.inversion == APP_EPD_INVERSION_OFF) {
+                color = EPD_COLOR_BLACK;
+            } else {
+                color = EPD_COLOR_WHITE;
+            }
+
+            /* clear print space */
+            epd_paint_showString(x, y, clear_buf, font, color, false);
+            /* print value LUX */
+            epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_lux_val, font, color, false);
+            /* print string "Lux" */
+            epd_paint_showString(x+89, y+3, str_lux, &font19, color, true);
+
+            refresh |= 0x200;
+        }
+    }
+
+    button_handler();
+
+    ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, ZCL_ATTRID_PRESSURE_MEASUREDVALUE, &attr_len, (uint8_t*)&kpa);
+    y += 26;
+
+    if (ret == ZCL_STA_SUCCESS && kpa != 0x8000) {
+        if (epd_screen_variable.pressure != kpa) {
+            epd_screen_variable.pressure = kpa;
+
+            if (config.inversion == APP_EPD_INVERSION_OFF) {
+                color = EPD_COLOR_BLACK;
+            } else {
+                color = EPD_COLOR_WHITE;
+            }
+
+            uint8_t str_kpa[8] = {0};
+            uint8_t str_hpa[] = "hP";
+            uint8_t str_mm[] = "mm";
+
+            if (itoa((kpa * 10 / 13), str_kpa)) {
+
+                uint8_t clear_cnt = strlen((const char*)str_kpa);
+
+                /* clear print space */
+                epd_paint_showString(x, y, clear_buf, &font24, color, false);
+                /* print value pressure */
+                epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_kpa, &font24, color, false);
+                epd_paint_showString(x+89, y+3, str_mm, &font19, color, true);
+
+                refresh |= 0x400;
+            }
+
+            y += 26;
+
+            if (itoa(kpa, str_kpa)) {
+
+                uint8_t clear_cnt = strlen((const char*)str_kpa);
+
+                /* clear print space */
+                epd_paint_showString(x, y, clear_buf, &font24, color, false);
+                /* print value pressure */
+                epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_kpa, &font24, color, false);
+                epd_paint_showString(x+89, y+3, str_hpa, &font19, color, true);
+
+                refresh |= 0x400;
+            }
+        } else {
+            y += 26;
+        }
+    } else {
+        y += 26;
+    }
+
+    button_handler();
+
+    y += 26;
+
+    if (epd_screen_variable.lqi != lqi) {
+        epd_screen_variable.lqi = lqi;
+
+        uint8_t str_lqi_val[8] = {0};
+        uint8_t str_lqi[] = "Lq";
+
+        if (itoa(lqi, str_lqi_val)) {
+
+            uint8_t clear_cnt = strlen((const char*)str_lqi_val);
+
+            /* clear print space */
+            epd_paint_showString(x, y, clear_buf, &font24, color, false);
+            /* print value lqi */
+            epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_lqi_val, &font24, color, false);
+            epd_paint_showString(x+89, y+3, str_lqi, &font19, color, true);
+
+            refresh |= 0x800;
+        }
+    }
+
+
+    button_handler();
+
+    if (refresh) {
+        epd_displayBW_partial(image_bw);
+        epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
+    }
 
 }
 
@@ -474,8 +682,9 @@ static void epd_screen_invar() {
     uint8_t color, clear;
     uint8_t external[] = "OUTSIDE";
     uint8_t internal[] = "INSIDE";
-//    uint8_t temp[] = EPD_TEMP;
-//    uint8_t rh[] = EPD_RH;
+
+    //epd_init_partial();
+    epd_reset();
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
         color = EPD_COLOR_BLACK;
@@ -493,8 +702,8 @@ static void epd_screen_invar() {
         epd_paint_drawRectangle(1, 27, 400, 300, color, 0);
         epd_paint_drawLine(1, 200, 400, 200, color);
         epd_paint_drawLine(200, 200, 200, 300, color);
-        epd_paint_showString(1, 192, internal, &font16, color);
-        epd_paint_showString(328, 192, external, &font16, color);
+        epd_paint_showString(1, 192, internal, &font16, color, true);
+        epd_paint_showString(328, 192, external, &font16, color, true);
         epd_paint_showPicture(2, 217, 24, 24, image_tempLogo, color);
         epd_paint_showPicture(202, 217, 24, 24, image_tempLogo, color);
         epd_paint_showPicture(2, 261, 24, 24, image_humidityLogo, color);
@@ -506,8 +715,8 @@ static void epd_screen_invar() {
         epd_paint_drawLine(1, 267, 300, 267, color);
         epd_paint_drawLine(1, 320, 300, 320, color);
         epd_paint_drawLine(1, 373, 300, 373, color);
-        epd_paint_showString(1, 261, internal, &font13, color);
-        epd_paint_showString(1, 314, external, &font13, color);
+        epd_paint_showString(1, 261, internal, &font13, color, true);
+        epd_paint_showString(1, 314, external, &font13, color, true);
         epd_paint_showPicture(2, 282, 24, 24, image_tempLogo, color);
         epd_paint_showPicture(2, 334, 24, 24, image_tempLogo, color);
         epd_paint_showPicture(178, 282, 24, 24, image_humidityLogo, color);
@@ -515,11 +724,13 @@ static void epd_screen_invar() {
     }
 
     epd_displayBW_partial(image_bw);
-//    epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
+    epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
 
 }
 
 static void epd_logo() {
+
+    epd_reset();
 
 //    uint16_t x, y;
     uint8_t fwv[]  = ZCL_BASIC_SW_BUILD_ID;
@@ -547,21 +758,22 @@ static void epd_logo() {
     epd_paint_clear(clear);
 
     if (config.rotate == APP_EPD_ROTATE_0) {
-        epd_paint_showString(6, 0, manufacturer, &font16, color);
-        epd_paint_showString(70, 100, name, &font26, color);
-        epd_paint_showString(80, 160, joined1, &font13, color);
-        epd_paint_showString(26, 180, joined2, &font13, color);
-        epd_paint_showString(266, 285, vers, &font12, color);
+        epd_paint_showString(6, 0, manufacturer, &font16, color, true);
+        epd_paint_showString(70, 100, name, &font26, color, true);
+        epd_paint_showString(80, 160, joined1, &font13, color, true);
+        epd_paint_showString(26, 180, joined2, &font13, color, true);
+        epd_paint_showString(266, 285, vers, &font12, color, true);
     } else {
-        epd_paint_showString(6, 0, manufacturer, &font16, color);
-        epd_paint_showString(16, 142, name, &font26, color);
-        epd_paint_showString(4, 202, joined1, &font13, color);
-        epd_paint_showString(42, 222, joined3, &font13, color);
-        epd_paint_showString(92, 242, joined4, &font13, color);
-        epd_paint_showString(186, 385, vers, &font12, color);
+        epd_paint_showString(6, 0, manufacturer, &font16, color, true);
+        epd_paint_showString(16, 142, name, &font26, color, true);
+        epd_paint_showString(4, 202, joined1, &font13, color, true);
+        epd_paint_showString(42, 222, joined3, &font13, color, true);
+        epd_paint_showString(92, 242, joined4, &font13, color, true);
+        epd_paint_showString(186, 385, vers, &font12, color, true);
     }
 
     epd_displayBW_partial(image_bw);
+    epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
 
     sleep_ms(TIMEOUT_5SEC);
 }
@@ -582,7 +794,7 @@ static void epd_logo() {
      epd_paint_selectimage(image_bw);
      epd_paint_clear(EPD_COLOR_WHITE);
      epd_displayBW(image_bw);
-     sleep_ms(TIMEOUT_1SEC);
+     //sleep_ms(TIMEOUT_1SEC);
  }
 
 void app_epd_init() {
@@ -596,7 +808,7 @@ void app_epd_init() {
     epd_init_partial();
 
     //epd_newimage();
-    if (/*!config.joined*/zb_getLocalShortAddr() >= 0xFFF8) {
+    if (zb_getLocalShortAddr() >= 0xFFF8) {
         epd_logo();
 //        while(1);
         epd_clear();

@@ -14,7 +14,7 @@ void app_i2c_init() {
 
 }
 
-int8_t scan_i2c_addr(int address) {
+int8_t scan_i2c_addr(uint8_t address) {
     if ((reg_clk_en0 & FLD_CLK0_I2C_EN)==0)
         app_i2c_init();
     u8 r = reg_i2c_speed;

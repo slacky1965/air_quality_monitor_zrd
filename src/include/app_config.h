@@ -5,7 +5,8 @@ typedef struct __attribute__((packed)) {
     uint8_t     rotate;
     uint8_t     inversion;
     uint16_t    mesurement_period;
-    uint8_t     joined;
+//    uint8_t     unit_pressure;
+//    uint8_t     joined;
     uint8_t     crc;
 } config_t;
 

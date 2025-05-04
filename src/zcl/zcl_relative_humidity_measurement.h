@@ -3,7 +3,7 @@
 
 #include "app_cfg.h"
 
-/********************* Temperature Measurement ************************/
+/********************* Humidity Measurement ************************/
 #if ZCL_HUMIDITY_MEASUREMENT_SUPPORT
 #define ZCL_HUMIDITY_MEASUREMENT
 #endif

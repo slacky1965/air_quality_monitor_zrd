@@ -1,14 +1,13 @@
 #include "app_main.h"
-#include "app_bh1750.h"
 
-bh1750_dev_t bh1750_dev;
+static bh1750_dev_t bh1750_dev;
 
-uint16_t raw;
-float lux;
+static uint16_t raw;
+static float lux;
 
 #if UART_PRINTF_MODE && DEBUG_BH1750
 static void bh1750_error_codes_print_result(const char api_name[], int8_t rslt) {
-    if (rslt != BME280_OK)
+    if (rslt != BH1750_OK)
     {
         printf("%s\t", api_name);
 
@@ -88,7 +87,7 @@ uint8_t app_bh1750_init() {
     }
 
     if (ret) {
-        bh1750_dev.addr = ret;
+//        bh1750_dev.addr = ret;
         bh1750_dev.delay = bh1750_delay;
         bh1750_dev.read = bh1750_i2c_read;
         bh1750_dev.write = bh1750_i2c_write;
@@ -127,4 +126,8 @@ void app_bh1750_measurement() {
     bh1750_error_codes_print_result("app_bh1750_measurement", ret);
 #endif
 
+}
+
+uint16_t app_bh1750_get_lux() {
+    return (uint16_t)lux;
 }

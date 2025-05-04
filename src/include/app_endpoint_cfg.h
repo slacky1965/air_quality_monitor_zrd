@@ -93,6 +93,15 @@ typedef struct {
 } zcl_humidityAttr_t;
 
 /**
+ *  @brief Defined for pressure cluster attributes
+ */
+typedef struct {
+    int16_t value;
+    int16_t minValue;
+    int16_t maxValue;
+} zcl_pressureAttr_t;
+
+/**
  *  @brief Defined for ILLUMINANCE cluster attributes
  */
 typedef struct {

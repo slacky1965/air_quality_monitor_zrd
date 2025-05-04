@@ -1067,9 +1067,27 @@ status_t app_humidityCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
 }
 
 /*********************************************************************
+ * @fn      app_pressureCb
+ *
+ * @brief   Handler for ZCL Pressure command.
+ *
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+status_t app_pressureCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+//    printf("app_pressureCb. cmd: 0x%x\r\n", cmdId);
+
+    return ZCL_STA_SUCCESS;
+}
+
+/*********************************************************************
  * @fn      app_illuminanceCb
  *
- * @brief   Handler for ZCL Humidity command.
+ * @brief   Handler for ZCL Illuminance command.
  *
  * @param   pAddrInfo
  * @param   cmdId

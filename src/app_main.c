@@ -139,15 +139,18 @@ void user_app_init(void)
     app_epd_init();
 
     app_i2c_init();
-    TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
 
     TL_ZB_TIMER_SCHEDULE(app_time_cmdCb, NULL, TIMEOUT_10SEC);
 
     app_first_start_epd();
 
     app_bme280_init();
+    app_bme280_measurement();
     app_bh1750_init();
+    app_scd4x_init();
 
+    TL_ZB_TIMER_SCHEDULE(app_lqiCb, NULL, TIMEOUT_250MS);
+    TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
 }
 
 void app_task(void) {

@@ -57,7 +57,8 @@ nv_sts_t config_restore() {
         config.rotate = APP_EPD_ROTATE_0;
         config.inversion = APP_EPD_INVERSION_OFF;
         config.mesurement_period = 5; //DEFAULT_MESURE_PERIOD;
-        config.joined = false;
+//        config.unit_pressure = APP_EPD_UNIT_PRESSURE_MM;
+//        config.joined = false;
     }
 
 #else

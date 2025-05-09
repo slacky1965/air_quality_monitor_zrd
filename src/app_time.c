@@ -80,17 +80,9 @@ static int32_t app_clockCb(void *arg) {
             printf("UTC time  : %d\r\n", (utc_time+UNIX_TIME_CONST));
             printf("Local time: %d\r\n", (local_time+UNIX_TIME_CONST));
 #endif
-//            TL_SCHEDULE_TASK(epd_datetime, NULL);
-//            epd_datetime();
         }
     }
 
-//    uint16_t lqi;
-//    int8_t rssi = ZB_RADIO_RSSI_GET();
-//    ZB_RADIO_RSSI_TO_LQI(0, rssi, lqi);
-//    printf("LQI: %d\r\n", lqi);;
-//    printf("ZB_RADIO_RSSI_GET: %d\r\n", ZB_RADIO_RSSI_GET());
-//    printf("g_sysDiags.lastMessageRSSI: %d\r\n", g_sysDiags.lastMessageRSSI);
     return 0;
 }
 

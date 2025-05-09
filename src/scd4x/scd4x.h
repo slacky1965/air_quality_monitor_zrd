@@ -2,6 +2,7 @@
 #define SRC_SCD4X_SCD4X_H_
 
 #define SCD4X_I2C_ADDRESS           0x62
+
 typedef enum {
     SCD4X_OK = 0,
     SCD4X_ERROR,

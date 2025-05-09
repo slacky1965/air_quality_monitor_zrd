@@ -76,6 +76,7 @@ extern "C" {
 #define DEBUG_BME280                    OFF
 #define DEBUG_BH1750                    OFF
 #define DEBUG_SCD4X                     OFF
+#define DEBUG_DS3231                    ON
 
 /* HCI interface */
 #define ZBHCI_UART                      OFF

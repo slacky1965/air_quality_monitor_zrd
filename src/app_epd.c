@@ -1,17 +1,13 @@
 #include "app_main.h"
 
 #include "epaper.h"
-//#include "epdfont.h"
 #include "bmp.h"
 #include "app_epd.h"
 #include "app_epd_images.h"
-//#include "app_epd_fonts.h"
 
 static uint8_t image_bw[EPD_W_BUFF_SIZE * EPD_H];
 
 static uint16_t real_rotate = EPD_ROTATE_270;
-
-static uint8_t minutes = 61;
 
 static bool show_logo = false;
 
@@ -169,6 +165,8 @@ static void epd_screen_var(void *args) {
 
     uint8_t wday_str[][4] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
     uint8_t *p_wday_str;
+    bool update_time = false;
+    uint8_t idx_date_stop, idx_time_start;
 
     button_handler();
 
@@ -182,53 +180,95 @@ static void epd_screen_var(void *args) {
         color = EPD_COLOR_WHITE;
     }
 
-    ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, &attr_len, (uint8_t*)&counter);
+    ds3231_time_t t;
+    if (app_ds3231_get_time(&t) == DS3231_OK) {
+//        printf("time from ds3231\r\n");
+        if (epd_screen_variable.minutes != t.minute) {
+            epd_screen_variable.minutes = t.minute;
+            update_time = true;
 
-    if (ret == ZCL_STA_SUCCESS && counter != 0xFFFFFFFF) {
-
-        ftime = get_ftime(counter);
-
-        uint8_t idx_date_stop, idx_time_start;
-
-        if (minutes !=  ftime->minute) {
-            minutes =  ftime->minute;
             idx = 0;
-            datetime[idx++] = (ftime->day / 10) + 0x30;
-            datetime[idx++] = (ftime->day % 10) + 0x30;
+            datetime[idx++] = (t.date / 10) + 0x30;
+            datetime[idx++] = (t.date % 10) + 0x30;
             datetime[idx++] = '-';
-            datetime[idx++] = (ftime->month / 10) + 0x30;
-            datetime[idx++] = (ftime->month % 10) + 0x30;
+            datetime[idx++] = (t.month / 10) + 0x30;
+            datetime[idx++] = (t.month % 10) + 0x30;
             datetime[idx++] = '-';
-            datetime[idx++] = (ftime->year / 1000) + 0x30;
-            y = ftime->year % 1000;
+            datetime[idx++] = (t.year / 1000) + 0x30;
+            y = t.year % 1000;
             datetime[idx++] = (y / 100) + 0x30;
             m = y % 100;
             datetime[idx++] = (m / 10) + 0x30;
             datetime[idx++] = (m % 10) + 0x30;
             datetime[idx++] = ' ';
-            p_wday_str = wday_str[ftime->wday];
+            p_wday_str = wday_str[t.week];
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str;
             idx_date_stop = idx;
             datetime[idx++] = ' ';
             idx_time_start = idx;
-            datetime[idx++] = (ftime->hour / 10) + 0x30;
-            datetime[idx++] = (ftime->hour % 10) + 0x30;
+            datetime[idx++] = (t.hour / 10) + 0x30;
+            datetime[idx++] = (t.hour % 10) + 0x30;
             datetime[idx++] = ':';
-            datetime[idx++] = (ftime->minute / 10) + 0x30;
-            datetime[idx++] = (ftime->minute % 10) + 0x30;
+            datetime[idx++] = (t.minute / 10) + 0x30;
+            datetime[idx++] = (t.minute % 10) + 0x30;
             datetime[idx] = 0;
-
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(56, 0, datetime, &font26, color, true);
-            } else {
-                datetime[idx_date_stop] = 0;
-                epd_paint_showString(50, 373, datetime, &font26, color, true);
-                epd_paint_showString(180, 50, datetime+idx_time_start, &font38, color, false);
-            }
-            refresh |= 0x01;
         }
+    } else {
+
+        ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, &attr_len, (uint8_t*)&counter);
+
+        if (ret == ZCL_STA_SUCCESS && counter != 0xFFFFFFFF) {
+
+//            printf("time from tlsr8258\r\n");
+
+            ftime = get_ftime(counter);
+
+            if (epd_screen_variable.minutes !=  ftime->minute) {
+                epd_screen_variable.minutes =  ftime->minute;
+                idx = 0;
+                datetime[idx++] = (ftime->day / 10) + 0x30;
+                datetime[idx++] = (ftime->day % 10) + 0x30;
+                datetime[idx++] = '-';
+                datetime[idx++] = (ftime->month / 10) + 0x30;
+                datetime[idx++] = (ftime->month % 10) + 0x30;
+                datetime[idx++] = '-';
+                datetime[idx++] = (ftime->year / 1000) + 0x30;
+                y = ftime->year % 1000;
+                datetime[idx++] = (y / 100) + 0x30;
+                m = y % 100;
+                datetime[idx++] = (m / 10) + 0x30;
+                datetime[idx++] = (m % 10) + 0x30;
+                datetime[idx++] = ' ';
+                p_wday_str = wday_str[ftime->wday];
+                datetime[idx++] = *p_wday_str++;
+                datetime[idx++] = *p_wday_str++;
+                datetime[idx++] = *p_wday_str;
+                idx_date_stop = idx;
+                datetime[idx++] = ' ';
+                idx_time_start = idx;
+                datetime[idx++] = (ftime->hour / 10) + 0x30;
+                datetime[idx++] = (ftime->hour % 10) + 0x30;
+                datetime[idx++] = ':';
+                datetime[idx++] = (ftime->minute / 10) + 0x30;
+                datetime[idx++] = (ftime->minute % 10) + 0x30;
+                datetime[idx] = 0;
+
+                update_time = true;
+            }
+        }
+    }
+
+    if (update_time) {
+        if (config.rotate == APP_EPD_ROTATE_0) {
+            epd_paint_showString(56, 0, datetime, &font26, color, true);
+        } else {
+            datetime[idx_date_stop] = 0;
+            epd_paint_showString(50, 373, datetime, &font26, color, true);
+            epd_paint_showString(180, 50, datetime+idx_time_start, &font38, color, false);
+        }
+        refresh |= 0x01;
 
     }
 
@@ -374,7 +414,8 @@ static void epd_screen_var(void *args) {
     button_handler();
 
     /* outsize temperature */
-    if (1 == 1) {
+    temp = app_get_outside_temperature();
+    if (temp != 0x8000 && epd_screen_variable.temp_out != temp) {
         epd_screen_variable.temp_out = temp;
 
         if (config.inversion == APP_EPD_INVERSION_OFF) {
@@ -396,8 +437,8 @@ static void epd_screen_var(void *args) {
     button_handler();
 
     /* outside humidity */
-    rh = epd_screen_variable.humidity_in;
-    if (epd_screen_variable.humidity_out != rh) {
+    rh = app_get_outside_humidity();
+    if (rh != 0xffff && epd_screen_variable.humidity_out != rh) {
         epd_screen_variable.humidity_out = rh;
 
         rh /= 100;

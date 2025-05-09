@@ -32,7 +32,7 @@
 #define SCD4X_COMMAND_SET_AUTO_SELF_CALIBRATION_STANDARD_PERIOD     0x244E      /* set automatic self calibration standard period command */
 #define SCD4X_COMMAND_GET_AUTO_SELF_CALIBRATION_STANDARD_PERIOD     0x234B      /* get automatic self calibration standard period command */
 
-scd4x_dev_t *dev = NULL;
+static scd4x_dev_t *dev = NULL;
 
 static uint8_t scd4x_crc8(uint8_t *data, uint8_t len) {
   uint8_t crc = SCD4X_CRC8_INIT;

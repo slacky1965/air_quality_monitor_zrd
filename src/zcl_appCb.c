@@ -55,7 +55,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
 #ifdef ZCL_REPORT
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd);
 static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
-static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd);
+static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps_data_ind_t aps_data_ind);
 #endif
 static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd);
 
@@ -91,6 +91,9 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 
 	uint16_t cluster = pInHdlrMsg->msg->indInfo.cluster_id;
 	uint8_t endPoint = pInHdlrMsg->msg->indInfo.dst_ep;
+	aps_data_ind_t aps_data_ind = pInHdlrMsg->msg->indInfo;
+//	uint16_t addr = pInHdlrMsg->msg->indInfo.src_short_addr;
+
 	switch(pInHdlrMsg->hdr.cmd)
 	{
 #ifdef ZCL_READ
@@ -114,7 +117,7 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 			app_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_REPORT:
-			app_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReportCmd(cluster, pInHdlrMsg->attrCmd, aps_data_ind);
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
@@ -166,8 +169,20 @@ static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
 #if UART_PRINTF_MODE && DEBUG_TIME
             printf("Sync Local Time: %d\r\n", time_local+UNIX_TIME_CONST);
 #endif
-        } else if (attrList[i].attrID == ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI && attrList[i].status == ZCL_STA_SUCCESS) {
-            printf("LQI\r\n");
+            ftime_t *ft = get_ftime(time_local);
+            ds3231_time_t t;
+            if (app_ds3231_get_time(&t) == DS3231_OK) {
+                t.year = ft->year;
+                t.month = ft->month;
+                t.week = ft->wday;
+                t.date = ft->day;
+                t.hour = ft->hour;
+                t.minute = ft->minute;
+                t.second = ft->second;
+                app_ds3231_set_time(&t);
+            }
+//        } else if (attrList[i].attrID == ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI && attrList[i].status == ZCL_STA_SUCCESS) {
+//            printf("LQI\r\n");
         }
     }
 
@@ -252,27 +267,21 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
  */
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-    //printf("app_zclCfgReportCmd\r\n");
-//    reportCfgInfo_t *pEntry;
-//    for(uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
-//        for (uint8_t ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
-//            pEntry = &reportingTab.reportCfgInfo[ii];
-//            if (pEntry->used) {
-//                printf("attrId: 0x%x, maxInterval: %d, minInterval: %d\r\n", pEntry->attrID, pEntry->maxInterval, pEntry->minInterval);
+//    printf("app_zclCfgReportCmd\r\n");
 //
-//            }
-////            if (app_reporting[ii].pEntry->used) {
-////                if (app_reporting[ii].pEntry->endPoint == endPoint && app_reporting[ii].pEntry->attrID == pCfgReportCmd->attrList[i].attrID) {
-////                    if (app_reporting[ii].timerReportMinEvt) {
-////                        TL_ZB_TIMER_CANCEL(&app_reporting[ii].timerReportMinEvt);
-////                    }
-////                    if (app_reporting[ii].timerReportMaxEvt) {
-////                        TL_ZB_TIMER_CANCEL(&app_reporting[ii].timerReportMaxEvt);
-////                    }
-////                    return;
-////                }
-////            }
-//        }
+//    reportCfgInfo_t *pEntry;
+//
+//    for(uint8_t i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+//        pEntry = &reportingTab.reportCfgInfo[i];
+//        printf("clusterID: 0x%04x, attrID: 0x%04x\r\n",
+//        pEntry->clusterID,
+//        pEntry->attrID);
+//    }
+//
+//    for(uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
+//        printf("direction: %d, attrId: 0x%04x\r\n",
+//                pCfgReportCmd->attrList[i].direction,
+//                pCfgReportCmd->attrList[i].attrID);
 //    }
 }
 
@@ -300,9 +309,69 @@ static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCf
  *
  * @return  None
  */
-static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd)
-{
-    //printf("app_zclReportCmd\n");
+static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps_data_ind_t aps_data_ind) {
+    printf("app_zclReportCmd\r\n");
+
+    uint8_t numAttr = pReportCmd->numAttr;
+    zclReport_t *attrList = pReportCmd->attrList;
+
+    uint8_t ret;
+    uint16_t addr = aps_data_ind.src_short_addr;
+
+    for (uint8_t i = 0; i < numAttr; i++) {
+        if (clusterId == ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT &&
+                attrList[i].dataType == ZCL_DATA_TYPE_INT16 &&
+                attrList[i].attrID == ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE) {
+            int16_t temp;
+
+            temp = attrList[i].attrData[0] & 0xFF;
+            temp |= (attrList[i].attrData[1] << 8) & 0xFFFF;
+
+            ret = bind_outside_check(addr, clusterId);
+            if (ret == OUTSIDE_S_EMPTY || ret == OUTSIDE_S_NO_CLUSTER) {
+                bind_outside_init();
+                start_bind_scan(addr, 0);
+            } else if (ret == OUTSIDE_S_ADDR_FAIL) {
+                continue;
+            }
+
+            app_set_outside_temperature(temp);
+            bind_outside_update_timer();
+        }
+        if (clusterId == ZCL_CLUSTER_MS_RELATIVE_HUMIDITY &&
+                attrList[i].dataType == ZCL_DATA_TYPE_UINT16 &&
+                attrList[i].attrID == ZCL_ATTRID_HUMIDITY_MEASUREDVALUE) {
+            uint16_t hum;
+
+            hum = attrList[i].attrData[0] & 0xFF;
+            hum |= (attrList[i].attrData[1] << 8) & 0xFFFF;
+
+            ret = bind_outside_check(addr, clusterId);
+            if (ret == OUTSIDE_S_EMPTY || ret == OUTSIDE_S_NO_CLUSTER) {
+                bind_outside_init();
+                start_bind_scan(addr, 0);
+            } else if (ret == OUTSIDE_S_ADDR_FAIL) {
+                continue;
+            }
+            app_set_outside_humidity(hum);
+            bind_outside_update_timer();
+        }
+        if (clusterId == ZCL_CLUSTER_GEN_POWER_CFG &&
+                attrList[i].dataType == ZCL_DATA_TYPE_UINT8 &&
+                attrList[i].attrID == ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING) {
+            uint8_t bat_percent = attrList[i].attrData[0];
+
+            ret = bind_outside_check(addr, clusterId);
+            if (ret == OUTSIDE_S_EMPTY || ret == OUTSIDE_S_NO_CLUSTER) {
+                bind_outside_init();
+                start_bind_scan(addr, 0);
+            } else if (ret == OUTSIDE_S_ADDR_FAIL) {
+                continue;
+            }
+//            app_set_outside_bat_parcent(bat_percent);
+            bind_outside_update_timer();
+        }
+    }
 
 }
 #endif	/* ZCL_REPORT */

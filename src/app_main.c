@@ -128,17 +128,11 @@ void user_app_init(void)
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&app_ep1Desc, &app_otaInfo, &app_otaCb);
 #endif
 
-
-//    uint32_t res;
-//    for (uint32_t i = 2; i < 0xffff; i += 1357) {
-//        res = log10(i) * 1000;
-//        printf("i: %d, log10: %d\r\n", i, res);
-//
-//    }
-
     app_epd_init();
 
     app_i2c_init();
+
+    app_ds3231_init();
 
     TL_ZB_TIMER_SCHEDULE(app_time_cmdCb, NULL, TIMEOUT_10SEC);
 

@@ -21,6 +21,7 @@
 #include "app_bme280.h"
 #include "app_bh1750.h"
 #include "app_scd4x.h"
+#include "app_ds3231.h"
 #include "app_config.h"
 #include "app_time.h"
 

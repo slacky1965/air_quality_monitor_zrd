@@ -206,6 +206,7 @@ extern "C" {
 #define ZCL_CO2_MEASUREMENT_SUPPORT                 ON
 #define ZCL_ILLUMINANCE_MEASUREMENT_SUPPORT         ON
 #define ZCL_LEVEL_CTRL_SUPPORT                      ON
+#define ZCL_ANALOG_INPUT_SUPPORT                    ON
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT               ON
 #endif

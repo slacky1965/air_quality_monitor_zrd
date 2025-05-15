@@ -86,7 +86,7 @@ static void app_sgp40_index(void *args) {
     uint16_t attr_len;
     int16_t temp;
     uint16_t rh, raw_temp, raw_rh;
-    float f_temp, f_rh;
+    float f_temp, f_rh, index;
 
     raw_temp = 0x8000;
     raw_rh = 0x6666;
@@ -126,6 +126,10 @@ static void app_sgp40_index(void *args) {
 
     if (ret == SGP40_OK) {
         GasIndexAlgorithm_process(&params, sraw_voc, &voc_index_value);
+
+        index = (float)voc_index_value;
+
+        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC, ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE, (uint8_t*)&index);
     }
 
 //    printf("voc_index_value: %d\r\n", voc_index_value);

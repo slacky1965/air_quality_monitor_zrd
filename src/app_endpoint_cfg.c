@@ -16,7 +16,7 @@
 #define R               ACCESS_CONTROL_READ
 #define RW              ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE
 #define RR              ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE
-#define RRW             ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE
+#define RWR             ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE | ACCESS_CONTROL_REPORTABLE
 
 #define ZCL_UINT8       ZCL_DATA_TYPE_UINT8
 #define ZCL_INT8        ZCL_DATA_TYPE_INT8
@@ -63,6 +63,9 @@ const uint16_t app_ep1_inClusterList[] = {
     ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT,
 #endif
     ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
+#ifdef ZCL_ANALOG_INPUT
+    ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC
+#endif
 };
 
 /**
@@ -325,6 +328,30 @@ const zclAttrInfo_t level_attrTbl[] =
 
 #endif
 
+#ifdef ZCL_ANALOG_INPUT
+
+zcl_aInputAttr_t g_zcl_aInputAttrs = {
+        .out_of_service = 0,
+        .value = 0,
+        .status_flag = 0,
+        .app_type.index = ZCL_ANALOG_INPUT_ATTRID_TYPE_IDX_VOC,
+        .app_type.type = 0x0C,
+        .app_type.group = 0,
+};
+
+const zclAttrInfo_t aInput_attrTbl[] = {
+        { ZCL_ANALOG_INPUT_ATTRID_OUT_OF_SERVICE,   ZCL_BOOLEAN,    RW,     (uint8_t*)&g_zcl_aInputAttrs.out_of_service },
+        { ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE,    ZCL_SINGLE,     RWR,    (uint8_t*)&g_zcl_aInputAttrs.value          },
+        { ZCL_ANALOG_INPUT_ATTRID_STATUS_FLAG,      ZCL_BITMAP8,    RR,     (uint8_t*)&g_zcl_aInputAttrs.status_flag    },
+        { ZCL_ANALOG_INPUT_ATTRID_APPLICATION_TYPE, ZCL_UINT32,     R,      (uint8_t*)&g_zcl_aInputAttrs.app_type       },
+
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16,     R,      (uint8_t*)&zcl_attr_global_clusterRevision  },
+
+};
+
+#define ZCL_AINPUT_ATTR_NUM   sizeof(aInput_attrTbl) / sizeof(zclAttrInfo_t)
+
+#endif
 
 /**
  *  @brief Definition for simple switch ZCL specific cluster
@@ -350,6 +377,9 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_ILLUMINANCE_ATTR_NUM,  illuminance_attrTbl,    zcl_illuminanceMeasure_register,   app_illuminanceCb},
 #ifdef ZCL_LEVEL_CTRL
     {ZCL_CLUSTER_GEN_LEVEL_CONTROL, MANUFACTURER_CODE_NONE, ZCL_LEVEL_ATTR_NUM,         level_attrTbl,          zcl_level_register,         app_displayLevelCb},
+#endif
+#ifdef ZCL_ANALOG_INPUT
+    {ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC, MANUFACTURER_CODE_NONE, ZCL_AINPUT_ATTR_NUM,  aInput_attrTbl,    zcl_analog_input_register,   app_aInputCb},
 #endif
 };
 

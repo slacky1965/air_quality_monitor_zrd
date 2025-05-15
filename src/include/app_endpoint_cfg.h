@@ -120,6 +120,21 @@ typedef struct {
     uint8_t     options;
 } zcl_levelAttr_t;
 
+/**
+ *  @brief Defined for analog input clusters attributes
+ */
+typedef struct __attribute__((packed)) {
+    uint32_t    index  :16;    // 0x0200: Vendor VOC (Index Point)
+    uint32_t    type   :8;     // 0x0C: Count – Unitless
+    uint32_t    group  :8;     // 0x00: Analog Input
+} aInput_appType_t;
+
+typedef struct __attribute__((packed)) {
+    uint8_t     out_of_service;
+    float       value;
+    uint8_t     status_flag;
+    aInput_appType_t app_type;
+} zcl_aInputAttr_t;
 
 
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;

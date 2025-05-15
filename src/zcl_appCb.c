@@ -1319,7 +1319,7 @@ static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveT
 
     config_save();
 
-    printf("level: %d\r\n", cmd->level);
+//    printf("level: %d\r\n", cmd->level);
 
     led_set_brightness(cmd->level);
     led_on(led_get_color());
@@ -1339,7 +1339,7 @@ static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveT
  */
 
 status_t app_displayLevelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
-    printf("app_displayLevelCb, cmdId: 0x%02x\r\n", cmdId);
+//    printf("app_displayLevelCb, cmdId: 0x%02x\r\n", cmdId);
     if(pAddrInfo->dstEp == APP_ENDPOINT1) {
         switch(cmdId){
             case ZCL_CMD_LEVEL_MOVE_TO_LEVEL:
@@ -1353,6 +1353,19 @@ status_t app_displayLevelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cm
 
     return ZCL_STA_SUCCESS;
 }
+
+#ifdef ZCL_ANALOG_INPUT
+
+status_t app_aInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+//    printf("app_aInputCb(). pAddrInfo->dirCluster: %0x%x, cmdId: 0x%x\r\n", pAddrInfo->dirCluster, cmdId);
+
+    status_t status = ZCL_STA_SUCCESS;
+
+    return status;
+}
+
+#endif /* ZCL_ANALOG_INPUT */
 
 
 

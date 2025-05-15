@@ -24,7 +24,7 @@ static void buttonKeepPressed(uint8_t btNum) {
         printf("The button was keep pressed for 5 seconds\r\n");
 #endif
         led_blink_stop();
-        led_blink_start(20, 5, 1500, LED_ON_R);
+        led_blink_start(20, 5, 1500, COLOR_RED);
 
         if (zb_getLocalShortAddr() >= 0xFFF8) {
             if (!factory_reset) {
@@ -46,10 +46,15 @@ static void buttonCheckCommand(uint8_t btNum) {
     g_appCtx.button[btNum-1].state = APP_STATE_NORMAL;
 
     if (g_appCtx.button[btNum-1].ctn == 1) {
+        led_blink_stop();
+        led_blink_start(1, 30, 30, COLOR_RED);
+
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 1 time\r\n");
 #endif
     } else if (g_appCtx.button[btNum-1].ctn == 2) {
+        led_blink_stop();
+        led_blink_start(2, 30, 30, COLOR_RED);
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 2 times. Rotate\r\n");
 #endif
@@ -59,6 +64,8 @@ static void buttonCheckCommand(uint8_t btNum) {
         config_save();
         zb_resetDevice();
     } else if (g_appCtx.button[btNum-1].ctn == 3) {
+        led_blink_stop();
+        led_blink_start(3, 30, 30, COLOR_RED);
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 3 times. Inversion\r\n");
 #endif

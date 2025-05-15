@@ -206,7 +206,7 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
         case BDB_COMMISSION_STA_SUCCESS:
             factory_reset = false;
             led_blink_stop();
-            led_blink_start(1, 1000, 1, LED_ON_G);
+            led_blink_start(1, 2000, 1, COLOR_GREEN);
 
             zb_setPollRate(POLL_RATE * 3);
 

@@ -39,11 +39,11 @@ enum {
 #define PD4_INPUT_ENABLE        OFF
 
 /* Busy pin */
-#define EPD_BUSY                GPIO_PB5
-#define PB5_FUNC                AS_GPIO
-#define PB5_INPUT_ENABLE        ON
-#define PB5_OUTPUT_ENABLE       OFF
-#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLDOWN_100K
+#define EPD_BUSY                GPIO_PB4
+#define PB4_FUNC                AS_GPIO
+#define PB4_INPUT_ENABLE        ON
+#define PB4_OUTPUT_ENABLE       OFF
+#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLDOWN_100K
 
 /* DC pin */
 #define EPD_DC                  GPIO_PA1
@@ -58,7 +58,7 @@ enum {
 #define PD2_INPUT_ENABLE        OFF
 
 /* SPI Clock */
-#define EPD_SPI_CLOCK          400000//400K
+#define EPD_SPI_CLOCK          2400000//400K
 
 /*
  *  Define pin for SPI interface
@@ -87,26 +87,35 @@ enum {
 #define LED_PERMIT              LED_STATUS
 #else
 
-#define LED_RED                 GPIO_PC0
-#define PC0_FUNC                AS_GPIO
-#define PC0_OUTPUT_ENABLE       ON
-#define PC0_INPUT_ENABLE        OFF
+/************************ Configure SPI for LED ***************************/
 
-#define LED_GREEN               GPIO_PC1
+/* CS pin */
+#define LED_CS                  GPIO_PC1
 #define PC1_FUNC                AS_GPIO
 #define PC1_OUTPUT_ENABLE       ON
 #define PC1_INPUT_ENABLE        OFF
 
-#define LED_BLUE                GPIO_PD3
-#define PD3_FUNC                AS_GPIO
-#define PD3_OUTPUT_ENABLE       ON
-#define PD3_INPUT_ENABLE        OFF
+/* SPI Clock */
+#define LED_SPI_CLOCK           2400000//2400K
+
+/*
+ *  Define pin for SPI interface
+ *          SDO  SDI  SCK  CN
+ *          A2   A3   A4   D6
+ *          B7   B6   D7   D2
+ *
+ *          B7 - SDA on epaper
+ */
+#define LED_SDO                 GPIO_PB7
+#define LED_SPI_PIN_GROUP       SPI_GPIO_GROUP_B6B7D2D7
+#define LED_SPI_PIN_CS          LED_CS
+
+
+
 #endif
 
-///************************* Configure Temperature ***********************************/
-//#define GPIO_TEMP               GPIO_PC3
-//#define PC3_FUNC                AS_GPIO
-////#define PULL_WAKEUP_SRC_PC3     PM_PIN_PULLUP_1M
+
+
 
 
 #if UART_PRINTF_MODE

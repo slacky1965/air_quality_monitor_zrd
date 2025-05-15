@@ -20,7 +20,7 @@ nv_sts_t config_save() {
 #if NV_ENABLE
 
 #if UART_PRINTF_MODE
-        printf("Saved config\r\n");
+    printf("Saved config\r\n");
 #endif
 
     config.crc = checksum((uint8_t*)&config, sizeof(config_t)-1);
@@ -49,6 +49,8 @@ nv_sts_t config_restore() {
 #endif
 
         memcpy(&config, &temp_config, (sizeof(config_t)));
+        g_zcl_levelAttrs.currentLevel = config.brightness;
+
     } else {
         /* default config */
 #if UART_PRINTF_MODE
@@ -57,8 +59,11 @@ nv_sts_t config_restore() {
         config.rotate = APP_EPD_ROTATE_0;
         config.inversion = APP_EPD_INVERSION_OFF;
         config.mesurement_period = 5; //DEFAULT_MESURE_PERIOD;
+        config.brightness = 0xFF;
 //        config.unit_pressure = APP_EPD_UNIT_PRESSURE_MM;
 //        config.joined = false;
+
+        g_zcl_levelAttrs.currentLevel = config.brightness;
     }
 
 #else

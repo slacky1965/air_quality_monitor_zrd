@@ -28,6 +28,9 @@ static void parse_mqmt_lqi(void *args) {
     if (n_tbl_cnt) {
         start_lqi_scan(n_tbl_cnt);
     }
+
+    if (!lqi_true)
+        t_index = 0;
 }
 
 static void start_lqi_scan(uint8_t idx) {
@@ -42,10 +45,11 @@ static void start_lqi_scan(uint8_t idx) {
     }
 
     if (idx == 0) {
-        if (t_index == 0)
-            start_index = 0;
-        else
-            start_index = t_index;
+        start_index = t_index;
+//        if (t_index == 0)
+//            start_index = 0;
+//        else
+//            start_index = t_index;
     }
 
 //    printf("idx: %d, t_index: %d\r\n", idx, t_index);

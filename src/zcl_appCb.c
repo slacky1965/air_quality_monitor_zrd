@@ -174,7 +174,7 @@ static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
             if (app_ds3231_get_time(&t) == DS3231_OK) {
                 t.year = ft->year;
                 t.month = ft->month;
-                t.week = ft->wday;
+                t.week = ft->wday + 1;
                 t.date = ft->day;
                 t.hour = ft->hour;
                 t.minute = ft->minute;
@@ -268,6 +268,23 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
 //    printf("app_zclCfgReportCmd\r\n");
+
+//    for(uint8_t i = 0; i < APS_BINDING_TABLE_NUM; i++) {
+//        if (g_apsBindingTbl[i].used) {
+//            u8 r = irq_disable();
+//            printf("bind_tbl\r\n");
+//            printf("addr_mode: 0x%02x, clId: 0x%04x, ", g_apsBindingTbl[i].dstAddrMode, g_apsBindingTbl[i].clusterId);
+//
+//            printf("addr: ");
+//            for (uint8_t ii = 0; ii < 8; ii++) {
+//                printf("0x%02x:", g_apsBindingTbl[i].dstExtAddrInfo.extAddr[ii]);
+//            }
+//            printf("\r\n");
+//
+//            irq_restore(r);
+//        }
+//    }
+
 //
 //    reportCfgInfo_t *pEntry;
 //
@@ -296,7 +313,7 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
  */
 static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-    //printf("app_zclCfgReportRspCmd\r\n");
+//    printf("app_zclCfgReportRspCmd\r\n");
 
 }
 
@@ -310,7 +327,7 @@ static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCf
  * @return  None
  */
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps_data_ind_t aps_data_ind) {
-    printf("app_zclReportCmd\r\n");
+//    printf("app_zclReportCmd\r\n");
 
     uint8_t numAttr = pReportCmd->numAttr;
     zclReport_t *attrList = pReportCmd->attrList;
@@ -368,11 +385,26 @@ static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps
             } else if (ret == OUTSIDE_S_ADDR_FAIL) {
                 continue;
             }
-//            app_set_outside_bat_parcent(bat_percent);
+            app_set_outside_battery(bat_percent);
             bind_outside_update_timer();
         }
     }
 
+//    for(uint8_t i = 0; i < APS_BINDING_TABLE_NUM; i++) {
+//        if (g_apsBindingTbl[i].used) {
+//            u8 r = irq_disable();
+//            printf("bind_tbl\r\n");
+//            printf("addr_mode: 0x%02x, clId: 0x%04x, ", g_apsBindingTbl[i].dstAddrMode, g_apsBindingTbl[i].clusterId);
+//
+//            printf("addr: ");
+//            for (uint8_t ii = 0; ii < 8; ii++) {
+//                printf("0x%02x:", g_apsBindingTbl[i].dstExtAddrInfo.extAddr[ii]);
+//            }
+//            printf("\r\n");
+//
+//            irq_restore(r);
+//        }
+//    }
 }
 #endif	/* ZCL_REPORT */
 
@@ -1260,4 +1292,67 @@ int32_t app_diagnostics_cmdCb(void *arg) {
 
     return 0;
 }
+
+/*********************************************************************
+ * @fn      app_displayMoveToLevelProcess
+ *
+ * @brief
+ *
+ * @param   cmdId
+ * @param   cmd
+ *
+ * @return  None
+ */
+
+static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveToLvl_t *cmd) {
+
+    uint16_t len;
+    uint8_t min_level, max_level;
+
+    zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_MIN_LEVEL, &len, (uint8_t*)&min_level);
+    zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_MAX_LEVEL, &len, (uint8_t*)&max_level);
+
+    if (cmd->level < min_level || cmd->level > max_level)
+        return;
+
+    config.brightness = g_zcl_levelAttrs.currentLevel;
+
+    config_save();
+
+    printf("level: %d\r\n", cmd->level);
+
+    led_set_brightness(cmd->level);
+    led_on(led_get_color());
+}
+
+
+/*********************************************************************
+ * @fn      app_displaylevelCb
+ *
+ * @brief   Handler for ZCL LEVEL command. This function will set LEVEL attribute first.
+ *
+ * @param   pAddrInfo
+ * @param   cmd - level cluster command id
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+
+status_t app_displayLevelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
+    printf("app_displayLevelCb, cmdId: 0x%02x\r\n", cmdId);
+    if(pAddrInfo->dstEp == APP_ENDPOINT1) {
+        switch(cmdId){
+            case ZCL_CMD_LEVEL_MOVE_TO_LEVEL:
+            case ZCL_CMD_LEVEL_MOVE_TO_LEVEL_WITH_ON_OFF:
+                app_displayMoveToLevelProcess(pAddrInfo->dstEp, cmdId, (moveToLvl_t *)cmdPayload);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return ZCL_STA_SUCCESS;
+}
+
+
 

@@ -69,7 +69,6 @@ const uint16_t app_ep1_inClusterList[] = {
  *  @brief Definition for Outgoing cluster / Client Cluster
  */
 const uint16_t app_ep1_outClusterList[] = {
-    ZCL_CLUSTER_GEN_DIAGNOSTICS,
     ZCL_CLUSTER_GEN_TIME,
 #ifdef ZCL_OTA
     ZCL_CLUSTER_OTA,
@@ -153,21 +152,6 @@ const zclAttrInfo_t identify_attrTbl[] =
 };
 
 #define ZCL_IDENTIFY_ATTR_NUM           sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t)
-
-/* Identify */
-zcl_diagnosticsAttr_t g_zcl_diagnosticsAttrs =
-{
-    .lastMessageLQI = 0,
-};
-
-const zclAttrInfo_t diagnostics_attrTbl[] =
-{
-    { ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI,  ZCL_UINT8,      RW, (uint8_t*)&g_zcl_diagnosticsAttrs.lastMessageLQI},
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision},
-};
-
-#define ZCL_DIAGNOSTICS_ATTR_NUM           sizeof(diagnostics_attrTbl) / sizeof(zclAttrInfo_t)
 
 #ifdef ZCL_GROUP
 /* Group */
@@ -318,6 +302,28 @@ const zclAttrInfo_t illuminance_attrTbl[] = {
 
 #define ZCL_ILLUMINANCE_ATTR_NUM   sizeof(illuminance_attrTbl) / sizeof(zclAttrInfo_t)
 
+#ifdef ZCL_LEVEL_CTRL
+/* Level */
+zcl_levelAttr_t g_zcl_levelAttrs = {
+    .currentLevel = 0xFF,
+    .minLevel = 0,
+    .maxLevel = 0xFF,
+    .options  = 1,
+};
+
+const zclAttrInfo_t level_attrTbl[] =
+{
+    { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs.currentLevel    },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs.minLevel        },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs.maxLevel        },
+    { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs.options         },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
+};
+
+#define ZCL_LEVEL_ATTR_NUM   sizeof(level_attrTbl) / sizeof(zclAttrInfo_t)
+
+#endif
 
 
 /**
@@ -326,7 +332,6 @@ const zclAttrInfo_t illuminance_attrTbl[] = {
 const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_GEN_BASIC,         MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM,         basic_attrTbl,          zcl_basic_register,         app_basicCb},
     {ZCL_CLUSTER_GEN_IDENTIFY,      MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,      identify_attrTbl,       zcl_identify_register,      app_identifyCb},
-    {ZCL_CLUSTER_GEN_DIAGNOSTICS,   MANUFACTURER_CODE_NONE, ZCL_DIAGNOSTICS_ATTR_NUM,   diagnostics_attrTbl,    zcl_diagnostics_register,   app_diagnosticsCb},
     {ZCL_CLUSTER_GEN_TIME,          MANUFACTURER_CODE_NONE, ZCL_TIME_ATTR_NUM,          time_attrTbl,           zcl_time_register,          app_timeCb},
 #ifdef ZCL_GROUP
     {ZCL_CLUSTER_GEN_GROUPS,        MANUFACTURER_CODE_NONE, ZCL_GROUP_1ATTR_NUM,        group_attr1Tbl,         zcl_group_register,         NULL},
@@ -343,6 +348,9 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, MANUFACTURER_CODE_NONE, ZCL_HUMIDITY_ATTR_NUM,  humidity_attrTbl,    zcl_humidity_measurement_register,   app_humidityCb},
     {ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_PRESSURE_ATTR_NUM,  pressure_attrTbl,    zcl_pressure_measurement_register,   app_pressureCb},
     {ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_ILLUMINANCE_ATTR_NUM,  illuminance_attrTbl,    zcl_illuminanceMeasure_register,   app_illuminanceCb},
+#ifdef ZCL_LEVEL_CTRL
+    {ZCL_CLUSTER_GEN_LEVEL_CONTROL, MANUFACTURER_CODE_NONE, ZCL_LEVEL_ATTR_NUM,         level_attrTbl,          zcl_level_register,         app_displayLevelCb},
+#endif
 };
 
 uint8_t APP_EP1_CB_CLUSTER_NUM = (sizeof(g_appEp1ClusterList)/sizeof(g_appEp1ClusterList[0]));

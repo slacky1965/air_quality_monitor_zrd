@@ -76,6 +76,7 @@ extern "C" {
 #define DEBUG_BME280                    OFF
 #define DEBUG_BH1750                    OFF
 #define DEBUG_SCD4X                     OFF
+#define DEBUG_SGP40                     ON
 #define DEBUG_DS3231                    ON
 
 /* HCI interface */
@@ -204,7 +205,7 @@ extern "C" {
 #define ZCL_PRESSURE_MEASUREMENT_SUPPORT            ON
 #define ZCL_CO2_MEASUREMENT_SUPPORT                 ON
 #define ZCL_ILLUMINANCE_MEASUREMENT_SUPPORT         ON
-#define ZCL_DIAGNOSTICS_SUPPORT                     ON
+#define ZCL_LEVEL_CTRL_SUPPORT                      ON
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT               ON
 #endif

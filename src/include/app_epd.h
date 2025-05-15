@@ -22,6 +22,7 @@ typedef struct {
     int16_t  temp_out;
     uint16_t humidity_in;
     uint16_t humidity_out;
+    uint8_t  battery_percent;
     int16_t  pressure;
     uint16_t co2;
     uint16_t voc;

@@ -110,6 +110,18 @@ typedef struct {
     uint16_t maxValue;
 } zcl_illuminanceAttr_t;
 
+/**
+ *  @brief Defined for level cluster attributes
+ */
+typedef struct {
+    uint8_t     currentLevel;
+    uint8_t     minLevel;
+    uint8_t     maxLevel;
+    uint8_t     options;
+} zcl_levelAttr_t;
+
+
+
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;
 
 /* Attributes */
@@ -120,7 +132,7 @@ extern zcl_sceneAttr_t g_zcl_scene1Attrs;
 extern zcl_co2Attr_t g_zcl_co2Attrs;
 extern zcl_temperatureAttr_t g_zcl_temperatureAttrs;
 extern zcl_humidityAttr_t g_zcl_humidityAttrs;
-extern zcl_diagnosticsAttr_t g_zcl_diagnosticsAttrs;
+extern zcl_levelAttr_t g_zcl_levelAttrs;
 
 int32_t app_diagnostics_cmdCb(void *arg);
 

@@ -7,12 +7,12 @@
 #include "ota.h"
 #include "gp.h"
 
-#include "app_led.h"
 #include "zcl_concentration_measurement.h"
 #include "zcl_relative_humidity_measurement.h"
 #include "zcl_pressure_measurement.h"
 #include "app_lqi.h"
 #include "app_button.h"
+#include "app_led.h"
 #include "app_utility.h"
 #include "app_endpoint_cfg.h"
 #include "app_epd.h"
@@ -21,6 +21,7 @@
 #include "app_bme280.h"
 #include "app_bh1750.h"
 #include "app_scd4x.h"
+#include "app_sgp40.h"
 #include "app_ds3231.h"
 #include "app_config.h"
 #include "app_time.h"
@@ -95,6 +96,7 @@ status_t app_pressureCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
 status_t app_timeCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_diagnosticsCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_illuminanceCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
+status_t app_displayLevelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 #define zcl_scene1AttrGet()         &g_zcl_scene1Attrs
 #define zcl_scene2AttrGet()         &g_zcl_scene2Attrs
@@ -103,6 +105,7 @@ status_t app_illuminanceCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void
 #define zcl_humidityAttrGet()       &g_zcl_humidityAttrs
 #define zcl_pressureAttrGet()       &g_zcl_pressureAttrs
 #define zcl_illuminanceAttrGet()    &g_zcl_illuminanceAttrs
+#define zcl_levelAttrGet()          &g_zcl_levelAttrs
 
 void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

@@ -13,10 +13,11 @@ static bool show_logo = false;
 
 static epd_screen_variable_t epd_screen_variable = {
         .minutes = 61,
-        .temp_in = 0x8000,
-        .temp_out = 0x8000,
-        .humidity_in = 0xffff,
-        .humidity_out = 0xffff,
+        .temp_in = 0x8001,
+        .temp_out = 0x8001,
+        .humidity_in = 0xfffe,
+        .humidity_out = 0xfffe,
+        .battery_percent = 0xfe,
         .pressure = 0,
         .co2 = 0,
         .voc = 0,
@@ -47,74 +48,77 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
     int16_t temp_int;
     int16_t temp_rem, temp_remt;
     bool negative = false;
-    uint8_t str_temp[6] = {0};
+    uint8_t str_temp[6] = " --  ";
     uint8_t *ptr;
-    uint8_t str_degree[] = "@C"; // replacement in font30 @ -> °
+    uint8_t str_celsius[] = "@C"; // replacement in font30 @ -> °
+//    uint8_t str_fahren[] = "@F"; // replacement in font30 @ -> °
+//    uint8_t *ptr_degree = NULL;
     sFont *font = NULL;
     uint16_t xx, yy;
 
     button_handler();
 
-    if (temp < 0) {
-        temp = -temp;
-        negative = true;
-    }
-
-    temp_int = temp / 100;
-
-    temp_remt = temp % 100;
-
-    if (temp < 5)
-        temp_rem = 1;
-    else
-        if((temp_remt % 10) >= 5 && (temp_remt / 10) == 9 ) {
-            //temp_int++;
-            temp_rem = temp_remt / 10;
-        } else
-            temp_rem = temp_remt / 10 + (temp_remt % 10 >= 5?1:0);
-
-    if (temp_int > 99)
-        temp_int = temp_int % 100;
-
-    ptr = str_temp;
-
-    if (negative)
-        *ptr++ = '-';
-    else
-        *ptr++ = ' ';
-
-    if (itoa(temp_int, ptr)) {
-        ptr++;
-        if (temp_int > 9)
-            ptr++;
-
-        if (temp_rem == 0) {
-            *ptr++ = ' ';
-            *ptr++ = ' ';
-            *ptr = 0;
-        } else {
-            *ptr++ = '.';
-
-            if (!itoa(temp_rem, ptr)) {
-                ptr = str_temp;
-                *ptr++ = ' ';
-                *ptr++ = '-';
-                *ptr++ = '-';
-                *ptr++ = '.';
-                *ptr++ = '-';
-                *ptr++ = 0;
-            }
+    if ((uint16_t)temp != 0x8000) {
+        if (temp < 0) {
+            temp = -temp;
+            negative = true;
         }
-    } else {
-        ptr = str_temp;
-        *ptr++ = ' ';
-        *ptr++ = '-';
-        *ptr++ = '-';
-        *ptr++ = '.';
-        *ptr++ = '-';
-        *ptr++ = 0;
-    }
 
+        temp_int = temp / 100;
+
+        temp_remt = temp % 100;
+
+        if (temp < 5)
+            temp_rem = 1;
+        else
+            if((temp_remt % 10) >= 5 && (temp_remt / 10) == 9 ) {
+                //temp_int++;
+                temp_rem = temp_remt / 10;
+            } else
+                temp_rem = temp_remt / 10 + (temp_remt % 10 >= 5?1:0);
+
+        if (temp_int > 99)
+            temp_int = temp_int % 100;
+
+        ptr = str_temp;
+
+        if (negative)
+            *ptr++ = '-';
+        else
+            *ptr++ = ' ';
+
+        if (itoa(temp_int, ptr)) {
+            ptr++;
+            if (temp_int > 9)
+                ptr++;
+
+            if (temp_rem == 0) {
+                *ptr++ = ' ';
+                *ptr++ = ' ';
+                *ptr = 0;
+            } else {
+                *ptr++ = '.';
+
+                if (!itoa(temp_rem, ptr)) {
+                    ptr = str_temp;
+                    *ptr++ = ' ';
+                    *ptr++ = '-';
+                    *ptr++ = '-';
+                    *ptr++ = ' ';
+                    *ptr++ = ' ';
+                    *ptr++ = 0;
+                }
+            }
+        } else {
+            ptr = str_temp;
+            *ptr++ = ' ';
+            *ptr++ = '-';
+            *ptr++ = '-';
+            *ptr++ = ' ';
+            *ptr++ = ' ';
+            *ptr++ = 0;
+        }
+    }
 
     if (config.rotate == APP_EPD_ROTATE_0) {
         font = &font41;
@@ -126,11 +130,8 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
         font = &font38;
     }
 
-//    if (negative)
-        epd_paint_showString(x-5, y, str_temp, font, color, true);
-//    else
-//        epd_paint_showString(x, y, str_temp, &font41, color);
-    epd_paint_showString(x+xx, y+yy, str_degree, &font30, color, true);
+    epd_paint_showString(x-5, y, str_temp, font, color, true);
+    epd_paint_showString(x+xx, y+yy, str_celsius, &font30, color, true);
 
 //    printf("str temp: '%s', temp: %d, neg: %d\r\n", str_temp, temp, negative);
 }
@@ -144,7 +145,7 @@ static void epd_screen_var(void *args) {
     uint8_t m;
     uint16_t x, y;
 
-    uint8_t level;
+    uint8_t level, bat;
     uint8_t *pLevel = NULL;
 
     uint16_t attr_len;
@@ -167,6 +168,10 @@ static void epd_screen_var(void *args) {
     uint8_t *p_wday_str;
     bool update_time = false;
     uint8_t idx_date_stop, idx_time_start;
+
+    led_color_t led_color = led_get_color();
+
+    epd_io_init();
 
     button_handler();
 
@@ -201,7 +206,7 @@ static void epd_screen_var(void *args) {
             datetime[idx++] = (m / 10) + 0x30;
             datetime[idx++] = (m % 10) + 0x30;
             datetime[idx++] = ' ';
-            p_wday_str = wday_str[t.week];
+            p_wday_str = wday_str[t.week-1];
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str++;
             datetime[idx++] = *p_wday_str;
@@ -278,7 +283,7 @@ static void epd_screen_var(void *args) {
 
     if (sh_addr < 0xFFF8) {
 
-        led_blink_stop();
+//        led_blink_stop();
 
         if (!epd_screen_variable.zbIcon) {
 //            printf("!epd_screen_variable.zbIcon\r\n");
@@ -356,12 +361,6 @@ static void epd_screen_var(void *args) {
     if (ret == ZCL_STA_SUCCESS && epd_screen_variable.temp_in != temp) {
         epd_screen_variable.temp_in = temp;
 
-        if (config.inversion == APP_EPD_INVERSION_OFF) {
-            color = EPD_COLOR_BLACK;
-        } else {
-            color = EPD_COLOR_WHITE;
-        }
-
         if (config.rotate == APP_EPD_ROTATE_0) {
             epd_show_temperature(36, 210, temp, color);
         } else {
@@ -378,36 +377,42 @@ static void epd_screen_var(void *args) {
     if (ret == ZCL_STA_SUCCESS && epd_screen_variable.humidity_in != rh) {
         epd_screen_variable.humidity_in = rh;
 
-        rh /= 100;
-
-        if (epd_screen_variable.humidity_in % 100 >= 50)
-            rh++;
-
-        if (rh > 100)
-            rh = 100;
-
-        uint8_t str_hum[5] = {0};
+        uint8_t str_hum[5] = "-- ";
         uint8_t str_rh[] = "%Rh";
 
-        if (itoa(rh, str_hum)) {
+        if (rh != 0xffff) {
 
-            if (config.inversion == APP_EPD_INVERSION_OFF) {
-                color = EPD_COLOR_BLACK;
-            } else {
-                color = EPD_COLOR_WHITE;
+            rh /= 100;
+
+            if (epd_screen_variable.humidity_out % 100 >= 50)
+                rh++;
+
+            if (rh > 100)
+                rh = 100;
+
+
+            if (!itoa(rh, str_hum)) {
+                uint8_t *ptr = str_hum;
+                *ptr++ = '-';
+                *ptr++ = '-';
+                *ptr++ = ' ';
             }
 
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(56, 255, str_hum, &font41, color, true);
-                epd_paint_showString(146, 263, str_rh, &font30, color, true);
-            } else {
-                epd_paint_showString(203, 277, str_hum, &font41, color, true);
-                epd_paint_showChar(273, 285, '%', &font30, color);
+            if (strlen((const char*)str_hum) == 2) {
+                str_hum[3] = ' ';
+                str_hum[4] = 0;
             }
-
-            refresh |= 0x10;
-
         }
+
+        if (config.rotate == APP_EPD_ROTATE_0) {
+            epd_paint_showString(56, 255, str_hum, &font41, color, true);
+            epd_paint_showString(146, 263, str_rh, &font30, color, true);
+        } else {
+            epd_paint_showString(203, 277, str_hum, &font41, color, true);
+            epd_paint_showChar(273, 285, '%', &font30, color);
+        }
+
+        refresh |= 0x10;
 
     }
 
@@ -415,14 +420,8 @@ static void epd_screen_var(void *args) {
 
     /* outsize temperature */
     temp = app_get_outside_temperature();
-    if (temp != 0x8000 && epd_screen_variable.temp_out != temp) {
+    if (epd_screen_variable.temp_out != temp) {
         epd_screen_variable.temp_out = temp;
-
-        if (config.inversion == APP_EPD_INVERSION_OFF) {
-            color = EPD_COLOR_BLACK;
-        } else {
-            color = EPD_COLOR_WHITE;
-        }
 
         if (config.rotate == APP_EPD_ROTATE_0) {
             epd_show_temperature(236, 210, temp, color);
@@ -438,40 +437,81 @@ static void epd_screen_var(void *args) {
 
     /* outside humidity */
     rh = app_get_outside_humidity();
-    if (rh != 0xffff && epd_screen_variable.humidity_out != rh) {
+    if (epd_screen_variable.humidity_out != rh) {
         epd_screen_variable.humidity_out = rh;
 
-        rh /= 100;
-
-        if (epd_screen_variable.humidity_out % 100 >= 50)
-            rh++;
-
-        if (rh > 100)
-            rh = 100;
-
-        uint8_t str_hum[5] = {0};
+        uint8_t str_hum[5] = "-- ";
         uint8_t str_rh[] = "%Rh";
 
-        if (itoa(rh, str_hum)) {
+        if (rh != 0xffff) {
 
-            if (config.inversion == APP_EPD_INVERSION_OFF) {
-                color = EPD_COLOR_BLACK;
-            } else {
-                color = EPD_COLOR_WHITE;
+            rh /= 100;
+
+            if (epd_screen_variable.humidity_out % 100 >= 50)
+                rh++;
+
+            if (rh > 100)
+                rh = 100;
+
+
+            if (!itoa(rh, str_hum)) {
+                uint8_t *ptr = str_hum;
+                *ptr++ = '-';
+                *ptr++ = '-';
+                *ptr++ = ' ';
             }
 
-            if (config.rotate == APP_EPD_ROTATE_0) {
-                epd_paint_showString(261-5, 255, str_hum, &font41, color, true);
-                epd_paint_showString(346, 263, str_rh, &font30, color, true);
-            } else {
-                epd_paint_showString(203, 330, str_hum, &font41, color, true);
-                epd_paint_showChar(273, 338, '%', &font30, color);
+            if (strlen((const char*)str_hum) == 2) {
+                str_hum[3] = ' ';
+                str_hum[4] = 0;
             }
-
-            refresh |= 0x40;
-
         }
 
+
+        if (config.rotate == APP_EPD_ROTATE_0) {
+            epd_paint_showString(261-5, 255, str_hum, &font41, color, true);
+            epd_paint_showString(346, 263, str_rh, &font30, color, true);
+        } else {
+            epd_paint_showString(203, 330, str_hum, &font41, color, true);
+            epd_paint_showChar(273, 338, '%', &font30, color);
+        }
+
+        refresh |= 0x40;
+
+    }
+
+    button_handler();
+
+    /* outside battery */
+    bat = app_get_outside_battery();
+
+    if (epd_screen_variable.battery_percent != bat) {
+        epd_screen_variable.battery_percent = bat;
+
+        uint8_t *p_image_bat = NULL;
+
+        if (bat == 0xFF)
+            bat = 0;
+
+        bat /= 2;
+
+        if (bat < 10)
+            p_image_bat = (uint8_t*)image_battery_0;
+        else if (bat < 30)
+            p_image_bat = (uint8_t*)image_battery_25;
+        else if (bat < 60)
+            p_image_bat = (uint8_t*)image_battery_50;
+        else if (bat < 80)
+            p_image_bat = (uint8_t*)image_battery_75;
+        else
+            p_image_bat = (uint8_t*)image_battery_100;
+
+        if (config.rotate == APP_EPD_ROTATE_0) {
+            epd_paint_showPicture(374, 208, 22, 10, p_image_bat, color);
+        } else {
+            epd_paint_showPicture(274, 323, 22, 10, p_image_bat, color);
+        }
+        refresh |= 0x80;
     }
 
     button_handler();
@@ -487,12 +527,6 @@ static void epd_screen_var(void *args) {
         uint8_t str_ppm[] = "PPM";
 
         if (itoa(co2, str_co2)) {
-
-            if (config.inversion == APP_EPD_INVERSION_OFF) {
-                color = EPD_COLOR_BLACK;
-            } else {
-                color = EPD_COLOR_WHITE;
-            }
 
             sFont *fontCO2 = NULL;
             uint16_t xCO2;
@@ -525,28 +559,23 @@ static void epd_screen_var(void *args) {
                 epd_paint_showString(78, 100, str_ppm, &font30, color, true);
             }
 
-            refresh |= 0x80;
+            refresh |= 0x100;
         }
     }
 
     button_handler();
 
-    voc = epd_screen_variable.co2;
+    voc = app_sgp40_get_voc();
+
     if (epd_screen_variable.voc != voc) {
 
         epd_screen_variable.voc = voc;
 
         uint8_t str_voc_val[8] = {0};
         uint8_t str_voc[] = "VOC";
-        uint8_t str_ppm[] = "PPM";
+        uint8_t str_ppm[] = "InP";
 
         if (itoa(voc, str_voc_val)) {
-
-            if (config.inversion == APP_EPD_INVERSION_OFF) {
-                color = EPD_COLOR_BLACK;
-            } else {
-                color = EPD_COLOR_WHITE;
-            }
 
             sFont *fontVOC = NULL;
             uint16_t xVOC;
@@ -575,7 +604,7 @@ static void epd_screen_var(void *args) {
                 epd_paint_showString(78, 220, str_ppm, &font30, color, true);
             }
 
-            refresh |= 0x100;
+            refresh |= 0x200;
         }
     }
 
@@ -606,12 +635,6 @@ static void epd_screen_var(void *args) {
 
             clear_cnt = strlen((const char*)str_lux_val);
 
-            if (config.inversion == APP_EPD_INVERSION_OFF) {
-                color = EPD_COLOR_BLACK;
-            } else {
-                color = EPD_COLOR_WHITE;
-            }
-
             /* clear print space */
             epd_paint_showString(x, y, clear_buf, font, color, false);
             /* print value LUX */
@@ -619,7 +642,7 @@ static void epd_screen_var(void *args) {
             /* print string "Lux" */
             epd_paint_showString(x+89, y+3, str_lux, &font19, color, true);
 
-            refresh |= 0x200;
+            refresh |= 0x400;
         }
     }
 
@@ -631,12 +654,6 @@ static void epd_screen_var(void *args) {
     if (ret == ZCL_STA_SUCCESS && kpa != 0x8000) {
         if (epd_screen_variable.pressure != kpa) {
             epd_screen_variable.pressure = kpa;
-
-            if (config.inversion == APP_EPD_INVERSION_OFF) {
-                color = EPD_COLOR_BLACK;
-            } else {
-                color = EPD_COLOR_WHITE;
-            }
 
             uint8_t str_kpa[8] = {0};
             uint8_t str_hpa[] = "hP";
@@ -652,7 +669,7 @@ static void epd_screen_var(void *args) {
                 epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_kpa, &font24, color, false);
                 epd_paint_showString(x+89, y+3, str_mm, &font19, color, true);
 
-                refresh |= 0x400;
+                refresh |= 0x800;
             }
 
             y += 26;
@@ -667,7 +684,7 @@ static void epd_screen_var(void *args) {
                 epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_kpa, &font24, color, false);
                 epd_paint_showString(x+89, y+3, str_hpa, &font19, color, true);
 
-                refresh |= 0x400;
+                refresh |= 0x800;
             }
         } else {
             y += 26;
@@ -696,7 +713,7 @@ static void epd_screen_var(void *args) {
             epd_paint_showString(x + (font24.width * (5 - clear_cnt)), y, str_lqi_val, &font24, color, false);
             epd_paint_showString(x+89, y+3, str_lqi, &font19, color, true);
 
-            refresh |= 0x800;
+            refresh |= 0x1000;
         }
     }
 
@@ -706,8 +723,23 @@ static void epd_screen_var(void *args) {
     if (refresh) {
         epd_displayBW_partial(image_bw);
         epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
-    }
 
+        if (co2 <= 600 && voc <= 100) {
+            if (led_color != COLOR_GREEN)
+                led_color = COLOR_GREEN;
+        } else if (co2 <= 900 && voc <= 250) {
+            if (led_color != COLOR_YELLOW)
+                led_color = COLOR_YELLOW;
+        } else if (co2 <= 1200 && voc <= 400) {
+            if (led_color != COLOR_PURPLE)
+                led_color = COLOR_PURPLE;
+        } else {
+            if (led_color != COLOR_RED)
+                led_color = COLOR_RED;
+        }
+
+        led_on(led_color);
+    }
 }
 
 int32_t epd_screen_varCb(void *args) {
@@ -721,6 +753,8 @@ static void epd_screen_invar() {
     uint8_t color, clear;
     uint8_t external[] = "OUTSIDE";
     uint8_t internal[] = "INSIDE";
+
+    epd_io_init();
 
     //epd_init_partial();
     epd_reset();

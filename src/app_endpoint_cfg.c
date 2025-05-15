@@ -64,8 +64,9 @@ const uint16_t app_ep1_inClusterList[] = {
 #endif
     ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
 #ifdef ZCL_ANALOG_INPUT
-    ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC
+    ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
 #endif
+    ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
 };
 
 /**
@@ -158,25 +159,25 @@ const zclAttrInfo_t identify_attrTbl[] =
 
 #ifdef ZCL_GROUP
 /* Group */
-zcl_groupAttr_t g_zcl_group1Attrs =
+zcl_groupAttr_t g_zcl_groupAttrs =
 {
     .nameSupport    = 0,
 };
 
-const zclAttrInfo_t group_attr1Tbl[] =
+const zclAttrInfo_t group_attrTbl[] =
 {
-    { ZCL_ATTRID_GROUP_NAME_SUPPORT,        ZCL_BITMAP8,    R,  (uint8_t*)&g_zcl_group1Attrs.nameSupport},
+    { ZCL_ATTRID_GROUP_NAME_SUPPORT,        ZCL_BITMAP8,    R,  (uint8_t*)&g_zcl_groupAttrs.nameSupport},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
-#define ZCL_GROUP_1ATTR_NUM    sizeof(group_attr1Tbl) / sizeof(zclAttrInfo_t)
+#define ZCL_GROUP_ATTR_NUM    sizeof(group_attrTbl) / sizeof(zclAttrInfo_t)
 
 #endif
 
 #ifdef ZCL_SCENE
 /* Scene */
-zcl_sceneAttr_t g_zcl_scene1Attrs = {
+zcl_sceneAttr_t g_zcl_sceneAttrs = {
     .sceneCount     = 0,
     .currentScene   = 0,
     .currentGroup   = 0x0000,
@@ -184,17 +185,17 @@ zcl_sceneAttr_t g_zcl_scene1Attrs = {
     .nameSupport    = 0,
 };
 
-const zclAttrInfo_t scene_attr1Tbl[] = {
-    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,      R,  (uint8_t*)&g_zcl_scene1Attrs.sceneCount   },
-    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,      R,  (uint8_t*)&g_zcl_scene1Attrs.currentScene },
-    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,     R,  (uint8_t*)&g_zcl_scene1Attrs.currentGroup },
-    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,    R,  (uint8_t*)&g_zcl_scene1Attrs.sceneValid   },
-    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,    R,  (uint8_t*)&g_zcl_scene1Attrs.nameSupport  },
+const zclAttrInfo_t scene_attrTbl[] = {
+    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,      R,  (uint8_t*)&g_zcl_sceneAttrs.sceneCount   },
+    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,      R,  (uint8_t*)&g_zcl_sceneAttrs.currentScene },
+    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,     R,  (uint8_t*)&g_zcl_sceneAttrs.currentGroup },
+    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,    R,  (uint8_t*)&g_zcl_sceneAttrs.sceneValid   },
+    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,    R,  (uint8_t*)&g_zcl_sceneAttrs.nameSupport  },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
-#define ZCL_SCENE_1ATTR_NUM   sizeof(scene_attr1Tbl) / sizeof(zclAttrInfo_t)
+#define ZCL_SCENE_ATTR_NUM   sizeof(scene_attrTbl) / sizeof(zclAttrInfo_t)
 
 #endif
 
@@ -353,6 +354,21 @@ const zclAttrInfo_t aInput_attrTbl[] = {
 
 #endif
 
+zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs = {
+    .temperatureDisplayMode = 0x00,         // 0x00 - °C, 0x01 - °F (Not support)
+    .keypadLockout = 0x00,                  // on off
+};
+
+
+const zclAttrInfo_t thermostat_ui_cfg_attrTbl[] = {
+        { ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE, ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.temperatureDisplayMode },
+        { ZCL_ATTRID_HVAC_KEYPAD_LOCKOUT,           ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.keypadLockout          },
+
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,      (uint8_t*)&zcl_attr_global_clusterRevision              },
+};
+
+#define ZCL_THERMOSTAT_UIC_ATTR_NUM   sizeof(thermostat_ui_cfg_attrTbl) / sizeof(zclAttrInfo_t)
+
 /**
  *  @brief Definition for simple switch ZCL specific cluster
  */
@@ -361,10 +377,10 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_GEN_IDENTIFY,      MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,      identify_attrTbl,       zcl_identify_register,      app_identifyCb},
     {ZCL_CLUSTER_GEN_TIME,          MANUFACTURER_CODE_NONE, ZCL_TIME_ATTR_NUM,          time_attrTbl,           zcl_time_register,          app_timeCb},
 #ifdef ZCL_GROUP
-    {ZCL_CLUSTER_GEN_GROUPS,        MANUFACTURER_CODE_NONE, ZCL_GROUP_1ATTR_NUM,        group_attr1Tbl,         zcl_group_register,         NULL},
+    {ZCL_CLUSTER_GEN_GROUPS,        MANUFACTURER_CODE_NONE, ZCL_GROUP_ATTR_NUM,         group_attrTbl,          zcl_group_register,         NULL},
 #endif
 #ifdef ZCL_SCENE
-    {ZCL_CLUSTER_GEN_SCENES,        MANUFACTURER_CODE_NONE, ZCL_SCENE_1ATTR_NUM,        scene_attr1Tbl,         zcl_scene_register,         app_sceneCb},
+    {ZCL_CLUSTER_GEN_SCENES,        MANUFACTURER_CODE_NONE, ZCL_SCENE_ATTR_NUM,         scene_attrTbl,         zcl_scene_register,         app_sceneCb},
 #endif
 #ifdef ZCL_CO2_MEASUREMENT
     {ZCL_CLUSTER_MS_CO2_MEASUREMENT, MANUFACTURER_CODE_NONE, ZCL_CO2_ATTR_NUM,          co2_attrTbl,        zcl_co2_measurement_register,   app_co2Cb},
@@ -381,6 +397,7 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
 #ifdef ZCL_ANALOG_INPUT
     {ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC, MANUFACTURER_CODE_NONE, ZCL_AINPUT_ATTR_NUM,  aInput_attrTbl,    zcl_analog_input_register,   app_aInputCb},
 #endif
+    {ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG, MANUFACTURER_CODE_NONE, ZCL_THERMOSTAT_UIC_ATTR_NUM, thermostat_ui_cfg_attrTbl, zcl_thermostat_ui_cfg_register, app_thermostat_uicCb},
 };
 
 uint8_t APP_EP1_CB_CLUSTER_NUM = (sizeof(g_appEp1ClusterList)/sizeof(g_appEp1ClusterList[0]));

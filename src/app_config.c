@@ -60,6 +60,7 @@ nv_sts_t config_restore() {
         config.inversion = APP_EPD_INVERSION_OFF;
         config.mesurement_period = 5; //DEFAULT_MESURE_PERIOD;
         config.brightness = 0xFF;
+        config.d_mode = ZCL_DISPLAY_MODE_FAHRENHEIT; //ZCL_DISPLAY_MODE_CELSIUS; //
 //        config.unit_pressure = APP_EPD_UNIT_PRESSURE_MM;
 //        config.joined = false;
 

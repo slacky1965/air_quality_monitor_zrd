@@ -16,6 +16,7 @@ $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_concentration_measurement.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_relative_humidity_measurement.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_pressure_measurement.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_analog_input.o \
+$(OUT_PATH)/$(SRC_PATH)/zcl/zcl_thermostat_ui_cfg.o \
 $(OUT_PATH)/$(SRC_PATH)/epaper/epaper.o \
 $(OUT_PATH)/$(SRC_PATH)/epaper/font12.o \
 $(OUT_PATH)/$(SRC_PATH)/epaper/font13.o \

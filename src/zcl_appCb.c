@@ -1367,5 +1367,40 @@ status_t app_aInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmd
 
 #endif /* ZCL_ANALOG_INPUT */
 
+status_t app_thermostat_uicCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+    printf("app_thermostatCb(). pAddrInfo->dirCluster: %0x%04x, cmdId: 0x%04x\r\n", pAddrInfo->dirCluster, cmdId);
+
+//    uint8_t *cmdData = (uint8_t*)cmdPayload;
+
+    status_t status = ZCL_STA_SUCCESS;
+
+//    if(pAddrInfo->dstEp == APP_ENDPOINT1) {
+//        switch(cmdId) {
+//            case ZCL_CMD_UP_OPEN:
+//                printf("CMD Open\r\n");
+//                remote_cmd_ocs(pAddrInfo->dstEp, cmdId);
+//                break;
+//            case ZCL_CMD_DOWN_CLOSE:
+//                printf("CMD Close\r\n");
+//                remote_cmd_ocs(pAddrInfo->dstEp, cmdId);
+//                break;
+//            case ZCL_CMD_STOP:
+//                printf("CMD Stop\r\n");
+//                remote_cmd_ocs(pAddrInfo->dstEp, cmdId);
+//                break;
+//            case ZCL_CMD_GO_TO_LIFT_PERCENTAGE:
+//                printf("CMD go to lift percentage. Payload: 0x%x\r\n", *cmdData);
+//                if (*cmdData <= 100) remote_cmd_goToLiftPer(pAddrInfo->dstEp, *cmdData);
+//                else status = ZCL_STA_INVALID_VALUE;
+//                break;
+//            default:
+//                break;
+//        }
+//    }
+
+
+    return status;
+}
 
 

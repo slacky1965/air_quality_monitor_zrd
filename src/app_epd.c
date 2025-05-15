@@ -31,7 +31,7 @@ static epd_screen_variable_t epd_screen_variable = {
 static void epd_screen_invar();
 static void epd_clear();
 
-static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t color) {
+static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t color) {
 
     /* for test */
 //    static int16_t temp_c = 2297;
@@ -51,14 +51,19 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
     uint8_t str_temp[6] = " --  ";
     uint8_t *ptr;
     uint8_t str_celsius[] = "@C"; // replacement in font30 @ -> °
-//    uint8_t str_fahren[] = "@F"; // replacement in font30 @ -> °
-//    uint8_t *ptr_degree = NULL;
+    uint8_t str_fahren[]  = "@F"; // replacement in font30 @ -> °
+    uint8_t *ptr_degree = NULL;
     sFont *font = NULL;
     uint16_t xx, yy;
 
     button_handler();
 
     if ((uint16_t)temp != 0x8000) {
+
+        if (config.d_mode == ZCL_DISPLAY_MODE_FAHRENHEIT) {
+            temp = temperature_convert_CtoF(temp);
+        }
+
         if (temp < 0) {
             temp = -temp;
             negative = true;
@@ -77,9 +82,6 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
             } else
                 temp_rem = temp_remt / 10 + (temp_remt % 10 >= 5?1:0);
 
-        if (temp_int > 99)
-            temp_int = temp_int % 100;
-
         ptr = str_temp;
 
         if (negative)
@@ -88,25 +90,35 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
             *ptr++ = ' ';
 
         if (itoa(temp_int, ptr)) {
-            ptr++;
-            if (temp_int > 9)
-                ptr++;
 
-            if (temp_rem == 0) {
-                *ptr++ = ' ';
-                *ptr++ = ' ';
+            uint8_t len = strlen((const char*)ptr);
+
+            if (len >= 3) {
+                ptr += 3;
                 *ptr = 0;
+            } else if (len == 2) {
+                ptr += 2;
             } else {
-                *ptr++ = '.';
+                ptr++;
+            }
 
-                if (!itoa(temp_rem, ptr)) {
-                    ptr = str_temp;
-                    *ptr++ = ' ';
-                    *ptr++ = '-';
-                    *ptr++ = '-';
+            if (len < 3) {
+                if (temp_rem == 0) {
                     *ptr++ = ' ';
                     *ptr++ = ' ';
-                    *ptr++ = 0;
+                    *ptr = 0;
+                } else {
+                    *ptr++ = '.';
+
+                    if (!itoa(temp_rem, ptr)) {
+                        ptr = str_temp;
+                        *ptr++ = ' ';
+                        *ptr++ = '-';
+                        *ptr++ = '-';
+                        *ptr++ = ' ';
+                        *ptr++ = ' ';
+                        *ptr++ = 0;
+                    }
                 }
             }
         } else {
@@ -130,8 +142,13 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int16_t temp, uint16_t 
         font = &font38;
     }
 
+    if (config.d_mode == ZCL_DISPLAY_MODE_FAHRENHEIT)
+        ptr_degree = str_fahren;
+    else
+        ptr_degree = str_celsius;
+
     epd_paint_showString(x-5, y, str_temp, font, color, true);
-    epd_paint_showString(x+xx, y+yy, str_celsius, &font30, color, true);
+    epd_paint_showString(x+xx, y+yy, ptr_degree, &font30, color, true);
 
 //    printf("str temp: '%s', temp: %d, neg: %d\r\n", str_temp, temp, negative);
 }

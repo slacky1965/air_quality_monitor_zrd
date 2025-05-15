@@ -136,8 +136,27 @@ typedef struct __attribute__((packed)) {
     aInput_appType_t app_type;
 } zcl_aInputAttr_t;
 
+/**
+ *  @brief Defined for HVAC UI CFG clusters attributes
+ */
+typedef struct {
+    uint8_t     temperatureDisplayMode;         // 0x00 - °C, 0x01 - °F. Always °C (Not support)
+    uint8_t     keypadLockout;                  // on off
+} zcl_thermostatCfgAttr_t;
+
+
 
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;
+
+#define zcl_sceneAttrGet()          &g_zcl_sceneAttrs
+#define zcl_co2AttrGet()            &g_zcl_co2Attrs
+#define zcl_temperatureAttrGet()    &g_zcl_temperatureAttrs
+#define zcl_humidityAttrGet()       &g_zcl_humidityAttrs
+#define zcl_pressureAttrGet()       &g_zcl_pressureAttrs
+#define zcl_illuminanceAttrGet()    &g_zcl_illuminanceAttrs
+#define zcl_levelAttrGet()          &g_zcl_levelAttrs
+#define zcl_aInputAttrGet()         &g_zcl_aInputAttrs
+#define zcl_thermostatCfgAttrGet()  &g_zcl_thermostatCfgAttrs
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
@@ -148,6 +167,7 @@ extern zcl_co2Attr_t g_zcl_co2Attrs;
 extern zcl_temperatureAttr_t g_zcl_temperatureAttrs;
 extern zcl_humidityAttr_t g_zcl_humidityAttrs;
 extern zcl_levelAttr_t g_zcl_levelAttrs;
+extern zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs;
 
 int32_t app_diagnostics_cmdCb(void *arg);
 

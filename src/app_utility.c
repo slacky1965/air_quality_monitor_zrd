@@ -206,8 +206,16 @@ double log10(double x) {
     return ln(x) / LN10;
 }
 
+int32_t temperature_convert_CtoF(int16_t temp) {
 
+    float tempF, tempC;
 
+    tempC = (float)temp / 100.0;
+
+    tempF = ((tempC * 9 / 5) + 32) * 100;
+
+    return (int32_t)tempF;
+}
 
 ////#define log_10_of_2 (0.30102999566)
 //#define log_e_of_2 (0.69314718056)

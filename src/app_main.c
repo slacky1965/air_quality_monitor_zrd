@@ -115,6 +115,7 @@ void user_app_init(void)
 
     zcl_reportingTabInit();
     config_restore();
+    led_init();
 
     /* Register ZCL specific cluster information */
     zcl_register(APP_ENDPOINT1, APP_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp1ClusterList);
@@ -142,6 +143,7 @@ void user_app_init(void)
     app_bme280_measurement();
     app_bh1750_init();
     app_scd4x_init();
+    app_sgp40_init();
 
     TL_ZB_TIMER_SCHEDULE(app_lqiCb, NULL, TIMEOUT_250MS);
     TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
@@ -186,7 +188,6 @@ void user_init(bool isRetention) {
     (void)isRetention;
 
     start_message();
-    led_init();
 
     /* Initialize Stack */
     stack_init();

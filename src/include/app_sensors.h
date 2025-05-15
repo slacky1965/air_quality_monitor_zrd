@@ -30,6 +30,9 @@ void app_set_outside_temperature(int16_t temp);
 int16_t app_get_outside_temperature();
 void app_set_outside_humidity(uint16_t hum);
 uint16_t app_get_outside_humidity();
+void app_set_outside_battery(uint8_t percent);
+uint8_t app_get_outside_battery();
+
 
 void bind_outside_init();
 void start_bind_scan(uint16_t bindAddr, uint8_t idx);

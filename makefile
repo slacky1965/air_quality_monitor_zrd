@@ -57,6 +57,7 @@ INCLUDE_PATHS := \
 -I$(SRC_PATH)/bme280 \
 -I$(SRC_PATH)/bh1750 \
 -I$(SRC_PATH)/scd4x \
+-I$(SRC_PATH)/sgp40 \
 -I$(SRC_PATH)/ds3231 \
 -I./common
  
@@ -226,6 +227,7 @@ clean-project:
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/bme280/*.o
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/bh1750/*.o
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/scd4x/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/sgp40/*.o
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/ds3231/*.o
 	-@echo ' '
 	

@@ -172,7 +172,7 @@ void led_on(led_color_t color) {
 }
 
 void led_off() {
-    led_dev.brightness = 0;
+//    led_dev.brightness = 0;
     led_dev.color = COLOR_NONE;
 
     led_set_values(led_dev.color, led_dev.brightness);

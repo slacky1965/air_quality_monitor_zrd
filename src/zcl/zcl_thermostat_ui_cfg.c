@@ -10,7 +10,8 @@ _CODE_ZCL_ status_t zcl_thermostat_ui_cfg_register(u8 endpoint, u16 manuCode, u8
 }
 
 _CODE_ZCL_ static status_t zcl_thermostat_ui_cfg_cmdHandler(zclIncoming_t *pInMsg) {
-//    printf("zcl_thermostat_ui_cfg_cmdHandler\r\n");
+//    printf("zcl_thermostat_ui_cfg_cmdHandler. dir: 0x%04x\r\n", pInMsg->hdr.frmCtrl.bf.dir);
+
     if(pInMsg->hdr.frmCtrl.bf.dir == ZCL_FRAME_CLIENT_SERVER_DIR){
 //        return zcl_thermostat_clientCmdHandler(pInMsg);
     }else{

@@ -127,6 +127,15 @@ void app_bme280_measurement() {
         rh = (uint16_t)humidity;
         kpa = (uint16_t)pressure;
 
+        uint16_t attr_len;
+        int16_t temp_offset;
+
+        status_t ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_ATTRID_TMS_CUSTOM_TEMPERATURE_OFFSET, &attr_len, (uint8_t*)&temp_offset);
+
+        if (ret == ZCL_STA_SUCCESS) {
+            temp += temp_offset;
+        }
+
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, (uint8_t*)&temp);
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, ZCL_ATTRID_HUMIDITY_MEASUREDVALUE, (uint8_t*)&rh);
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, ZCL_ATTRID_PRESSURE_MEASUREDVALUE, (uint8_t*)&kpa);

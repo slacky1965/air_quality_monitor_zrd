@@ -4,7 +4,8 @@
 
 static sgp40_dev_t sgp40_dev;
 static GasIndexAlgorithmParams params;
-static int32_t voc_index_value;
+static int32_t voc_index_value = 0;
+static int32_t out_voc_index = 0;
 
 #if UART_PRINTF_MODE && DEBUG_SGP40
 static void sgp40_error_codes_print_result(const char api_name[], int8_t rslt) {
@@ -86,7 +87,7 @@ static void app_sgp40_index(void *args) {
     uint16_t attr_len;
     int16_t temp;
     uint16_t rh, raw_temp, raw_rh;
-    float f_temp, f_rh, index;
+    float f_temp, f_rh;
 
     raw_temp = 0x8000;
     raw_rh = 0x6666;
@@ -127,9 +128,6 @@ static void app_sgp40_index(void *args) {
     if (ret == SGP40_OK) {
         GasIndexAlgorithm_process(&params, sraw_voc, &voc_index_value);
 
-        index = (float)voc_index_value;
-
-        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC, ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE, (uint8_t*)&index);
     }
 
 //    printf("voc_index_value: %d\r\n", voc_index_value);
@@ -174,5 +172,15 @@ uint8_t app_sgp40_init() {
 }
 
 uint16_t app_sgp40_get_voc() {
-    return voc_index_value;
+    return out_voc_index;
+}
+
+void app_sgp40_measurement() {
+
+    out_voc_index = voc_index_value;
+
+    float index = (float)voc_index_value;
+
+    zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC, ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE, (uint8_t*)&index);
+
 }

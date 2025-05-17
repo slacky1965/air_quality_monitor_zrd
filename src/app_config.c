@@ -49,23 +49,37 @@ nv_sts_t config_restore() {
 #endif
 
         memcpy(&config, &temp_config, (sizeof(config_t)));
-        g_zcl_levelAttrs.currentLevel = config.brightness;
-
     } else {
         /* default config */
 #if UART_PRINTF_MODE
         printf("Default config\r\n");
 #endif
-        config.rotate = APP_EPD_ROTATE_0;
-        config.inversion = APP_EPD_INVERSION_OFF;
-        config.mesurement_period = 5; //DEFAULT_MESURE_PERIOD;
-        config.brightness = 0xFF;
-        config.d_mode = ZCL_DISPLAY_MODE_FAHRENHEIT; //ZCL_DISPLAY_MODE_CELSIUS; //
+        config.rotate = DEFAULT_ROTATE;
+        config.inversion = DEFAULT_INVERSION;
+        config.read_sensors_period = DEFAULT_READ_SENSORS_PERIOD;
+        config.brightness = DEFAULT_BRIGHTNESS;
+        config.d_mode = DEFAULT_DISPLAY_MODE;
+        config.temperature_offset = 0;
+        config.co2_onoff = DEFAULT_CO2_ONOFF;
+        config.co2_onoff_low = DEFAULT_CO2_ONOFF_MIN;
+        config.co2_onoff_high = DEFAULT_CO2_ONOFF_MAX;
+        config.voc_onoff = DEFAULT_VOC_ONOFF;
+        config.voc_onoff_low = DEFAULT_VOC_ONOFF_MIN;
+        config.voc_onoff_high = DEFAULT_VOC_ONOFF_MAX;
 //        config.unit_pressure = APP_EPD_UNIT_PRESSURE_MM;
 //        config.joined = false;
-
-        g_zcl_levelAttrs.currentLevel = config.brightness;
     }
+
+    g_zcl_levelAttrs.currentLevel = config.brightness;
+    g_zcl_thermostatCfgAttrs.temperatureDisplayMode = config.d_mode;
+    g_zcl_customAttrs.temperature_offset = config.temperature_offset;
+    g_zcl_customAttrs.read_sensors_period = config.read_sensors_period;
+    g_zcl_customAttrs.co2_onoff = config.co2_onoff;
+    g_zcl_customAttrs.co2_onoff_low = config.co2_onoff_low;
+    g_zcl_customAttrs.co2_onoff_high = config.co2_onoff_high;
+    g_zcl_customAttrs.voc_onoff = config.voc_onoff;
+    g_zcl_customAttrs.voc_onoff_low = config.voc_onoff_low;
+    g_zcl_customAttrs.voc_onoff_high = config.voc_onoff_high;
 
 #else
     st = NV_ENABLE_PROTECT_ERROR;

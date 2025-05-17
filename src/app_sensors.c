@@ -31,13 +31,21 @@ static void mesurement_scd4x(void *args) {
     app_scd4x_measurement();
 }
 
+static void mesurement_sgp40(void *args) {
+    app_sgp40_measurement();
+}
+
 int32_t app_mesurementCb(void *args) {
+
+//    print_time();
+//    printf("app_mesurementCb\r\n");
 
     TL_SCHEDULE_TASK(mesurement_bme280, NULL);
     TL_SCHEDULE_TASK(mesurement_bh1750, NULL);
     TL_SCHEDULE_TASK(mesurement_scd4x, NULL);
+    TL_SCHEDULE_TASK(mesurement_sgp40, NULL);
 
-    return config.mesurement_period * 1000;
+    return config.read_sensors_period * 1000;
 }
 
 void app_set_outside_temperature(int16_t temp) {

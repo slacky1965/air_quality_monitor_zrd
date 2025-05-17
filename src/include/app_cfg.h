@@ -199,6 +199,8 @@ extern "C" {
 #define ZCL_SCENE_SUPPORT                           ON
 #define ZCL_OTA_SUPPORT                             ON
 #define ZCL_GP_SUPPORT                              ON
+#define ZCL_ON_OFF_SUPPORT                          ON
+#define ZCL_ON_OFF_SWITCH_CFG_SUPPORT               ON
 #define ZCL_TIME_SUPPORT                            ON
 #define ZCL_TEMPERATURE_MEASUREMENT_SUPPORT         ON
 #define ZCL_HUMIDITY_MEASUREMENT_SUPPORT            ON

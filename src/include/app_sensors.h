@@ -1,8 +1,6 @@
 #ifndef SRC_INCLUDE_APP_SENSORS_H_
 #define SRC_INCLUDE_APP_SENSORS_H_
 
-#define DEFAULT_MESURE_PERIOD   60      /* default 60 sec */
-
 typedef enum {
     OUTSIDE_S_CLUSTER_OK = 0,
     OUTSIDE_S_NO_CLUSTER,

@@ -910,3 +910,8 @@ void app_first_start_epd() {
     epd_screen_var(NULL);
     TL_ZB_TIMER_SCHEDULE(epd_screen_varCb, NULL, TIMEOUT_10SEC);
 }
+
+void epd_update_temperature_display_mode() {
+    epd_screen_variable.temp_in = 0x8001;
+    epd_screen_variable.temp_out = 0x8001;
+}

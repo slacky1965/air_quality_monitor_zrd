@@ -140,10 +140,25 @@ typedef struct __attribute__((packed)) {
  *  @brief Defined for HVAC UI CFG clusters attributes
  */
 typedef struct {
-    uint8_t     temperatureDisplayMode;         // 0x00 - °C, 0x01 - °F. Always °C (Not support)
-    uint8_t     keypadLockout;                  // on off
+    uint8_t     temperatureDisplayMode;         /* 0x00 - °C, 0x01 - °F. Always °C (Not support) */
+    uint8_t     keypadLockout;                  /* on off                                        */
 } zcl_thermostatCfgAttr_t;
 
+typedef struct {
+    int16_t     temperature_offset;             /* - 5 <-> +5 * 100             */
+    uint16_t    read_sensors_period;            /* 10 sec 10-600                */
+    uint8_t     voc_onoff;                      /* 0 - disabled, 1 - enabled    */
+    uint16_t    voc_onoff_low;                  /* 50                           */
+    uint16_t    voc_onoff_high;                  /* 500                          */
+    uint8_t     co2_onoff;                      /* 0 - disabled, 1 - enabled    */
+    uint16_t    co2_onoff_low;                  /* 400                          */
+    uint16_t    co2_onoff_high;                  /* 2000                         */
+} zcl_customAttr_t;
+
+typedef struct {
+    u8 switchType;
+    u8 switchActions;
+} zcl_onOffSwitchCfgAttr_t;
 
 
 extern uint8_t APP_EP1_CB_CLUSTER_NUM;
@@ -168,6 +183,8 @@ extern zcl_temperatureAttr_t g_zcl_temperatureAttrs;
 extern zcl_humidityAttr_t g_zcl_humidityAttrs;
 extern zcl_levelAttr_t g_zcl_levelAttrs;
 extern zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs;
+extern zcl_customAttr_t g_zcl_customAttrs;
+extern zcl_onOffSwitchCfgAttr_t g_zcl_onOffSwitchCfgAttrs;
 
 int32_t app_diagnostics_cmdCb(void *arg);
 

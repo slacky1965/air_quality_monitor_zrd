@@ -5,6 +5,7 @@
 app_ctx_t g_appCtx = {
         .bdbFBTimerEvt = NULL,
         .timerFactoryReset = NULL,
+        .timerMesurementEvt = NULL,
         .short_poll = POLL_RATE * 3,
         .long_poll = POLL_RATE * LONG_POLL,
 };
@@ -36,6 +37,19 @@ const zdo_appIndCb_t appCbLst = {
     NULL,//tc join ind cb
     NULL,//tc detects that the frame counter is near limit
 };
+
+/**
+ *  @brief Definition for BDB finding and binding cluster
+ */
+uint16_t bdb_findBindClusterList[] =
+{
+    ZCL_CLUSTER_GEN_ON_OFF,
+};
+
+/**
+ *  @brief Definition for BDB finding and binding cluster number
+ */
+#define FIND_AND_BIND_CLUSTER_NUM       (sizeof(bdb_findBindClusterList)/sizeof(bdb_findBindClusterList[0]))
 
 /**
  *  @brief Definition for bdb commissioning setting
@@ -114,6 +128,7 @@ void user_app_init(void)
     af_endpointRegister(APP_ENDPOINT1, (af_simple_descriptor_t *)&app_ep1Desc, zcl_rx_handler, NULL);
 
     zcl_reportingTabInit();
+    zcl_onOffCfgAttr_restore();
     config_restore();
     led_init();
 
@@ -146,7 +161,7 @@ void user_app_init(void)
     app_sgp40_init();
 
     TL_ZB_TIMER_SCHEDULE(app_lqiCb, NULL, TIMEOUT_250MS);
-    TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
+    g_appCtx.timerMesurementEvt = TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
 }
 
 void app_task(void) {
@@ -211,6 +226,8 @@ void user_init(bool isRetention) {
         g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_appCtx.tcLinkKey.keyType;
         g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_appCtx.tcLinkKey.key;
     }
+
+    bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
     /* Set default reporting configuration */
     uint8_t reportableChange = 0x00;

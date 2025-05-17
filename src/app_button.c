@@ -74,7 +74,19 @@ static void buttonCheckCommand(uint8_t btNum) {
         printf("config inversion: %d\r\n", config.inversion);
         config_save();
         zb_resetDevice();
-    }
+    } else if (g_appCtx.button[btNum-1].ctn == 4) {
+        led_blink_stop();
+        led_blink_start(4, 30, 30, COLOR_RED);
+#if UART_PRINTF_MODE && DEBUG_BUTTON
+        printf("Button push 4 times. Celsius or Fahrenheit\r\n");
+#endif
+        config.d_mode = ~config.d_mode;
+        config.d_mode &= 0x01;
+        config_save();
+        printf("config d_mode: %d\r\n", config.d_mode);
+        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG, ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE, (uint8_t*)&config.d_mode);
+        epd_update_temperature_display_mode();
+     }
 
     g_appCtx.button[btNum-1].ctn = 0;
 }

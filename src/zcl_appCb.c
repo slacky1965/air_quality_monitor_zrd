@@ -218,11 +218,151 @@ static void app_zclWriteRspCmd(uint16_t clusterId, zclWriteRspCmd_t *pWriteRspCm
  * @return  None
  */
 static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd_t *pWriteReqCmd) {
-//    uint8_t numAttr = pWriteReqCmd->numAttr;
-//    zclWriteRec_t *attr = pWriteReqCmd->attrList;
+    uint8_t numAttr = pWriteReqCmd->numAttr;
+    zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
 
-//    printf("app_zclWriteReqCmd\r\n");
+//    printf("app_zclWriteReqCmd. cluster: 0x%04x\r\n", clusterId);
+
+    if (clusterId == ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG) {
+        for (uint16_t i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE) {
+//                printf("Set %s\r\n", attr[i].attrData[0]?"Fahrenheit":"Celsius");
+                if (config.d_mode != attr[i].attrData[0]) {
+                    config.d_mode = attr[i].attrData[0];
+                    config_save();
+                    epd_update_temperature_display_mode();
+                }
+            }
+        }
+    }
+
+    if (clusterId == ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT) {
+        for (uint16_t i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_TMS_CUSTOM_TEMPERATURE_OFFSET) {
+                int16_t temp = attr[i].attrData[0] & 0xff;
+                temp |= (attr[i].attrData[1] << 8) & 0xffff;
+//                printf("Temperature offset: %d\r\n", temp);
+                if (temp >= TEMPERATURE_OFFSET_MIN && temp <= TEMPERATURE_OFFSET_MAX) {
+                    if (temp != config.temperature_offset) {
+                        config.temperature_offset = temp;
+                        config_save();
+                    }
+                }
+                epd_update_temperature_display_mode();
+            } else if (attr[i].attrID == ZCL_ATTRID_TMS_CUSTOM_READ_SENSORS_PERIOD) {
+                uint16_t ms_period = attr[i].attrData[0] & 0xff;
+                ms_period |= (attr[i].attrData[1] << 8) & 0xffff;
+                if (ms_period >= READ_SENSORS_PERIOD_MIN && ms_period <= READ_SENSORS_PERIOD_MAX) {
+                    if (ms_period != config.read_sensors_period) {
+                        config.read_sensors_period = ms_period;
+                        config_save();
+                        if (g_appCtx.timerMesurementEvt) {
+                            TL_ZB_TIMER_CANCEL(&g_appCtx.timerMesurementEvt);
+                        }
+                        g_appCtx.timerMesurementEvt = TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
+                    }
+                }
+            }
+        }
+    }
+
+    if (clusterId == ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC) {
+        for (uint16_t i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_AI_CUSTOM_VOC_ONOFF) {
+                if (config.voc_onoff != attr[i].attrData[0]) {
+                    config.voc_onoff = attr[i].attrData[0];
+                    config_save();
+                    printf("VOC onoff: %d\r\n", config.voc_onoff);
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_AI_CUSTOM_VOC_LOW) {
+                uint16_t voc_low = attr[i].attrData[0] & 0xff;
+                voc_low |= (attr[i].attrData[1] << 8) & 0xffff;
+                if (voc_low >= VOC_ONOFF_MIN && voc_low <= VOC_ONOFF_MAX) {
+                    if (voc_low < config.voc_onoff_high) {
+                        if (config.voc_onoff_low != voc_low) {
+                            config.voc_onoff_low = voc_low;
+                            config_save();
+                            //TODO:
+                            printf("VOC low: %d\r\n", config.voc_onoff_low);
+                        }
+                    } else {
+                        zcl_setAttrVal(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
+                                       ZCL_ATTRID_AI_CUSTOM_VOC_LOW,
+                                       (uint8_t*)&config.voc_onoff_low);
+                    }
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_AI_CUSTOM_VOC_HIGH) {
+                uint16_t voc_high = attr[i].attrData[0] & 0xff;
+                voc_high |= (attr[i].attrData[1] << 8) & 0xffff;
+                if (voc_high >= VOC_ONOFF_MIN && voc_high <= VOC_ONOFF_MAX) {
+                    if (voc_high > config.voc_onoff_low) {
+                        if (config.voc_onoff_high != voc_high) {
+                            config.voc_onoff_high = voc_high;
+                            config_save();
+                            //TODO:
+                            printf("VOC high: %d\r\n", config.voc_onoff_high);
+                        }
+                    } else {
+                        zcl_setAttrVal(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
+                                       ZCL_ATTRID_AI_CUSTOM_VOC_HIGH,
+                                       (uint8_t*)&config.voc_onoff_high);
+                    }
+                }
+            }
+        }
+    }
+
+    if (clusterId == ZCL_CLUSTER_MS_CO2_MEASUREMENT) {
+        for (uint16_t i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_CMS_CUSTOM_CO2_ONOFF) {
+                if (config.co2_onoff != attr[i].attrData[0]) {
+                    config.co2_onoff = attr[i].attrData[0];
+                    config_save();
+                    //TODO:
+                    printf("CO2 onoff: %d\r\n", config.co2_onoff);
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_CMS_CUSTOM_CO2_LOW) {
+                uint16_t co2_low = attr[i].attrData[0] & 0xff;
+                co2_low |= (attr[i].attrData[1] << 8) & 0xffff;
+                if (co2_low >= CO2_ONOFF_MIN && co2_low <= CO2_ONOFF_MAX) {
+                    if (co2_low < config.co2_onoff_high) {
+                        if (config.co2_onoff_low != co2_low) {
+                            config.co2_onoff_low = co2_low;
+                            config_save();
+                            //TODO:
+                            printf("CO2 low: %d\r\n", config.co2_onoff_low);
+                        }
+                    } else {
+                        zcl_setAttrVal(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_CO2_MEASUREMENT,
+                                       ZCL_ATTRID_CMS_CUSTOM_CO2_LOW,
+                                       (uint8_t*)&config.co2_onoff_low);
+                    }
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_CMS_CUSTOM_CO2_HIGH) {
+                uint16_t co2_high = attr[i].attrData[0] & 0xff;
+                co2_high |= (attr[i].attrData[1] << 8) & 0xffff;
+                if (co2_high >= CO2_ONOFF_MIN && co2_high <= CO2_ONOFF_MAX) {
+                    if (co2_high > config.co2_onoff_low) {
+                        if (config.co2_onoff_high != co2_high) {
+                            config.co2_onoff_high = co2_high;
+                            config_save();
+                            //TODO:
+                            printf("CO2 high: %d\r\n", config.co2_onoff_high);
+                        }
+                    } else {
+                        zcl_setAttrVal(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_CO2_MEASUREMENT,
+                                       ZCL_ATTRID_CMS_CUSTOM_CO2_HIGH,
+                                       (uint8_t*)&config.co2_onoff_high);
+                    }
+                }
+            }
+        }
+    }
 
 #ifdef ZCL_POLL_CTRL
 	if(clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL){
@@ -250,7 +390,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
  */
 static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-    //printf("app_zclDfltRspCmd\r\n");
+    printf("app_zclDfltRspCmd\r\n");
 
 }
 
@@ -1312,17 +1452,20 @@ static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveT
     zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_MIN_LEVEL, &len, (uint8_t*)&min_level);
     zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_MAX_LEVEL, &len, (uint8_t*)&max_level);
 
-    if (cmd->level < min_level || cmd->level > max_level)
+    if (cmd->level < min_level || cmd->level > max_level) {
+        zcl_setAttrVal(APP_ENDPOINT1,
+                       ZCL_CLUSTER_GEN_LEVEL_CONTROL,
+                       ZCL_ATTRID_LEVEL_CURRENT_LEVEL,
+                       (uint8_t*)&config.brightness);
         return;
+    }
 
-    config.brightness = g_zcl_levelAttrs.currentLevel;
-
-    config_save();
-
-//    printf("level: %d\r\n", cmd->level);
-
-    led_set_brightness(cmd->level);
-    led_on(led_get_color());
+    if (config.brightness != cmd->level) {
+        config.brightness = cmd->level;
+        config_save();
+        led_set_brightness(cmd->level);
+        led_on(led_get_color());
+    }
 }
 
 

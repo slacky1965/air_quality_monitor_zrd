@@ -12,6 +12,8 @@
 #include "zcl_pressure_measurement.h"
 #include "zcl_analog_input.h"
 #include "zcl_thermostat_ui_cfg.h"
+#include "zcl_onoffSwitchCfg.h"
+#include "zcl_custom_attr.h"
 #include "app_lqi.h"
 #include "app_button.h"
 #include "app_led.h"

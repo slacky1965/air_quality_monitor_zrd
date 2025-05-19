@@ -189,12 +189,8 @@ static void epd_screen_var(void *args) {
     led_color_t led_color = led_get_color();
 
     epd_io_init();
-
     button_handler();
-
     epd_reset();
-    //epd_init_partial();
-
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
         color = EPD_COLOR_BLACK;
@@ -772,8 +768,6 @@ static void epd_screen_invar() {
     uint8_t internal[] = "INSIDE";
 
     epd_io_init();
-
-    //epd_init_partial();
     epd_reset();
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
@@ -820,6 +814,7 @@ static void epd_screen_invar() {
 
 static void epd_logo() {
 
+    epd_io_init();
     epd_reset();
 
 //    uint16_t x, y;
@@ -881,6 +876,10 @@ static void epd_logo() {
  }
 
  static void epd_clear() {
+
+     epd_io_init();
+     epd_reset();
+
      epd_paint_selectimage(image_bw);
      epd_paint_clear(EPD_COLOR_WHITE);
      epd_displayBW(image_bw);

@@ -9,7 +9,7 @@ static led_dev_t led_dev;
 static led_flash_config_t led_flash_config;
 
 static void led_spi_init() {
-    drv_gpio_write(LED_SPI_PIN_CS, 0);
+    drv_gpio_write(LED_SPI_PIN_CS, 1);
     drv_spi_master_init(LED_SPI_CLOCK, SPI_MODE_0);
     spi_master_gpio_set(LED_SPI_PIN_GROUP);
 }

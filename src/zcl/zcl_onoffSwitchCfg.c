@@ -68,6 +68,8 @@ nv_sts_t zcl_onOffCfgAttr_restore(void) {
 
     if(st == NV_SUCC){
         g_zcl_onOffSwitchCfgAttrs.switchActions = zcl_nv_onOffCfg.switchActions;
+    } else {
+        g_zcl_onOffSwitchCfgAttrs.switchActions = ZCL_SWITCH_ACTION_OFF_ON;
     }
 #else
     st = NV_ENABLE_PROTECT_ERROR;

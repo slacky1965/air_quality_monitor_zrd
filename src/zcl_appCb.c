@@ -273,7 +273,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 if (config.voc_onoff != attr[i].attrData[0]) {
                     config.voc_onoff = attr[i].attrData[0];
                     config_save();
-                    printf("VOC onoff: %d\r\n", config.voc_onoff);
+//                    printf("VOC onoff: %d\r\n", config.voc_onoff);
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_AI_CUSTOM_VOC_LOW) {
                 uint16_t voc_low = attr[i].attrData[0] & 0xff;
@@ -283,8 +283,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                         if (config.voc_onoff_low != voc_low) {
                             config.voc_onoff_low = voc_low;
                             config_save();
-                            //TODO:
-                            printf("VOC low: %d\r\n", config.voc_onoff_low);
+//                            printf("VOC low: %d\r\n", config.voc_onoff_low);
                         }
                     } else {
                         zcl_setAttrVal(APP_ENDPOINT1,
@@ -301,8 +300,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                         if (config.voc_onoff_high != voc_high) {
                             config.voc_onoff_high = voc_high;
                             config_save();
-                            //TODO:
-                            printf("VOC high: %d\r\n", config.voc_onoff_high);
+//                            printf("VOC high: %d\r\n", config.voc_onoff_high);
                         }
                     } else {
                         zcl_setAttrVal(APP_ENDPOINT1,
@@ -321,8 +319,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 if (config.co2_onoff != attr[i].attrData[0]) {
                     config.co2_onoff = attr[i].attrData[0];
                     config_save();
-                    //TODO:
-                    printf("CO2 onoff: %d\r\n", config.co2_onoff);
+//                    printf("CO2 onoff: %d\r\n", config.co2_onoff);
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_CMS_CUSTOM_CO2_LOW) {
                 uint16_t co2_low = attr[i].attrData[0] & 0xff;
@@ -332,8 +329,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                         if (config.co2_onoff_low != co2_low) {
                             config.co2_onoff_low = co2_low;
                             config_save();
-                            //TODO:
-                            printf("CO2 low: %d\r\n", config.co2_onoff_low);
+//                            printf("CO2 low: %d\r\n", config.co2_onoff_low);
                         }
                     } else {
                         zcl_setAttrVal(APP_ENDPOINT1,
@@ -350,8 +346,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                         if (config.co2_onoff_high != co2_high) {
                             config.co2_onoff_high = co2_high;
                             config_save();
-                            //TODO:
-                            printf("CO2 high: %d\r\n", config.co2_onoff_high);
+//                            printf("CO2 high: %d\r\n", config.co2_onoff_high);
                         }
                     } else {
                         zcl_setAttrVal(APP_ENDPOINT1,
@@ -360,6 +355,14 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                                        (uint8_t*)&config.co2_onoff_high);
                     }
                 }
+            }
+        }
+    }
+
+    if (clusterId == ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_SWITCH_ACTION) {
+                zcl_onOffCfgAttr_save();
             }
         }
     }
@@ -390,7 +393,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
  */
 static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-    printf("app_zclDfltRspCmd\r\n");
+//    printf("app_zclDfltRspCmd\r\n");
 
 }
 
@@ -1512,7 +1515,7 @@ status_t app_aInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmd
 
 status_t app_thermostat_uicCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
 
-    printf("app_thermostatCb(). pAddrInfo->dirCluster: %0x%04x, cmdId: 0x%04x\r\n", pAddrInfo->dirCluster, cmdId);
+//    printf("app_thermostatCb(). pAddrInfo->dirCluster: %0x%04x, cmdId: 0x%04x\r\n", pAddrInfo->dirCluster, cmdId);
 
 //    uint8_t *cmdData = (uint8_t*)cmdPayload;
 

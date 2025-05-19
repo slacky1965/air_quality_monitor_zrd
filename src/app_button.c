@@ -5,12 +5,74 @@
 
 bool factory_reset = false;
 
-int32_t delayedFactoryResetCb(void *arg) {
+static int32_t delayedFactoryResetCb(void *arg) {
 
     zb_resetDevice2FN();
 
     factory_reset = true;
     g_appCtx.timerFactoryReset = NULL;
+
+    return -1;
+}
+
+static int32_t forcedReportCb(void *arg) {
+
+    if(zb_isDeviceJoinedNwk()){
+        epInfo_t dstEpInfo;
+        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+        dstEpInfo.profileId = HA_PROFILE_ID;
+#if FIND_AND_BIND_SUPPORT
+        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+#else
+        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+        dstEpInfo.dstEp = APP_ENDPOINT1;
+        dstEpInfo.dstAddr.shortAddr = 0xfffc;
+#endif
+        zclAttrInfo_t *pAttrEntry;
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_CO2_MEASUREMENT,
+                                       ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                              ZCL_CLUSTER_MS_CO2_MEASUREMENT, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+                                       ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                              ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
+                                       ZCL_ATTRID_HUMIDITY_MEASUREDVALUE);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                              ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
+                                       ZCL_ATTRID_PRESSURE_MEASUREDVALUE);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                              ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT,
+                                       ZCL_ATTRID_MEASURED_VALUE);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                              ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
+                                       ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                              ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+    }
 
     return -1;
 }
@@ -46,14 +108,14 @@ static void buttonCheckCommand(uint8_t btNum) {
     g_appCtx.button[btNum-1].state = APP_STATE_NORMAL;
 
     if (g_appCtx.button[btNum-1].ctn == 1) {
-        led_blink_stop();
+//        led_blink_stop();
         led_blink_start(1, 30, 30, COLOR_RED);
-
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 1 time\r\n");
 #endif
+        TL_ZB_TIMER_SCHEDULE(forcedReportCb, NULL, TIMEOUT_100MS);
     } else if (g_appCtx.button[btNum-1].ctn == 2) {
-        led_blink_stop();
+//        led_blink_stop();
         led_blink_start(2, 30, 30, COLOR_RED);
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 2 times. Rotate\r\n");
@@ -64,7 +126,7 @@ static void buttonCheckCommand(uint8_t btNum) {
         config_save();
         zb_resetDevice();
     } else if (g_appCtx.button[btNum-1].ctn == 3) {
-        led_blink_stop();
+//        led_blink_stop();
         led_blink_start(3, 30, 30, COLOR_RED);
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 3 times. Inversion\r\n");
@@ -75,7 +137,7 @@ static void buttonCheckCommand(uint8_t btNum) {
         config_save();
         zb_resetDevice();
     } else if (g_appCtx.button[btNum-1].ctn == 4) {
-        led_blink_stop();
+//        led_blink_stop();
         led_blink_start(4, 30, 30, COLOR_RED);
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 4 times. Celsius or Fahrenheit\r\n");
@@ -94,64 +156,21 @@ static void buttonCheckCommand(uint8_t btNum) {
 
 void keyScan_keyPressedCB(kb_data_t *kbEvt) {
 
-//    uint16_t len;
-//    epInfo_t dstEpInfo;
-//    zoneStatusChangeNoti_t statusChangeNotification;
     uint8_t keyCode = kbEvt->keycode[0];
 
     if(keyCode != 0xff) {
         g_appCtx.button[keyCode-1].pressed_time = clock_time();
         g_appCtx.button[keyCode-1].state = APP_FACTORY_NEW_SET_CHECK;
         g_appCtx.button[keyCode-1].ctn++;
-//        light_blink_start(1, 100, 1);
-
-//        if (keyCode == VK_SW1) {
-//            if(zb_isDeviceJoinedNwk()) {
-//                fillIASAddress(&dstEpInfo);
-//
-//                zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (uint8_t*)&statusChangeNotification.zoneStatus);
-//                zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
-//
-//                statusChangeNotification.zoneStatus |= ZONE_STATUS_TEST;
-//                zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (uint8_t*)&statusChangeNotification.zoneStatus);
-//                statusChangeNotification.extStatus = 0;
-//                statusChangeNotification.delay = 0;
-//
-//                zcl_iasZone_statusChangeNotificationCmd(APP_ENDPOINT1, &dstEpInfo, TRUE, &statusChangeNotification);
-//
-//            }
-//        }
     }
 }
 
 
 void keyScan_keyReleasedCB(uint8_t keyCode) {
 
-//    uint16_t len;
-//    epInfo_t dstEpInfo;
-//    zoneStatusChangeNoti_t statusChangeNotification;
-
     if (keyCode != 0xff) {
         g_appCtx.button[keyCode-1].released_time = clock_time();
         g_appCtx.button[keyCode-1].state = APP_STATE_RELEASE;
-
-//        if (keyCode == VK_SW1) {
-//            if(zb_isDeviceJoinedNwk()) {
-//                fillIASAddress(&dstEpInfo);
-//
-//                zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, &len, (uint8_t*)&statusChangeNotification.zoneStatus);
-//                zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_ID, &len, &statusChangeNotification.zoneId);
-//
-//                statusChangeNotification.zoneStatus &= ~ZONE_STATUS_TEST;
-//                zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_SS_IAS_ZONE, ZCL_ATTRID_ZONE_STATUS, (uint8_t*)&statusChangeNotification.zoneStatus);
-//                statusChangeNotification.extStatus = 0;
-//                statusChangeNotification.delay = 0;
-//
-//                zcl_iasZone_statusChangeNotificationCmd(APP_ENDPOINT1, &dstEpInfo, TRUE, &statusChangeNotification);
-//
-//            }
-//        }
-
     }
 }
 

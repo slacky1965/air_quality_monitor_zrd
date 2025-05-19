@@ -331,7 +331,7 @@ const zclAttrInfo_t illuminance_attrTbl[] = {
 /* Level */
 zcl_levelAttr_t g_zcl_levelAttrs = {
     .currentLevel = 0xFF,
-    .minLevel = 1,
+    .minLevel = 0,
     .maxLevel = 0xFF,
     .options  = 1,
 };
@@ -399,7 +399,7 @@ const zclAttrInfo_t thermostat_ui_cfg_attrTbl[] = {
 
 zcl_onOffSwitchCfgAttr_t g_zcl_onOffSwitchCfgAttrs = {
     .switchType       = ZCL_SWITCH_TYPE_TOGGLE,
-    .switchActions    = ZCL_SWITCH_ACTION_ON_OFF,
+    .switchActions    = ZCL_SWITCH_ACTION_OFF_ON,
 };
 
 const zclAttrInfo_t onoff_switch_cfg_attrTbl[] =

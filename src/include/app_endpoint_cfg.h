@@ -172,6 +172,7 @@ extern uint8_t APP_EP1_CB_CLUSTER_NUM;
 #define zcl_levelAttrGet()          &g_zcl_levelAttrs
 #define zcl_aInputAttrGet()         &g_zcl_aInputAttrs
 #define zcl_thermostatCfgAttrGet()  &g_zcl_thermostatCfgAttrs
+#define zcl_onOffSwitchCfgAttrGet() &g_zcl_onOffSwitchCfgAttrs
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;

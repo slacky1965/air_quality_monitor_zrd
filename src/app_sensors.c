@@ -9,6 +9,8 @@ static uint8_t  outside_battery_percent = 0xff;
 static uint8_t t_index = 0;
 static uint16_t b_addr;
 
+static bool sw_onoff = false;
+
 static bind_outside_sensor_t bind_outside_sensor = {
         .used = 0,
         .checkBindTimerEvt = NULL,
@@ -18,6 +20,147 @@ static bind_outside_sensor_t bind_outside_sensor_tmp = {
         .used = 0,
         .checkBindTimerEvt = NULL,
 };
+
+static void cmdOnOff(uint8_t command) {
+    epInfo_t dstEpInfo;
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+    dstEpInfo.profileId = HA_PROFILE_ID;
+
+    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+
+    /* command 0x00 - off, 0x01 - on, 0x02 - toggle */
+
+    switch(command) {
+        case ZCL_CMD_ONOFF_OFF:
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+            printf("OnOff command: off\r\n");
+#endif /* UART_PRINTF_MODE */
+            zcl_onOff_offCmd(APP_ENDPOINT1, &dstEpInfo, FALSE);
+            break;
+        case ZCL_CMD_ONOFF_ON:
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+            printf("OnOff command: on\r\n");
+#endif /* UART_PRINTF_MODE */
+            zcl_onOff_onCmd(APP_ENDPOINT1, &dstEpInfo, FALSE);
+            break;
+        case ZCL_CMD_ONOFF_TOGGLE:
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+            printf("OnOff command: toggle\r\n");
+#endif /* UART_PRINTF_MODE */
+            zcl_onOff_toggleCmd(APP_ENDPOINT1, &dstEpInfo, FALSE);
+            break;
+        default:
+            break;
+    }
+}
+
+static void proc_co2_voc_onoff(void *args) {
+
+    bool co2_ctrl_off = false;
+    bool co2_ctrl_on = false;
+    bool voc_ctrl_off = false;
+    bool voc_ctrl_on = false;
+
+    zcl_onOffSwitchCfgAttr_t *onoffCfgAttrs = zcl_onOffSwitchCfgAttrGet();
+
+    if(zb_isDeviceJoinedNwk()) {
+
+        uint16_t voc = app_sgp40_get_voc();
+        uint16_t co2 = app_scd4x_get_co2();
+
+        printf("co2: %d, voc: %d\r\n", co2, voc);
+
+        if (co2 < CO2_ONOFF_MIN || voc < VOC_ONOFF_MIN)
+            return;
+
+        if (config.co2_onoff) {
+            if (co2 >= config.co2_onoff_high)
+                co2_ctrl_on = true;
+            if (co2 <= config.co2_onoff_low)
+                co2_ctrl_off = true;
+            if (co2_ctrl_off && co2_ctrl_on)
+                co2_ctrl_on = false;
+        }
+
+
+
+        if (config.voc_onoff) {
+            if (voc >= config.voc_onoff_high)
+                voc_ctrl_on = true;
+            if (voc <= config.voc_onoff_low)
+                voc_ctrl_off = true;
+            if (voc_ctrl_off && voc_ctrl_on)
+                voc_ctrl_on = false;
+        }
+
+        if (sw_onoff && !config.co2_onoff && !config.voc_onoff) {
+            sw_onoff = false;
+            switch(onoffCfgAttrs->switchActions) {
+                case ZCL_SWITCH_ACTION_ON_OFF:
+                    cmdOnOff(ZCL_CMD_ONOFF_ON);
+                    break;
+                case ZCL_SWITCH_ACTION_OFF_ON:
+                    cmdOnOff(ZCL_CMD_ONOFF_OFF);
+                    break;
+//                    case ZCL_SWITCH_ACTION_TOGGLE:
+//                        cmdOnOff(ZCL_CMD_ONOFF_TOGGLE);
+//                        break;
+                default:
+                    break;
+            }
+        }
+
+
+        if ((co2_ctrl_on && config.co2_onoff) || (voc_ctrl_on && config.voc_onoff)) {
+            if (!sw_onoff) {
+                sw_onoff = true;
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                printf("Switch action: 0x0%x\r\n", onoffCfgAttrs->switchActions);
+#endif /* UART_PRINTF_MODE */
+                switch(onoffCfgAttrs->switchActions) {
+                    case ZCL_SWITCH_ACTION_ON_OFF:
+                        cmdOnOff(ZCL_CMD_ONOFF_OFF);
+                        break;
+                    case ZCL_SWITCH_ACTION_OFF_ON:
+                        cmdOnOff(ZCL_CMD_ONOFF_ON);
+                        break;
+//                    case ZCL_SWITCH_ACTION_TOGGLE:
+//                        cmdOnOff(ZCL_CMD_ONOFF_TOGGLE);
+//                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if ((co2_ctrl_off && config.co2_onoff && !voc_ctrl_on) || (voc_ctrl_off && config.voc_onoff && !co2_ctrl_on)) {
+            if (sw_onoff) {
+                sw_onoff = false;
+#if UART_PRINTF_MODE && DEBUG_ONOFF
+                printf("Switch action: 0x0%x\r\n", onoffCfgAttrs->switchActions);
+#endif /* UART_PRINTF_MODE */
+                switch(onoffCfgAttrs->switchActions) {
+                    case ZCL_SWITCH_ACTION_ON_OFF:
+                        cmdOnOff(ZCL_CMD_ONOFF_ON);
+                        break;
+                    case ZCL_SWITCH_ACTION_OFF_ON:
+                        cmdOnOff(ZCL_CMD_ONOFF_OFF);
+                        break;
+//                    case ZCL_SWITCH_ACTION_TOGGLE:
+//                        cmdOnOff(ZCL_CMD_ONOFF_TOGGLE);
+//                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+
+
+    printf("sw_onoff: %d, co2_ctrl_off: %d, co2_ctrl_on: %d, voc_ctrl_off: %d, voc_ctrl_on: %d\r\n", sw_onoff, co2_ctrl_off, co2_ctrl_on, voc_ctrl_off, voc_ctrl_on);
+}
 
 static void mesurement_bme280(void *args) {
     app_bme280_measurement();
@@ -44,6 +187,7 @@ int32_t app_mesurementCb(void *args) {
     TL_SCHEDULE_TASK(mesurement_bh1750, NULL);
     TL_SCHEDULE_TASK(mesurement_scd4x, NULL);
     TL_SCHEDULE_TASK(mesurement_sgp40, NULL);
+    TL_SCHEDULE_TASK(proc_co2_voc_onoff, NULL);
 
     return config.read_sensors_period * 1000;
 }

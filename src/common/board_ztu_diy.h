@@ -114,6 +114,11 @@ enum {
 
 #endif
 
+/************************ Configure I2C for sensors ***************************/
+
+
+#define I2C_PIN_GROUP       I2C_GPIO_GROUP_C2C3
+#define I2C_CLOCK           200000//200K
 
 
 

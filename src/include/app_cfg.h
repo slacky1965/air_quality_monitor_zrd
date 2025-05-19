@@ -78,6 +78,7 @@ extern "C" {
 #define DEBUG_SCD4X                     OFF
 #define DEBUG_SGP40                     ON
 #define DEBUG_DS3231                    ON
+#define DEBUG_ONOFF                     ON
 
 /* HCI interface */
 #define ZBHCI_UART                      OFF

@@ -1,5 +1,10 @@
 # <a id="Top">Air Quality Monitor Zigbee</a>
 
+---
+
+**В процессе**
+
+---
 
 <img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screen.jpg"/>
 
@@ -7,9 +12,7 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screen90.jpg"/>
 
----
-
-**В процессе**
+<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_exposes.jpg"/>
 
 ---
 

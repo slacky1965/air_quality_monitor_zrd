@@ -914,7 +914,7 @@ void app_epd_init() {
 
     epd_init_partial();
 
-#if 1
+#if 0
     epd_logo();
     while(1) {
         button_handler();

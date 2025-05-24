@@ -599,17 +599,19 @@ static void epd_screen_var(void *args) {
             sFont *fontVOC = NULL;
             uint16_t xVOC;
 
+//            strcpy((char*)str_voc_val, "0000");
+
             if (config.rotate == APP_EPD_ROTATE_0) {
                 fontVOC = &font54;
-                xVOC = 195 + fontVOC->width / 2;
+                xVOC = 210 + fontVOC->width / 2;
                 epd_paint_showString(xVOC - (4 / 2 * fontVOC->width), 60, (uint8_t*)"    ", fontVOC, color, false);
                 xVOC = xVOC - (strlen((char*)str_voc_val) * fontVOC->width / 2);
                 /* print value VOC */
                 epd_paint_showString(xVOC, 60, str_voc_val, fontVOC, color, false);
                 /* print string "VOC" */
-                epd_paint_showString(153, 140, str_voc, &font30, color, true);
+                epd_paint_showString(168, 140, str_voc, &font30, color, true);
                 /* print string "PPM" */
-                epd_paint_showString(215, 140, str_ppm, &font30, color, true);
+                epd_paint_showString(230, 140, str_ppm, &font30, color, true);
             } else {
                 fontVOC = &font58;
                 xVOC = 60 + fontVOC->width / 2;
@@ -647,7 +649,7 @@ static void epd_screen_var(void *args) {
     if (epd_screen_variable.lux != lux) {
         epd_screen_variable.lux = lux;
 
-        uint8_t str_lux_val[8] = {0};
+        uint8_t str_lux_val[5] = {0};
         uint8_t str_lux[] = "Lx";
 
         if (itoa(lux, str_lux_val)) {
@@ -674,11 +676,13 @@ static void epd_screen_var(void *args) {
         if (epd_screen_variable.pressure != kpa) {
             epd_screen_variable.pressure = kpa;
 
-            uint8_t str_kpa[8] = {0};
+            uint8_t str_kpa[5] = {0};
             uint8_t str_hpa[] = "hP";
             uint8_t str_mm[] = "mm";
 
-            if (itoa((kpa * 10 / 13), str_kpa)) {
+            if (itoa((kpa * 1000 / 1333), str_kpa)) {
+
+//                strcpy((char*)str_kpa, "0000");
 
                 uint8_t clear_cnt = strlen((const char*)str_kpa);
 
@@ -719,7 +723,7 @@ static void epd_screen_var(void *args) {
     if (epd_screen_variable.lqi != lqi) {
         epd_screen_variable.lqi = lqi;
 
-        uint8_t str_lqi_val[8] = {0};
+        uint8_t str_lqi_val[5] = {0};
         uint8_t str_lqi[] = "Lq";
 
         if (itoa(lqi, str_lqi_val)) {

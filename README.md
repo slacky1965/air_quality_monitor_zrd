@@ -86,7 +86,7 @@
 
 При первом старте, если устройство не в сети, выводится заставка, в которой сообщается, что нужно сделать для подключения к сети. Также там можно увидеть название `Монитора`, логотип автора и номер версии прошивки. Время вывода заставки состовляет 5 секунд. Если `Монитор` уже в сети, то заставка не выводится.
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screensaver.jpg.jpg"/>
+<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screensaver.jpg"/>
 
 
 

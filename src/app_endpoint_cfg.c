@@ -229,6 +229,9 @@ zcl_customAttr_t g_zcl_customAttrs = {
         .voc_onoff = DEFAULT_VOC_ONOFF,
         .voc_onoff_low = DEFAULT_VOC_ONOFF_MIN,
         .voc_onoff_high = DEFAULT_VOC_ONOFF_MAX,
+        .co2_frc = 0,
+        .display_rotate = DEFAULT_ROTATE,
+        .dispaly_inversion = DEFAULT_INVERSION,
 };
 
 #ifdef ZCL_CO2_MEASUREMENT
@@ -239,12 +242,13 @@ zcl_co2Attr_t g_zcl_co2Attrs = {
 
 
 const zclAttrInfo_t co2_attrTbl[] = {
-        { ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE,     ZCL_SINGLE,     RR,     (uint8_t*)&g_zcl_co2Attrs.value             },
-        { ZCL_CO2_MEASUREMENT_ATTRID_MINMEASUREDVALUE,  ZCL_SINGLE,     R,      (uint8_t*)&g_zcl_co2Attrs.min               },
-        { ZCL_CO2_MEASUREMENT_ATTRID_MAXMEASUREDVALUE,  ZCL_SINGLE,     R,      (uint8_t*)&g_zcl_co2Attrs.max               },
-        { ZCL_ATTRID_CMS_CUSTOM_CO2_ONOFF,              ZCL_BOOLEAN,    RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff      },
-        { ZCL_ATTRID_CMS_CUSTOM_CO2_LOW,                ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff_low  },
-        { ZCL_ATTRID_CMS_CUSTOM_CO2_HIGH,                ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff_high  },
+        { ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE,     ZCL_SINGLE,     RR,     (uint8_t*)&g_zcl_co2Attrs.value                 },
+        { ZCL_CO2_MEASUREMENT_ATTRID_MINMEASUREDVALUE,  ZCL_SINGLE,     R,      (uint8_t*)&g_zcl_co2Attrs.min                   },
+        { ZCL_CO2_MEASUREMENT_ATTRID_MAXMEASUREDVALUE,  ZCL_SINGLE,     R,      (uint8_t*)&g_zcl_co2Attrs.max                   },
+        { ZCL_ATTRID_CMS_CUSTOM_CO2_ONOFF,              ZCL_BOOLEAN,    RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff          },
+        { ZCL_ATTRID_CMS_CUSTOM_CO2_LOW,                ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff_low      },
+        { ZCL_ATTRID_CMS_CUSTOM_CO2_HIGH,               ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff_high     },
+        { ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION, ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_frc            },
 
         { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,           ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
 };
@@ -266,7 +270,7 @@ const zclAttrInfo_t temperature_attrTbl[] = {
         { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MINMEASUREDVALUE,  ZCL_INT16,  R,   (uint8_t*)&g_zcl_temperatureAttrs.minValue      },
         { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MAXMEASUREDVALUE,  ZCL_INT16,  R,   (uint8_t*)&g_zcl_temperatureAttrs.maxValue      },
         { ZCL_ATTRID_TMS_CUSTOM_TEMPERATURE_OFFSET,             ZCL_INT16,  RWR, (uint8_t*)&g_zcl_customAttrs.temperature_offset },
-        { ZCL_ATTRID_TMS_CUSTOM_READ_SENSORS_PERIOD,             ZCL_UINT16, RWR, (uint8_t*)&g_zcl_customAttrs.read_sensors_period },
+        { ZCL_ATTRID_TMS_CUSTOM_READ_SENSORS_PERIOD,            ZCL_UINT16, RWR, (uint8_t*)&g_zcl_customAttrs.read_sensors_period },
 
         { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,           ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
 };
@@ -385,10 +389,13 @@ zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs = {
 
 
 const zclAttrInfo_t thermostat_ui_cfg_attrTbl[] = {
-        { ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE,  ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.temperatureDisplayMode },
-        { ZCL_ATTRID_HVAC_KEYPAD_LOCKOUT,            ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.keypadLockout          },
+        { ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE, ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.temperatureDisplayMode },
+        { ZCL_ATTRID_HVAC_KEYPAD_LOCKOUT,           ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.keypadLockout          },
+        { ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS,  ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_customAttrs.features_sensors              },
+        { ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE  ,  ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_customAttrs.display_rotate                },
+        { ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION, ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_customAttrs.dispaly_inversion             },
 
-        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,        ZCL_UINT16, R,      (uint8_t*)&zcl_attr_global_clusterRevision                 },
+        { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,        ZCL_UINT16, R,     (uint8_t*)&zcl_attr_global_clusterRevision                },
 };
 
 #define ZCL_THERMOSTAT_UIC_ATTR_NUM   sizeof(thermostat_ui_cfg_attrTbl) / sizeof(zclAttrInfo_t)

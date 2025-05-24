@@ -69,10 +69,10 @@ static void proc_co2_voc_onoff(void *args) {
         uint16_t voc = app_sgp40_get_voc();
         uint16_t co2 = app_scd4x_get_co2();
 
-        printf("co2: %d, voc: %d\r\n", co2, voc);
+//        printf("co2: %d, voc: %d\r\n", co2, voc);
 
-        if (co2 < CO2_ONOFF_MIN || voc < VOC_ONOFF_MIN)
-            return;
+//        if (co2 < CO2_ONOFF_MIN || voc < VOC_ONOFF_MIN)
+//            return;
 
         if (config.co2_onoff) {
             if (co2 >= config.co2_onoff_high)
@@ -82,8 +82,6 @@ static void proc_co2_voc_onoff(void *args) {
             if (co2_ctrl_off && co2_ctrl_on)
                 co2_ctrl_on = false;
         }
-
-
 
         if (config.voc_onoff) {
             if (voc >= config.voc_onoff_high)
@@ -157,9 +155,7 @@ static void proc_co2_voc_onoff(void *args) {
         }
     }
 
-
-
-    printf("sw_onoff: %d, co2_ctrl_off: %d, co2_ctrl_on: %d, voc_ctrl_off: %d, voc_ctrl_on: %d\r\n", sw_onoff, co2_ctrl_off, co2_ctrl_on, voc_ctrl_off, voc_ctrl_on);
+//    printf("sw_onoff: %d, co2_ctrl_off: %d, co2_ctrl_on: %d, voc_ctrl_off: %d, voc_ctrl_on: %d\r\n", sw_onoff, co2_ctrl_off, co2_ctrl_on, voc_ctrl_off, voc_ctrl_on);
 }
 
 static void mesurement_bme280(void *args) {

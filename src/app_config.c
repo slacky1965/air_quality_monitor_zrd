@@ -66,6 +66,7 @@ nv_sts_t config_restore() {
         config.voc_onoff = DEFAULT_VOC_ONOFF;
         config.voc_onoff_low = DEFAULT_VOC_ONOFF_MIN;
         config.voc_onoff_high = DEFAULT_VOC_ONOFF_MAX;
+        config.co2_frc = 0;
 //        config.unit_pressure = APP_EPD_UNIT_PRESSURE_MM;
 //        config.joined = false;
     }
@@ -80,6 +81,9 @@ nv_sts_t config_restore() {
     g_zcl_customAttrs.voc_onoff = config.voc_onoff;
     g_zcl_customAttrs.voc_onoff_low = config.voc_onoff_low;
     g_zcl_customAttrs.voc_onoff_high = config.voc_onoff_high;
+    g_zcl_customAttrs.co2_frc = config.co2_frc;
+    g_zcl_customAttrs.display_rotate = config.rotate;
+    g_zcl_customAttrs.dispaly_inversion = config.inversion;
 
 #else
     st = NV_ENABLE_PROTECT_ERROR;

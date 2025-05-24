@@ -124,6 +124,7 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork) {
          */
         if (joinedNetwork) {
             factory_reset = false;
+            g_appCtx.net_steer_start = false;
             zb_setPollRate(POLL_RATE * 3);
 #ifdef ZCL_OTA
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
@@ -132,7 +133,7 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork) {
 #ifdef ZCL_POLL_CTRL
 			app_zclCheckInStart();
 #endif
-        } else {
+        } else  if (g_appCtx.net_steer_start) {
             uint16_t jitter = 0;
             do {
                 jitter = zb_random() % 0x0fff;
@@ -205,8 +206,8 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
     switch (status) {
         case BDB_COMMISSION_STA_SUCCESS:
             factory_reset = false;
-            led_blink_stop();
-            led_blink_start(1, 2000, 1, COLOR_GREEN);
+            led_effect_start(3, COLOR_GREEN);
+            g_appCtx.net_steer_start = false;
 
             zb_setPollRate(POLL_RATE * 3);
 
@@ -241,19 +242,12 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg) {
         case BDB_COMMISSION_STA_NO_NETWORK:
         case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
         case BDB_COMMISSION_STA_TARGET_FAILURE:
-            do {
-                jitter = zb_random() % 0x0fff;
-            } while (jitter == 0);
-            TL_ZB_TIMER_SCHEDULE(app_bdbNetworkSteerStart, NULL, jitter);
-
-//#if PM_ENABLE
-//            if (!g_appCtx.timerNoJoinedEvt) {
-//                g_appCtx.timerNoJoinedEvt = TL_ZB_TIMER_SCHEDULE(no_joinedCb, NULL, TIMEOUT_NET);
-//#if UART_PRINTF_MODE && DEBUG_STA_STATUS
-//                printf("Not joined, status: %s (%d)\r\n", bdb_commission_sta_status[status], status);
-//#endif /* UART_PRINTF_MODE */
-//            }
-//#endif
+            if (g_appCtx.net_steer_start) {
+                do {
+                    jitter = zb_random() % 0x0fff;
+                } while (jitter == 0);
+                TL_ZB_TIMER_SCHEDULE(app_bdbNetworkSteerStart, NULL, jitter);
+            }
             break;
         case BDB_COMMISSION_STA_FORMATION_FAILURE:
             break;

@@ -51,8 +51,10 @@ typedef struct {
     led_color_t     oriFlashColor;
     led_color_t     flashColor;
     bool            startFlash;
+    int8_t          direction;
+    uint8_t         effect_brightness;
+    uint32_t        effect_interval;
 } led_flash_config_t;
-
 
 void led_init();
 led_color_t led_get_color();
@@ -61,7 +63,9 @@ uint8_t led_get_brightness();
 void led_on(led_color_t color);
 void led_off();
 void led_blink_start(uint8_t times, uint16_t ledOnTime, uint16_t ledOffTime, led_color_t color);
+void led_effect_start(uint8_t times, led_color_t color);
+#define led_effect_stop led_blink_stop
 void led_blink_stop();
-
+bool led_flashing();
 
 #endif /* SRC_INCLUDE_APP_LED_H_ */

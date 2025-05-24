@@ -52,6 +52,20 @@ int32_t delayedFullResetCb(void *arg) {
     return -1;
 }
 
+int32_t delayedFactoryResetCb(void *arg) {
+
+    zb_resetDevice2FN();
+    zb_deviceFactoryNewSet(true);
+
+    factory_reset = true;
+    g_appCtx.timerFactoryReset = NULL;
+
+    printf("Cb Factory new: %s\r\n", zb_isDeviceFactoryNew()?"yes":"no");
+
+
+    return -1;
+}
+
 int32_t fakeTimer500msCb(void *arg) {
 
     return 0;

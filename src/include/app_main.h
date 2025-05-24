@@ -54,22 +54,12 @@ typedef struct {
     uint32_t timeout;
 
     button_t button[MAX_BUTTON_NUM];
-    u8  keyPressed;
+    uint8_t  keyPressed;
 
-    //    u32 keyPressedTime;
-//    u8  keyPressed;
+    uint8_t co2_forced_calibration;
+    uint8_t co2_factory_reset;
 
-//    uint8_t status_onoff1;
-//    uint8_t status_onoff2;
-
-//    uint16_t ledOnTime;
-//    uint16_t ledOffTime;
-//    uint8_t  oriSta;     //original state before blink
-//    uint8_t  sta;        //current state in blink
-//    uint8_t  times;      //blink times
-//    uint8_t  state;
-
-//    uint32_t time_without_joined;
+    bool net_steer_start;
 
     app_linkKey_info_t tcLinkKey;
 } app_ctx_t;

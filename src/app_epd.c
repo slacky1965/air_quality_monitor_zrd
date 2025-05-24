@@ -25,7 +25,7 @@ static epd_screen_variable_t epd_screen_variable = {
         .lqi = 256,
         .level = 6,
         .zbIcon = false,
-        .timerZbIcon = NULL,
+//        .timerZbIcon = NULL,
 };
 
 static void epd_screen_invar();
@@ -154,6 +154,10 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
 }
 
 static void epd_screen_var(void *args) {
+
+    if (g_appCtx.net_steer_start || led_flashing())
+        return;
+
 
 //    print_time();
 //    printf("epd_screen_var. zb_isDeviceJoinedNwk: %d\r\n", zb_isDeviceJoinedNwk());
@@ -301,9 +305,9 @@ static void epd_screen_var(void *args) {
         if (!epd_screen_variable.zbIcon) {
 //            printf("!epd_screen_variable.zbIcon\r\n");
             epd_screen_variable.zbIcon = true;
-            if (epd_screen_variable.timerZbIcon) {
-                TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
-            }
+//            if (epd_screen_variable.timerZbIcon) {
+//                TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
+//            }
             if (config.rotate == APP_EPD_ROTATE_0) {
                 epd_paint_showPicture(6, 0, 24, 24, image_zbLogo, color);
             } else {
@@ -317,9 +321,9 @@ static void epd_screen_var(void *args) {
         if (epd_screen_variable.zbIcon) {
 //            printf("epd_screen_variable.zbIcon\r\n");
             epd_screen_variable.zbIcon = false;
-            if (epd_screen_variable.timerZbIcon) {
-                TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
-            }
+//            if (epd_screen_variable.timerZbIcon) {
+//                TL_ZB_TIMER_CANCEL(&epd_screen_variable.timerZbIcon);
+//            }
             if (config.rotate == APP_EPD_ROTATE_0) {
                 epd_paint_showString(6, 0, zb_clear, &font24, color, true);
             } else {
@@ -533,6 +537,8 @@ static void epd_screen_var(void *args) {
 
     if (co2 != epd_screen_variable.co2) {
 
+//        printf("epd_co2: %d\r\n", co2);
+
         epd_screen_variable.co2 = co2;
 
         uint8_t str_co2[8] = {0};
@@ -738,17 +744,25 @@ static void epd_screen_var(void *args) {
         epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
 
         if (co2 <= 600 && voc <= 100) {
-            if (led_color != COLOR_GREEN)
+            if (led_color != COLOR_GREEN) {
                 led_color = COLOR_GREEN;
+//                led_on(led_color);
+            }
         } else if (co2 <= 900 && voc <= 250) {
-            if (led_color != COLOR_YELLOW)
+            if (led_color != COLOR_YELLOW) {
                 led_color = COLOR_YELLOW;
+//                led_on(led_color);
+            }
         } else if (co2 <= 1200 && voc <= 400) {
-            if (led_color != COLOR_PURPLE)
+            if (led_color != COLOR_PURPLE) {
                 led_color = COLOR_PURPLE;
+//                led_on(led_color);
+            }
         } else {
-            if (led_color != COLOR_RED)
+            if (led_color != COLOR_RED) {
                 led_color = COLOR_RED;
+//                led_on(led_color);
+            }
         }
 
         led_on(led_color);
@@ -913,4 +927,39 @@ void app_first_start_epd() {
 void epd_update_temperature_display_mode() {
     epd_screen_variable.temp_in = 0x8001;
     epd_screen_variable.temp_out = 0x8001;
+}
+
+void epd_clearZbIcon() {
+
+    uint8_t color;
+    uint8_t zb_clear[] = "   ";
+
+    epd_io_init();
+    epd_reset();
+
+    if (config.inversion == APP_EPD_INVERSION_OFF) {
+        color = EPD_COLOR_BLACK;
+    } else {
+        color = EPD_COLOR_WHITE;
+    }
+
+    epd_screen_variable.zbIcon = false;
+
+    if (config.rotate == APP_EPD_ROTATE_0) {
+        epd_paint_showString(6, 0, zb_clear, &font24, color, true);
+    } else {
+        epd_paint_showString(6, 0, zb_clear, &font24, color, true);
+    }
+
+    epd_screen_variable.lqi = 256;
+    epd_screen_variable.level = 6;
+
+    if (config.rotate == APP_EPD_ROTATE_0) {
+        epd_paint_showPicture(361, 0, 32, 24, image_level0, color);
+    } else {
+        epd_paint_showPicture(261, 0, 32, 24, image_level0, color);
+    }
+
+    epd_displayBW_partial(image_bw);
+    epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
 }

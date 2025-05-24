@@ -34,7 +34,7 @@
 
 static scd4x_dev_t *dev = NULL;
 
-static uint8_t scd4x_crc8(uint8_t *data, uint8_t len) {
+static scd4x_error_t scd4x_crc8(uint8_t *data, uint8_t len) {
   uint8_t crc = SCD4X_CRC8_INIT;
   for (uint8_t x = 0; x < len; x++) {
     crc ^= data[x];
@@ -56,7 +56,7 @@ static bool scd4x_cmd_get_data_ready_status() {
     uint8_t buf[3] = {0};
     uint16_t status;
 
-    uint8_t ret = dev->read(SCD4X_COMMAND_GET_DATA_READY_STATUS, buf, 3, dev);
+    scd4x_error_t ret = dev->read(SCD4X_COMMAND_GET_DATA_READY_STATUS, 2, buf, 3, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(1);
@@ -78,7 +78,7 @@ static bool scd4x_cmd_get_data_ready_status() {
     return false;
 }
 
-uint8_t scd4x_cmd_read(uint16_t *co2, uint16_t *temperature, uint16_t *humidity) {
+scd4x_error_t scd4x_cmd_read(uint16_t *co2, uint16_t *temperature, uint16_t *humidity) {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
@@ -92,7 +92,7 @@ uint8_t scd4x_cmd_read(uint16_t *co2, uint16_t *temperature, uint16_t *humidity)
     uint16_t raw, r_co2;
     float r_temp, r_hum;
 
-    uint8_t ret = dev->read(SCD4X_COMMAND_READ, buf, 9, dev);
+    scd4x_error_t ret = dev->read(SCD4X_COMMAND_READ, 2, buf, 9, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(1);
@@ -126,14 +126,14 @@ uint8_t scd4x_cmd_read(uint16_t *co2, uint16_t *temperature, uint16_t *humidity)
     return ret;
 }
 
-uint8_t scd4x_cmd_stop_periodic() {
+scd4x_error_t scd4x_cmd_stop_periodic() {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
 
     uint8_t buf[1] = {0};
 
-    uint8_t ret = dev->write(SCD4X_COMMAND_STOP_PERIODIC, buf, 0, dev);
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_STOP_PERIODIC, buf, 0, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(500);
@@ -142,26 +142,26 @@ uint8_t scd4x_cmd_stop_periodic() {
     return ret;
 }
 
-uint8_t scd4x_cmd_start_periodic() {
+scd4x_error_t scd4x_cmd_start_periodic() {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
 
     uint8_t buf[1] = {0};
 
-    uint8_t ret = dev->write(SCD4X_COMMAND_START_PERIODIC, buf, 0, dev);
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_START_PERIODIC, buf, 0, dev);
 
     return ret;
 }
 
-uint8_t scd4x_cmd_wake_up() {
+scd4x_error_t scd4x_cmd_wake_up() {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
 
     uint8_t buf[1] = {0};
 
-    uint8_t ret = dev->write(SCD4X_COMMAND_WAKE_UP, buf, 0, dev);
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_WAKE_UP, buf, 0, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(30);
@@ -170,7 +170,7 @@ uint8_t scd4x_cmd_wake_up() {
     return ret;
 }
 
-uint8_t scd4x_cmd_reinit() {
+scd4x_error_t scd4x_cmd_reinit() {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
@@ -180,7 +180,7 @@ uint8_t scd4x_cmd_reinit() {
 
     uint8_t buf[1] = {0};
 
-    uint8_t ret = dev->write(SCD4X_COMMAND_REINIT, buf, 0, dev);
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_REINIT, buf, 0, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(30);
@@ -189,7 +189,7 @@ uint8_t scd4x_cmd_reinit() {
     return ret;
 }
 
-uint8_t scd4x_cmd_get_ambient_pressure(uint16_t *pressure) {
+scd4x_error_t scd4x_cmd_get_ambient_pressure(uint16_t *pressure) {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
@@ -198,7 +198,7 @@ uint8_t scd4x_cmd_get_ambient_pressure(uint16_t *pressure) {
         return SCD4X_ERR_MODE_FAIL;
 
     uint8_t buf[3] = {0};
-    uint8_t ret = dev->read(SCD4X_COMMAND_GET_AMBIENT_PRESSURE, buf, 3, dev);
+    scd4x_error_t ret = dev->read(SCD4X_COMMAND_GET_AMBIENT_PRESSURE, 2, buf, 3, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(1);
@@ -213,7 +213,7 @@ uint8_t scd4x_cmd_get_ambient_pressure(uint16_t *pressure) {
     return ret;
 }
 
-uint8_t scd4x_cmd_set_ambient_pressure(uint16_t pressure) {
+scd4x_error_t scd4x_cmd_set_ambient_pressure(uint16_t pressure) {
 
     if (!dev)
         return SCD4X_ERR_INIT_FAIL;
@@ -222,7 +222,7 @@ uint8_t scd4x_cmd_set_ambient_pressure(uint16_t pressure) {
     buf[0] = (pressure >> 8) & 0xFF;
     buf[1] = pressure & 0xFF;
     buf[2] = scd4x_crc8(buf, 2);
-    uint8_t ret = dev->write(SCD4X_COMMAND_GET_AMBIENT_PRESSURE, buf, 3, dev);
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_GET_AMBIENT_PRESSURE, buf, 3, dev);
 
     if (ret == SCD4X_OK) {
         dev->delay(1);
@@ -231,7 +231,58 @@ uint8_t scd4x_cmd_set_ambient_pressure(uint16_t pressure) {
     return ret;
 }
 
-uint8_t scd4x_init(scd4x_dev_t *pdev) {
+scd4x_error_t scd4x_cmd_forced_calibration(int16_t *frc) {
+
+    if (!dev)
+        return SCD4X_ERR_INIT_FAIL;
+
+    uint16_t out_ppm, inp_ppm = 0x01e0;
+    int16_t frc_t = 0;
+
+    uint8_t buf[3] = {0};
+    buf[0] = (inp_ppm >> 8) & 0xFF;
+    buf[1] = inp_ppm & 0xFF;
+    buf[2] = scd4x_crc8(buf, 2);
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_PERFORM_FORCED_RECALIBRATION, buf, 3, dev);
+
+    if (ret == SCD4X_OK) {
+        dev->delay(400);
+
+        ret = dev->read(0, 0, buf, 3, dev);
+
+        if (ret == SCD4X_OK) {
+            if (buf[2] != scd4x_crc8(buf, 2)) {
+                ret = SCD4X_ERR_CRC;
+            } else {
+                out_ppm = (uint16_t) buf[0] << 8 | buf[1];
+                if (out_ppm == 0xffff)
+                    ret = SCD4X_ERROR;
+                else
+                    frc_t = 0x8000 - out_ppm;
+                printf("outppm: %d, %04x\r\n", out_ppm, out_ppm);
+            }
+        }
+    }
+
+    *frc = frc_t;
+    return ret;
+}
+
+scd4x_error_t scd4x_factory_reset() {
+
+    if (!dev)
+        return SCD4X_ERR_INIT_FAIL;
+
+    uint8_t buf[1] = {0};
+    scd4x_error_t ret = dev->write(SCD4X_COMMAND_PERFORM_FACTORY_RESET, buf, 0, dev);
+
+    if (ret == SCD4X_OK)
+        dev->delay(1200);
+
+    return ret;
+}
+
+scd4x_error_t scd4x_init(scd4x_dev_t *pdev) {
 
     if (pdev == NULL)
         return SCD4X_ERR_DEV_NOT_FOUND;

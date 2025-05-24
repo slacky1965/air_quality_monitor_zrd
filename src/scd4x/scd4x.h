@@ -21,7 +21,7 @@ struct _scd4x_dev;
 
 typedef struct _scd4x_dev scd4x_dev_t;
 
-typedef int8_t (*scd4x_read_t)(uint16_t reg_addr, uint8_t *reg_data, uint32_t len, scd4x_dev_t *dev);
+typedef int8_t (*scd4x_read_t)(uint16_t reg_addr, uint32_t reg_len, uint8_t *reg_data, uint32_t len, scd4x_dev_t *dev);
 typedef int8_t (*scd4x_write_t)(uint16_t reg_addr, const uint8_t *reg_data, uint32_t len, scd4x_dev_t *dev);
 typedef void   (*scd4x_delay_t)(uint32_t period);
 
@@ -40,13 +40,15 @@ typedef enum {
     SCD4X_TYPE_SCD41
 } scd4x_type_t;
 
-uint8_t scd4x_init(scd4x_dev_t *dev);
-uint8_t scd4x_cmd_stop_periodic();
-uint8_t scd4x_cmd_start_periodic();
-uint8_t scd4x_cmd_wake_up();
-uint8_t scd4x_cmd_reinit();
-uint8_t scd4x_cmd_get_ambient_pressure(uint16_t *pressure);
-uint8_t scd4x_cmd_set_ambient_pressure(uint16_t pressure);
-uint8_t scd4x_cmd_read(uint16_t *co2, uint16_t *temperature, uint16_t *humidity);
+scd4x_error_t scd4x_init(scd4x_dev_t *dev);
+scd4x_error_t scd4x_cmd_stop_periodic();
+scd4x_error_t scd4x_cmd_start_periodic();
+scd4x_error_t scd4x_cmd_wake_up();
+scd4x_error_t scd4x_cmd_reinit();
+scd4x_error_t scd4x_cmd_get_ambient_pressure(uint16_t *pressure);
+scd4x_error_t scd4x_cmd_set_ambient_pressure(uint16_t pressure);
+scd4x_error_t scd4x_cmd_read(uint16_t *co2, uint16_t *temperature, uint16_t *humidity);
+scd4x_error_t scd4x_cmd_forced_calibration(int16_t *frc);
+scd4x_error_t scd4x_factory_reset();
 
 #endif /* SRC_SCD4X_SCD4X_H_ */

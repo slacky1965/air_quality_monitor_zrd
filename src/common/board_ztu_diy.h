@@ -58,7 +58,7 @@ enum {
 #define PD2_INPUT_ENABLE        OFF
 
 /* SPI Clock */
-#define EPD_SPI_CLOCK          2400000//400K
+#define EPD_SPI_CLOCK          400000//400K
 
 /*
  *  Define pin for SPI interface
@@ -114,8 +114,12 @@ enum {
 
 #endif
 
-/************************ Configure I2C for sensors ***************************/
-
+/************************ Configure I2C for sensors ***************************
+ *
+ * PC2 - SDA
+ * PC3 - SCL
+ *
+ */
 
 #define I2C_PIN_GROUP       I2C_GPIO_GROUP_C2C3
 #define I2C_CLOCK           200000//200K

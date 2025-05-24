@@ -21,6 +21,7 @@
 #define TIMEOUT_TICK_30SEC  30*1000*1000    /* timeout 30 sec   */
 
 /* for TL_ZB_TIMER_SCHEDULE() */
+#define TIMEOUT_10MS               10       /* timeout 10  ms   */
 #define TIMEOUT_100MS              100      /* timeout 100 ms   */
 #define TIMEOUT_250MS              250      /* timeout 250 ms   */
 #define TIMEOUT_500MS              500      /* timeout 900 ms   */
@@ -31,6 +32,7 @@
 #define TIMEOUT_3SEC        3    * 1000     /* timeout 3 sec    */
 #define TIMEOUT_4SEC        4    * 1000     /* timeout 4 sec    */
 #define TIMEOUT_5SEC        5    * 1000     /* timeout 5 sec    */
+#define TIMEOUT_6SEC        6    * 1000     /* timeout 6 sec    */
 #define TIMEOUT_10SEC       10   * 1000     /* timeout 10 sec   */
 #define TIMEOUT_15SEC       15   * 1000     /* timeout 15 sec   */
 #define TIMEOUT_30SEC       30   * 1000     /* timeout 30 sec   */
@@ -48,7 +50,7 @@ void start_message();
 int32_t poll_rateAppCb(void *arg);
 int32_t delayedMcuResetCb(void *arg);
 int32_t delayedFullResetCb(void *arg);
-//int32_t delayedFactoryResetCb(void *arg);
+int32_t delayedFactoryResetCb(void *arg);
 uint8_t *itoa(int32_t value, uint8_t *ptr);
 //char *strcat(char *str1, const char str2);
 uint32_t reverse32(uint32_t in);

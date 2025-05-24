@@ -221,18 +221,63 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
     uint8_t numAttr = pWriteReqCmd->numAttr;
     zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
+    uint8_t val;
 
 //    printf("app_zclWriteReqCmd. cluster: 0x%04x\r\n", clusterId);
 
     if (clusterId == ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG) {
         for (uint16_t i = 0; i < numAttr; i++) {
             if (attr[i].attrID == ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE) {
-//                printf("Set %s\r\n", attr[i].attrData[0]?"Fahrenheit":"Celsius");
-                if (config.d_mode != attr[i].attrData[0]) {
-                    config.d_mode = attr[i].attrData[0];
-                    config_save();
-                    epd_update_temperature_display_mode();
+                val = attr[i].attrData[0];
+                if (val == 0 || val == 1) {
+                    printf("Set %s\r\n", val?"Fahrenheit":"Celsius");
+                    if (config.d_mode != val) {
+                        config.d_mode = val;
+                        config_save();
+                        epd_update_temperature_display_mode();
+                    }
                 }
+            } else if (attr[i].attrID == ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE) {
+                val = attr[i].attrData[0];
+                if (val == 0 || val == 1) {
+                    printf("Rotate set: %s\r\n", val?"Vertical":"Horizontal");
+                    if (config.rotate != val) {
+                        config.rotate = val;
+                        config_save();
+                        TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_2SEC);
+                    }
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION) {
+                val = attr[i].attrData[0];
+                if (val == 0 || val == 1) {
+                    printf("Inversion set: %s\r\n", val?"Black on white":"White on black");
+                    if (config.inversion != val) {
+                        config.inversion = val;
+                        config_save();
+                        TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_2SEC);
+                    }
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS) {
+                uint8_t ret;
+                if (attr[i].attrData[0] == FEATURES_CO2_FORCED_CALIBRATION &&
+                        !g_appCtx.co2_forced_calibration &&
+                        !g_appCtx.co2_factory_reset) {
+                    g_appCtx.co2_forced_calibration = 1;
+                    ret = app_scd4x_forced_calibration();
+                    printf("CO2 calibration: %d, ret: %d\r\n", attr[i].attrData[0], ret);
+                } else if (attr[i].attrData[0] == FEATURES_CO2_FACTORY_RESET &&
+                        !g_appCtx.co2_factory_reset &&
+                        !g_appCtx.co2_forced_calibration) {
+                    g_appCtx.co2_factory_reset = 1;
+                    ret = app_scd4x_factory_reset();
+                    printf("CO2 factory reset: %d, ret: %d\r\n", attr[i].attrData[0], ret);
+                } else if (attr[i].attrData[0] == FEATURES_BIND_RESET) {
+                    printf("Bind reset: %d\r\n", attr[i].attrData[0]);
+                    bind_outside_init();
+                }
+                uint8_t attrFeatures = 0;
+                zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                               ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS, (uint8_t*)&attrFeatures);
             }
         }
     }
@@ -470,7 +515,7 @@ static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCf
  * @return  None
  */
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps_data_ind_t aps_data_ind) {
-//    printf("app_zclReportCmd\r\n");
+    printf("app_zclReportCmd\r\n");
 
     uint8_t numAttr = pReportCmd->numAttr;
     zclReport_t *attrList = pReportCmd->attrList;
@@ -1463,11 +1508,14 @@ static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveT
         return;
     }
 
+    printf("level: %d\r\n", cmd->level);
+
     if (config.brightness != cmd->level) {
         config.brightness = cmd->level;
         config_save();
         led_set_brightness(cmd->level);
-        led_on(led_get_color());
+        if (!led_flashing())
+            led_on(led_get_color());
     }
 }
 

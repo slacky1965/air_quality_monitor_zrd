@@ -61,8 +61,8 @@ static void scd4x_error_codes_print_result(const char api_name[], int8_t rslt) {
 
 
 
-int8_t scd4x_i2c_read(uint16_t reg_addr, uint8_t *reg_data, uint32_t len, scd4x_dev_t *dev) {
-    drv_i2c_read_series(dev->addr << 1, reg_addr, 2, reg_data, len);
+int8_t scd4x_i2c_read(uint16_t reg_addr, uint32_t reg_len, uint8_t *reg_data, uint32_t len, scd4x_dev_t *dev) {
+    drv_i2c_read_series(dev->addr << 1, reg_addr, reg_len, reg_data, len);
     return (reg_i2c_status & FLD_I2C_NAK);
 }
 
@@ -167,7 +167,7 @@ void app_scd4x_measurement() {
 
     app_scd4x_set_pressure();
 
-    uint8_t ret = scd4x_cmd_read(&co2, &temperature, &humidity);
+    scd4x_error_t ret = scd4x_cmd_read(&co2, &temperature, &humidity);
 #if UART_PRINTF_MODE && DEBUG_SCD4X
     scd4x_error_codes_print_result("scd4x_cmd_read", ret);
 #endif
@@ -194,4 +194,45 @@ uint16_t app_scd4x_get_co2() {
     return co2;
 }
 
+uint8_t app_scd4x_forced_calibration() {
 
+    scd4x_error_t ret = scd4x_cmd_stop_periodic();
+    int16_t frc;
+
+    if (ret == SCD4X_OK) {
+        ret = scd4x_cmd_forced_calibration(&frc);
+        scd4x_cmd_start_periodic();
+    }
+
+    g_appCtx.co2_forced_calibration = 0;
+
+//    printf("app_scd4x_forced_calibration(). ret: %d\r\n");
+
+    if (frc != config.co2_frc) {
+        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_CO2_MEASUREMENT, ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION, (uint8_t*)&frc);
+        config.co2_frc = frc;
+        config_save();
+    }
+
+
+    return ret;
+}
+
+uint8_t app_scd4x_factory_reset() {
+
+    scd4x_error_t ret = scd4x_cmd_stop_periodic();
+
+    if (ret == SCD4X_OK) {
+        ret = scd4x_factory_reset();
+        if (ret == SCD4X_OK) {
+            config.co2_frc = 0;
+            config_save();
+            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_CO2_MEASUREMENT, ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION, (uint8_t*)&config.co2_frc);
+        }
+        scd4x_cmd_start_periodic();
+    }
+
+    g_appCtx.co2_factory_reset = 0;
+
+    return ret;
+}

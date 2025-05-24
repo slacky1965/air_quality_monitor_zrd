@@ -145,14 +145,18 @@ typedef struct {
 } zcl_thermostatCfgAttr_t;
 
 typedef struct {
-    int16_t     temperature_offset;             /* - 5 <-> +5 * 100             */
-    uint16_t    read_sensors_period;            /* 10 sec 10-600                */
-    uint8_t     voc_onoff;                      /* 0 - disabled, 1 - enabled    */
-    uint16_t    voc_onoff_low;                  /* 50                           */
-    uint16_t    voc_onoff_high;                  /* 500                          */
-    uint8_t     co2_onoff;                      /* 0 - disabled, 1 - enabled    */
-    uint16_t    co2_onoff_low;                  /* 400                          */
-    uint16_t    co2_onoff_high;                  /* 2000                         */
+    int16_t     temperature_offset;             /* - 5 <-> +5 * 100                       */
+    uint16_t    read_sensors_period;            /* 10 sec 10-600                          */
+    uint8_t     voc_onoff;                      /* 0 - disabled, 1 - enabled              */
+    uint16_t    voc_onoff_low;                  /* 50                                     */
+    uint16_t    voc_onoff_high;                 /* 500                                    */
+    uint8_t     co2_onoff;                      /* 0 - disabled, 1 - enabled              */
+    uint16_t    co2_onoff_low;                  /* 400                                    */
+    uint16_t    co2_onoff_high;                 /* 2000                                   */
+    int16_t     co2_frc;                        /* value FRC forced calibration           */
+    uint8_t     display_rotate;                 /* 0 - horizontal, 1 - vertical           */
+    uint8_t     dispaly_inversion;              /* 0 - black on white, 1 - white on black */
+    features_sensors_t features_sensors;        /* enum in zcl_custom_attr.h file         */
 } zcl_customAttr_t;
 
 typedef struct {

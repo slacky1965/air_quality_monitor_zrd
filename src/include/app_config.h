@@ -5,7 +5,7 @@
 #define READ_SENSORS_PERIOD_MAX         600
 #define TEMPERATURE_OFFSET_MIN         -500
 #define TEMPERATURE_OFFSET_MAX          500
-#define VOC_ONOFF_MIN                   50
+#define VOC_ONOFF_MIN                   1
 #define VOC_ONOFF_MAX                   500
 #define VOC_ONOFF_ENABLED               0x01
 #define VOC_ONOFF_DISABLED              0x00
@@ -41,6 +41,7 @@ typedef struct __attribute__((packed)) {
     uint8_t     co2_onoff;              /* 0 - disabled, 1 - enabled     */
     uint16_t    co2_onoff_low;          /* 400                           */
     uint16_t    co2_onoff_high;         /* 2000                          */
+    int16_t     co2_frc;
 //    uint8_t     unit_pressure;
 //    uint8_t     joined;
     uint8_t     crc;

@@ -8,6 +8,9 @@ app_ctx_t g_appCtx = {
         .timerMesurementEvt = NULL,
         .short_poll = POLL_RATE * 3,
         .long_poll = POLL_RATE * LONG_POLL,
+        .co2_forced_calibration = 0,
+        .co2_factory_reset = 0,
+        .net_steer_start = false,
 };
 
 //uint32_t count_restart = 0;

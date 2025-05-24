@@ -16,6 +16,8 @@ static void led_spi_init() {
 
 static void led_set_values(led_color_t color, uint8_t brightness) {
 
+//    printf("color: %d, brightness: %d\r\n", color, brightness);
+
     uint8_t r, g, b, idx;
 
     led_spi_init();
@@ -101,7 +103,10 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
         }
     }
 
+    /* ????? :)) */
+    drv_spi_write(NULL, 0, led_dev.out_buf.reset_buff, LED_RESET_LEN, LED_SPI_PIN_CS);
     drv_spi_write(NULL, 0, (uint8_t*)&led_dev.out_buf, led_dev.len * LED_RGB_BYTE + LED_RESET_LEN, LED_SPI_PIN_CS);
+    drv_spi_write(NULL, 0, led_dev.out_buf.reset_buff, LED_RESET_LEN, LED_SPI_PIN_CS);
 
 }
 
@@ -124,8 +129,8 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
 //}
 
 static int32_t led_flashCb(void *args) {
-    u32 interval = 0;
 
+    uint32_t interval = 0;
 
     if(led_flash_config.flashColor == led_flash_config.oriFlashColor) {
         led_flash_config.times--;
@@ -154,6 +159,39 @@ static int32_t led_flashCb(void *args) {
     return interval;
 }
 
+static int32_t led_effectCb(void *args) {
+
+    led_flash_config.effect_brightness += led_flash_config.direction;
+
+    if (led_flash_config.direction < 0) {
+        if (led_flash_config.effect_interval >= 10)
+            led_flash_config.effect_interval /= 10;
+    }
+
+    if (led_flash_config.effect_brightness == 255) {
+        led_flash_config.effect_interval = 255;
+        led_flash_config.direction = -1;
+    } else if (led_flash_config.effect_brightness == 0) {
+        led_flash_config.direction = 1;
+        led_flash_config.effect_brightness = 1;
+        led_flash_config.effect_interval = 1;
+        led_flash_config.times--;
+        if(led_flash_config.times <= 0) {
+            led_dev.brightness = led_flash_config.oriBrig;
+//            led_on(led_flash_config.oriColor);
+            led_off();
+            led_flash_config.timerLedEvt = NULL;
+            return -1;
+        }
+    }
+
+//    printf("interval: %d, brightness: %d, direction: %d\r\n", led_flash_config.effect_interval, led_flash_config.effect_brightness, led_flash_config.direction);
+
+    led_set_brightness(led_flash_config.effect_brightness);
+    led_on(led_flash_config.oriFlashColor);
+
+    return led_flash_config.effect_interval;
+}
 
 led_color_t led_get_color() {
     return led_dev.color;
@@ -204,15 +242,16 @@ void led_init() {
     led_off();
 
 #if 0
-loop:
-    led_test(COLOR_RED);
-    led_test(COLOR_YELLOW);
-    led_test(COLOR_GREEN);
-    led_test(COLOR_BLUE);
-    led_test(COLOR_PURPLE);
-    led_test(COLOR_WHITE);
-
-    goto loop;
+//loop:
+    led_effect_start(45, COLOR_RED);
+//    led_test(COLOR_RED);
+//    led_test(COLOR_YELLOW);
+//    led_test(COLOR_GREEN);
+//    led_test(COLOR_BLUE);
+//    led_test(COLOR_PURPLE);
+//    led_test(COLOR_WHITE);
+//
+//    goto loop;
 #endif
 }
 
@@ -246,4 +285,34 @@ void led_blink_stop(void) {
     }
 }
 
+bool led_flashing() {
 
+    if (led_flash_config.timerLedEvt)
+        return true;
+
+    return false;
+}
+
+void led_effect_start(uint8_t times, led_color_t color) {
+
+    if(led_flash_config.timerLedEvt) {
+        TL_ZB_TIMER_CANCEL(&led_flash_config.timerLedEvt);
+    }
+
+    led_flash_config.times = times;
+    led_flash_config.oriColor = led_dev.color;
+    led_flash_config.oriBrig = led_dev.brightness;
+    led_flash_config.effect_interval = 1;
+    led_flash_config.direction = 1;
+    led_flash_config.effect_brightness = 0;
+
+    led_off();
+//    led_set_brightness(0);
+//    led_flash_config.ledOnTime = ledOnTime;
+    led_flash_config.oriFlashColor = color;
+    led_flash_config.flashColor = led_dev.color;
+    led_flash_config.startFlash = true;
+
+    led_flash_config.timerLedEvt = TL_ZB_TIMER_SCHEDULE(led_effectCb, NULL, TIMEOUT_10MS);
+
+}

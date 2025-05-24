@@ -863,7 +863,7 @@ static void epd_logo() {
     if (config.rotate == APP_EPD_ROTATE_0) {
         epd_paint_showString(6, 0, manufacturer, &font16, color, true);
         epd_paint_showString(70, 100, name, &font26, color, true);
-        epd_paint_showString(80, 160, joined1, &font13, color, true);
+        epd_paint_showString(60, 160, joined1, &font13, color, true);
         epd_paint_showString(26, 180, joined2, &font13, color, true);
         epd_paint_showString(266, 285, vers, &font12, color, true);
     } else {
@@ -913,6 +913,13 @@ void app_epd_init() {
     epd_clear();
 
     epd_init_partial();
+
+#if 1
+    epd_logo();
+    while(1) {
+        button_handler();
+    }
+#endif
 
     if (zb_getLocalShortAddr() >= 0xFFF8) {
         epd_logo();

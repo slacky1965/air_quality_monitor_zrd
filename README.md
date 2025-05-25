@@ -12,8 +12,6 @@
 
 <img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screen90.jpg"/>
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_exposes.jpg"/>
-
 ---
 
 [Repository air_quality_monitor_zrd](https://github.com/slacky1965/air_quality_monitor_zrd)
@@ -58,11 +56,7 @@
 	- ZTU        - модуль Zigbee от фирмы `Tuya`, выполенный на чипе `TLSR8258F1KET32` фирмы `Telink`.
 	- WeAct 4.2" - epaper экран от `WeAct Studio`.
 
----
-
-### Схема
-
-Схема `Монитора`.
+### Схема `Монитора`
 
 <img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/Schematic_AirQualityMonitor.jpg"/>
 
@@ -163,6 +157,28 @@
 Уровень интенсивности свечения можно регулировать от 0 (выключено) до 255 (максимальное свечение).
 	
 Еще индикатор будет мерцать красным цветом - при попытке сопряжения и зеленым - когда сопряжение произошло. 
+
+---
+
+## <a id="settings">Настройка</a>
+
+**Вкладка `Exposes`**
+
+<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_exposes.jpg"/>
+
+Можно настроить, как выводить информацию, в горизонтальной или вертикальной плоскости, черное на белом или белое на черном, показывать градусы температуры с Цельсиях или в Фаренгейтах.
+
+Также можно подстроить датчик температуры, если по каким-то причинам он показывает неверную температуру. Диапазон настроек от -5 до +5 °С с шагом 0,1. По умолчанию значение подстройки датчика температуры выставлено в 0.
+
+Можно настротить, как часто будут опрашиваться внутренние датчики. Диапазон опроса от 5 до 600 секунд. По умолчанию 10 секунд.  Это не относится к датчику VOC `SGP40`, его опрос осуществляется по таймеру каждые 10 секунд. Связано с библиотекой вычисления `Index Points` от производителя датчика.
+
+Настройка репортинга.
+
+<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_reporting.jpg"/>
+
+К сожалению z2m не научился как-то отделять кастомные атрибуты. Он их просто нумерует attr1, attr2. Остается только догадываться, опираясь на то, к какому кластеру они относятся. Но так, как эти кастомные атрибуты, как правило, нужны для настройки, репортинг на них можно вообще не трогать. Они присылают отчеты или по изменению, или через 65000 секунд :))
+
+А вот температуру, ... 
 
 ## История версий
 - 1.0.01

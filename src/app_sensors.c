@@ -1,6 +1,6 @@
 #include "app_main.h"
 
-#define BIND_TIMEOUT  TIMEOUT_10MIN // TIMEOUT_2HOUR
+#define BIND_TIMEOUT  TIMEOUT_2HOUR //TIMEOUT_10MIN //
 
 static int16_t  outside_temperature = 0x8000;
 static uint16_t outside_humidity = 0xffff;

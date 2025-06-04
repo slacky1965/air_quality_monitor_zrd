@@ -44,19 +44,20 @@ $(OUT_PATH)/$(SRC_PATH)/app_bh1750.o \
 $(OUT_PATH)/$(SRC_PATH)/app_scd4x.o \
 $(OUT_PATH)/$(SRC_PATH)/app_sgp40.o \
 $(OUT_PATH)/$(SRC_PATH)/app_ds3231.o \
+$(OUT_PATH)/$(SRC_PATH)/app_reporting.o \
 $(OUT_PATH)/$(SRC_PATH)/app_epd.o \
 $(OUT_PATH)/$(SRC_PATH)/app_sensors.o \
 $(OUT_PATH)/$(SRC_PATH)/app_config.o \
 $(OUT_PATH)/$(SRC_PATH)/app_endpoint_cfg.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_led.o \
+$(OUT_PATH)/$(SRC_PATH)/app_sound.o \
 $(OUT_PATH)/$(SRC_PATH)/app_utility.o \
 $(OUT_PATH)/$(SRC_PATH)/app_time.o \
 $(OUT_PATH)/$(SRC_PATH)/app_main.o \
 $(OUT_PATH)/$(SRC_PATH)/zb_appCb.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl_appCb.o
 
-#$(OUT_PATH)/$(SRC_PATH)/app_co2sensor_model1.o \
 #$(OUT_PATH)/$(SRC_PATH)/app_co2sensor.o \
 #$(OUT_PATH)/$(SRC_PATH)/epaper/font32.o \
 #$(OUT_PATH)/$(SRC_PATH)/epaper/font48.o \

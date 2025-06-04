@@ -171,7 +171,8 @@ void app_task(void) {
 
     button_handler();
 
-    if(bdb_isIdle()) {
+    if(BDB_STATE_GET() == BDB_STATE_IDLE){
+//    if(bdb_isIdle()) {
         report_handler();
     }
 }
@@ -233,10 +234,11 @@ void user_init(bool isRetention) {
     bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
     /* Set default reporting configuration */
-    uint8_t reportableChange = 0x00;
+//    uint8_t reportableChange[REPORTABLE_CHANGE_MAX_ANALOG_SIZE] = {0x00};
+    float reportableChangeCO2 = 0.00001;
 
     bdb_defaultReportingCfg(APP_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_MS_CO2_MEASUREMENT,
-                            ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE, 300, 3600, (uint8_t *)&reportableChange);
+                            ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE, 10, 3600, (uint8_t *)&reportableChangeCO2);
 
     /* Initialize BDB */
     bdb_init((af_simple_descriptor_t *)&app_ep1Desc, &g_bdbCommissionSetting, &g_zbBdbCb, 1);

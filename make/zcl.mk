@@ -86,6 +86,7 @@ $(OUT_PATH)/zigbee/zcl/closures/zcl_window_covering.o \
 $(OUT_PATH)/zigbee/zcl/closures/zcl_window_covering_attr.o 
 
 
+
 # Each subdirectory must supply rules for building sources it contributes
 $(OUT_PATH)/zigbee/zcl/%.o: $(SDK_PATH)/zigbee/zcl/%.c
 	@echo 'Building file: $<'

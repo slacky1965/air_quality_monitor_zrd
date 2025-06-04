@@ -455,7 +455,7 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
  */
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-//    printf("app_zclCfgReportCmd\r\n");
+    printf("app_zclCfgReportCmd\r\n");
 
 //    for(uint8_t i = 0; i < APS_BINDING_TABLE_NUM; i++) {
 //        if (g_apsBindingTbl[i].used) {
@@ -473,16 +473,20 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
 //        }
 //    }
 
-//
+
 //    reportCfgInfo_t *pEntry;
 //
 //    for(uint8_t i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
-//        pEntry = &reportingTab.reportCfgInfo[i];
-//        printf("clusterID: 0x%04x, attrID: 0x%04x\r\n",
-//        pEntry->clusterID,
-//        pEntry->attrID);
+//        if (pEntry->used) {
+//            pEntry = &reportingTab.reportCfgInfo[i];
+//            printf("clusterID: 0x%04x, attrID: 0x%04x, min: %d, max: %d\r\n",
+//            pEntry->clusterID,
+//            pEntry->attrID,
+//            pEntry->minInterval,
+//            pEntry->maxInterval);
+//        }
 //    }
-//
+
 //    for(uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
 //        printf("direction: %d, attrId: 0x%04x\r\n",
 //                pCfgReportCmd->attrList[i].direction,

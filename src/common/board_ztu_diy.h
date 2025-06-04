@@ -30,6 +30,13 @@ enum {
 #define KB_DRIVE_PINS  {NULL }
 #define KB_SCAN_PINS   {BUTTON1}
 
+/*********************** Configure Sound GPIO **************************************/
+
+#define SOUND_PIN               GPIO_PB5
+#define PB5_FUNC                AS_GPIO
+#define PB5_OUTPUT_ENABLE       ON
+#define PB5_INPUT_ENABLE        OFF
+
 /************************ Configure SPI and other for EPD ***************************/
 
 /* Reset pin */

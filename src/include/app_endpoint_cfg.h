@@ -191,6 +191,6 @@ extern zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs;
 extern zcl_customAttr_t g_zcl_customAttrs;
 extern zcl_onOffSwitchCfgAttr_t g_zcl_onOffSwitchCfgAttrs;
 
-int32_t app_diagnostics_cmdCb(void *arg);
+//int32_t app_diagnostics_cmdCb(void *arg);
 
 #endif /* SRC_INCLUDE_APP_ENDPOINT_CFG_H_ */

@@ -343,7 +343,7 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				}
 			}
 			break;
-//			/*
+			/*
 		case ZCL_DATA_TYPE_SINGLE_PREC:
 			{
 				float P = *((float *)prevValue);
@@ -368,7 +368,7 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				}
 			}
 			break;
-//			*/
+			*/
 		default:
 			break;
 	}

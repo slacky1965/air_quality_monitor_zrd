@@ -232,6 +232,7 @@ zcl_customAttr_t g_zcl_customAttrs = {
         .co2_frc = 0,
         .display_rotate = DEFAULT_ROTATE,
         .dispaly_inversion = DEFAULT_INVERSION,
+        .sound = DEFAULT_SOUND,                                 // 0 - off, 1 - on
 };
 
 #ifdef ZCL_CO2_MEASUREMENT
@@ -334,7 +335,7 @@ const zclAttrInfo_t illuminance_attrTbl[] = {
 #ifdef ZCL_LEVEL_CTRL
 /* Level */
 zcl_levelAttr_t g_zcl_levelAttrs = {
-    .currentLevel = 0xFF,
+    .currentLevel = DEFAULT_BRIGHTNESS,
     .minLevel = 0,
     .maxLevel = 0xFF,
     .options  = 1,
@@ -383,17 +384,18 @@ const zclAttrInfo_t aInput_attrTbl[] = {
 #endif
 
 zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs = {
-    .temperatureDisplayMode = 0x00,         // 0x00 - °C, 0x01 - °F (Not support)
-    .keypadLockout = 0x00,                  // on off
+    .temperatureDisplayMode = DEFAULT_DISPLAY_MODE,         // 0x00 - °C, 0x01 - °F (Not support)
+    .keypadLockout = 0x00,                                  // on off
 };
 
 
 const zclAttrInfo_t thermostat_ui_cfg_attrTbl[] = {
-        { ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE, ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.temperatureDisplayMode },
-        { ZCL_ATTRID_HVAC_KEYPAD_LOCKOUT,           ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.keypadLockout          },
-        { ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS,  ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_customAttrs.features_sensors              },
-        { ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE  ,  ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_customAttrs.display_rotate                },
-        { ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION, ZCL_ENUM8, RWR,    (uint8_t*)&g_zcl_customAttrs.dispaly_inversion             },
+        { ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE, ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.temperatureDisplayMode },
+        { ZCL_ATTRID_HVAC_KEYPAD_LOCKOUT,           ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_thermostatCfgAttrs.keypadLockout          },
+        { ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS,  ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_customAttrs.features_sensors              },
+        { ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE  ,  ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_customAttrs.display_rotate                },
+        { ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION, ZCL_ENUM8,  RWR,    (uint8_t*)&g_zcl_customAttrs.dispaly_inversion             },
+        { ZCL_ATTRID_HVAC_CUSTOM_SOUND,             ZCL_BOOLEAN,RWR,    (uint8_t*)&g_zcl_customAttrs.sound                         },
 
         { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,        ZCL_UINT16, R,     (uint8_t*)&zcl_attr_global_clusterRevision                },
 };

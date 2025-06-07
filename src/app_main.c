@@ -234,11 +234,76 @@ void user_init(bool isRetention) {
     bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
     /* Set default reporting configuration */
-//    uint8_t reportableChange[REPORTABLE_CHANGE_MAX_ANALOG_SIZE] = {0x00};
-    float reportableChangeCO2 = 0.00001;
-
-    bdb_defaultReportingCfg(APP_ENDPOINT1, HA_PROFILE_ID, ZCL_CLUSTER_MS_CO2_MEASUREMENT,
-                            ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE, 10, 3600, (uint8_t *)&reportableChangeCO2);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_CO2_MEASUREMENT,
+                            ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE,
+                            config.reporting_co2.minInterval,
+                            config.reporting_co2.maxInterval,
+                            (uint8_t *)&config.reporting_co2.reportableChange.reportableChange_float);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
+                            ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE,
+                            config.reporting_voc.minInterval,
+                            config.reporting_voc.maxInterval,
+                            (uint8_t *)&config.reporting_voc.reportableChange.reportableChange_float);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+                            ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE,
+                            config.reporting_temp.minInterval,
+                            config.reporting_temp.maxInterval,
+                            (uint8_t *)&config.reporting_temp.reportableChange.reportableChange_u16);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
+                            ZCL_ATTRID_HUMIDITY_MEASUREDVALUE,
+                            config.reporting_hum.minInterval,
+                            config.reporting_hum.maxInterval,
+                            (uint8_t *)&config.reporting_hum.reportableChange.reportableChange_u16);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
+                            ZCL_ATTRID_PRESSURE_MEASUREDVALUE,
+                            config.reporting_press.minInterval,
+                            config.reporting_press.maxInterval,
+                            (uint8_t *)&config.reporting_press.reportableChange.reportableChange_u16);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT,
+                            ZCL_ATTRID_MEASURED_VALUE,
+                            config.reporting_illum.minInterval,
+                            config.reporting_illum.maxInterval,
+                            (uint8_t *)&config.reporting_illum.reportableChange.reportableChange_u16);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                            ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE,
+                            config.reporting_rotate.minInterval,
+                            config.reporting_rotate.maxInterval,
+                            (uint8_t *)&config.reporting_rotate.reportableChange.reportableChange_u8);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                            ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION,
+                            config.reporting_inversion.minInterval,
+                            config.reporting_inversion.maxInterval,
+                            (uint8_t *)&config.reporting_inversion.reportableChange.reportableChange_u8);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                            ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE,
+                            config.reporting_dMode.minInterval,
+                            config.reporting_dMode.maxInterval,
+                            (uint8_t *)&config.reporting_dMode.reportableChange.reportableChange_u8);
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_CO2_MEASUREMENT,
+                            ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION,
+                            config.reporting_co2Frc.minInterval,
+                            config.reporting_co2Frc.maxInterval,
+                            (uint8_t *)&config.reporting_co2Frc.reportableChange.reportableChange_u16);
 
     /* Initialize BDB */
     bdb_init((af_simple_descriptor_t *)&app_ep1Desc, &g_bdbCommissionSetting, &g_zbBdbCb, 1);

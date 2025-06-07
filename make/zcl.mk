@@ -13,11 +13,12 @@ OUT_DIR += \
 /zigbee/zcl/general \
 /zigbee/zcl/commissioning \
 /zigbee/zcl/closures \
+
+#$(OUT_PATH)/zigbee/zcl/zcl_reporting.o \
  
 OBJS += \
 $(OUT_PATH)/zigbee/zcl/zcl.o \
 $(OUT_PATH)/zigbee/zcl/zcl_nv.o \
-$(OUT_PATH)/zigbee/zcl/zcl_reporting.o \
 $(OUT_PATH)/zigbee/zcl/zll_commissioning/zcl_toucklink_security.o \
 $(OUT_PATH)/zigbee/zcl/zll_commissioning/zcl_zllTouchLinkDiscovery.o \
 $(OUT_PATH)/zigbee/zcl/zll_commissioning/zcl_zllTouchLinkJoinOrStart.o \

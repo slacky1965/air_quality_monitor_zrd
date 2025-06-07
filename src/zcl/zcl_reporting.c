@@ -27,6 +27,7 @@
  * INCLUDES
  */
 #include "zcl_include.h"
+#include "zcl_concentration_measurement.h"
 
 /**********************************************************************
  * GLOBAL VARIABLES
@@ -160,6 +161,7 @@ _CODE_ZCL_ reportCfgInfo_t *zcl_reportCfgInfoEntryFreeGet(void)
  */
 _CODE_ZCL_ void zcl_reportCfgInfoEntryRst(reportCfgInfo_t *pEntry)
 {
+    printf("zcl_reportCfgInfoEntryRst(). clID: 0x%04x, attrID: 0x%04x\r\n", pEntry->clusterID, pEntry->attrID);
 	if(pEntry->used){
 		pEntry->minInterval = pEntry->minIntDft;
 		pEntry->maxInterval = pEntry->maxIntDft;
@@ -187,9 +189,6 @@ _CODE_ZCL_ void zcl_reportCfgInfoEntryRst(reportCfgInfo_t *pEntry)
  */
 _CODE_ZCL_ void zcl_reportCfgInfoEntryUpdate(reportCfgInfo_t *pEntry, u8 endPoint, u16 profileId, u16 clusterId, zclCfgReportRec_t *pCfgReportRec)
 {
-//    if (clusterId == 0x040D /*ZCL_CLUSTER_MS_CO2_MEASUREMENT*/) {
-//        printf("attr: 0x%04x, min: %d, max: %d\r\n", pCfgReportRec->attrID, pCfgReportRec->minReportInt, pCfgReportRec->maxReportInt);
-//    }
 	if(!pEntry->used){
 		//add new
 		pEntry->profileID = profileId;
@@ -349,16 +348,44 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 //			/*
 		case ZCL_DATA_TYPE_SINGLE_PREC:
 			{
-				float P = *((float *)prevValue);
-				float C = *((float *)curValue);
-				float R = *((float *)reportableChange);
+                float p;
+                float c;
+                float r;
+                uint8_t *val_u8;
+
+                uint32_t P, C, R;
+
+                val_u8 = (uint8_t*)&p;
+                val_u8[0] = prevValue[0];
+                val_u8[1] = prevValue[1];
+                val_u8[2] = prevValue[2];
+                val_u8[3] = prevValue[3];
+
+                val_u8 = (uint8_t*)&c;
+                val_u8[0] = curValue[0];
+                val_u8[1] = curValue[1];
+                val_u8[2] = curValue[2];
+                val_u8[3] = curValue[3];
+
+                val_u8 = (uint8_t*)&r;
+                val_u8[0] = reportableChange[0];
+                val_u8[1] = reportableChange[1];
+                val_u8[2] = reportableChange[2];
+                val_u8[3] = reportableChange[3];
+
+                P = (uint32_t)p;
+                C = (uint32_t)c;
+                R = (uint32_t)r;
 				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
+
+//				printf("ZCL_DATA_TYPE_SINGLE_PREC: need: %d, prev: %d, data: %d, change: %d\r\n", needReport, P, C, R);
 			}
 			break;
+			/*
 		case ZCL_DATA_TYPE_DOUBLE_PREC:
 			{
 				double P = *((double *)prevValue);
@@ -371,7 +398,7 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				}
 			}
 			break;
-//			*/
+			*/
 		default:
 			break;
 	}
@@ -426,9 +453,37 @@ _CODE_ZCL_ void reportAttrs(void)
 					if(!pEntry->maxIntCnt){
 						valid = 1;
 					}else if(!pEntry->minIntCnt){
+					    uint8_t *data, *prevData, *reportableChange;
+                        float D, P, R;
+					    if (pEntry->attrID == ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE) {
+					        data = (uint8_t*)&D;
+                            data[0] = pAttrEntry->data[0];
+                            data[1] = pAttrEntry->data[1];
+                            data[2] = pAttrEntry->data[2];
+                            data[3] = pAttrEntry->data[3];
+                            D *= 1000000.0;
+
+                            prevData = (uint8_t*)&P;
+                            prevData[0] = pEntry->prevData[0];
+                            prevData[1] = pEntry->prevData[1];
+                            prevData[2] = pEntry->prevData[2];
+                            prevData[3] = pEntry->prevData[3];
+                            P *= 1000000.0;
+
+                            reportableChange = (uint8_t*)&R;
+                            reportableChange[0] = pEntry->reportableChange[0];
+                            reportableChange[1] = pEntry->reportableChange[1];
+                            reportableChange[2] = pEntry->reportableChange[2];
+                            reportableChange[3] = pEntry->reportableChange[3];
+                            R *= 1000000.0;
+					    } else {
+					        data = pAttrEntry->data;
+					        prevData = pEntry->prevData;
+					        reportableChange = pEntry->reportableChange;
+					    }
 						if((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
-							(zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data,
-																							  pEntry->prevData, pEntry->reportableChange))){
+							(zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, data,
+																							  prevData, reportableChange))){
 							valid = 1;
 						}else{
 							pEntry->minIntCnt = pEntry->minInterval;

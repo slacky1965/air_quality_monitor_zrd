@@ -67,8 +67,37 @@ nv_sts_t config_restore() {
         config.voc_onoff_low = DEFAULT_VOC_ONOFF_MIN;
         config.voc_onoff_high = DEFAULT_VOC_ONOFF_MAX;
         config.co2_frc = 0;
-//        config.unit_pressure = APP_EPD_UNIT_PRESSURE_MM;
-//        config.joined = false;
+        config.sound = DEFAULT_SOUND;
+        config.reporting_co2.minInterval = DEF_MIN_INTERVAL_CO2;
+        config.reporting_co2.maxInterval = DEF_MAX_INTERVAL_CO2;
+        config.reporting_co2.reportableChange.reportableChange_float = DEF_CHANGE_CO2;
+        config.reporting_voc.minInterval = DEF_MIN_INTERVAL_VOC;
+        config.reporting_voc.maxInterval = DEF_MAX_INTERVAL_VOC;
+        config.reporting_voc.reportableChange.reportableChange_float = DEF_CHANGE_VOC;
+        config.reporting_temp.minInterval = DEF_MIN_INTERVAL_TEMP;
+        config.reporting_temp.maxInterval = DEF_MAX_INTERVAL_TEMP;
+        config.reporting_temp.reportableChange.reportableChange_u16 = DEF_CHANGE_TEMP;
+        config.reporting_hum.minInterval = DEF_MIN_INTERVAL_HUM;
+        config.reporting_hum.maxInterval = DEF_MAX_INTERVAL_HUM;
+        config.reporting_hum.reportableChange.reportableChange_u16 = DEF_CHANGE_HUM;
+        config.reporting_press.minInterval = DEF_MIN_INTERVAL_PRESS;
+        config.reporting_press.maxInterval = DEF_MAX_INTERVAL_PRESS;
+        config.reporting_press.reportableChange.reportableChange_u16 = DEF_CHANGE_PRESS;
+        config.reporting_illum.minInterval = DEF_MIN_INTERVAL_ILL;
+        config.reporting_illum.maxInterval = DEF_MAX_INTERVAL_ILL;
+        config.reporting_illum.reportableChange.reportableChange_u16 = DEF_CHANGE_ILL;
+        config.reporting_rotate.minInterval = DEF_MIN_INTERVAL_ROTATE;
+        config.reporting_rotate.maxInterval = DEF_MAX_INTERVAL_ROTATE;
+        config.reporting_rotate.reportableChange.reportableChange_u8 = DEF_CHANGE_ROTATE;
+        config.reporting_inversion.minInterval = DEF_MIN_INTERVAL_INVERS;
+        config.reporting_inversion.maxInterval = DEF_MAX_INTERVAL_INVERS;
+        config.reporting_inversion.reportableChange.reportableChange_u8 = DEF_CHANGE_INVERS;
+        config.reporting_dMode.minInterval = DEF_MIN_INTERVAL_DMODE;
+        config.reporting_dMode.maxInterval = DEF_MAX_INTERVAL_DMODE;
+        config.reporting_dMode.reportableChange.reportableChange_u8 = DEF_CHANGE_DMODE;
+        config.reporting_co2Frc.minInterval = DEF_MIN_INTERVAL_FRC_CO2;
+        config.reporting_co2Frc.maxInterval = DEF_MAX_INTERVAL_FRC_CO2;
+        config.reporting_co2Frc.reportableChange.reportableChange_u16 = DEF_CHANGE_FRC_CO2;
     }
 
     g_zcl_levelAttrs.currentLevel = config.brightness;
@@ -84,6 +113,7 @@ nv_sts_t config_restore() {
     g_zcl_customAttrs.co2_frc = config.co2_frc;
     g_zcl_customAttrs.display_rotate = config.rotate;
     g_zcl_customAttrs.dispaly_inversion = config.inversion;
+    g_zcl_customAttrs.sound = config.sound;
 
 #else
     st = NV_ENABLE_PROTECT_ERROR;

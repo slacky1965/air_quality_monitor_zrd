@@ -13,6 +13,7 @@
 #define ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS         0xF009          /* Thermostat UI Config cluster      */
 #define ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE           0xF00A          /* Thermostat UI Config cluster      */
 #define ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION        0xF00B          /* Thermostat UI Config cluster      */
+#define ZCL_ATTRID_HVAC_CUSTOM_SOUND                    0xF00C          /* Thermostat UI Config cluster      */
 
 typedef enum {
     FEATURES_NOTHING = 0x00,

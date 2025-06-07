@@ -76,7 +76,7 @@ static void buttonCheckCommand(uint8_t btNum) {
         config.rotate &= 0x01;
         printf("config rotate: %d\r\n", config.rotate);
         config_save();
-        zb_resetDevice();
+        TL_SCHEDULE_TASK(epd_forceScreenUpdate, NULL);
     } else if (g_appCtx.button[btNum-1].ctn == 3) {
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 3 times. Inversion\r\n");
@@ -85,7 +85,7 @@ static void buttonCheckCommand(uint8_t btNum) {
         config.inversion &= 0x01;
         printf("config inversion: %d\r\n", config.inversion);
         config_save();
-        zb_resetDevice();
+        TL_SCHEDULE_TASK(epd_forceScreenUpdate, NULL);
     } else if (g_appCtx.button[btNum-1].ctn == 4) {
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 4 times. Celsius or Fahrenheit\r\n");
@@ -111,7 +111,6 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt) {
         g_appCtx.button[keyCode-1].state = APP_FACTORY_NEW_SET_CHECK;
         g_appCtx.button[keyCode-1].ctn++;
         led_blink_start(1, 30, 1, COLOR_RED);
-        sound_start(3, 20, 100);
     }
 }
 

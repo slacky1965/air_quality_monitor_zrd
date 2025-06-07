@@ -37,5 +37,6 @@ void app_epd_init();
 void app_first_start_epd();
 void epd_update_temperature_display_mode();
 void epd_clearZbIcon();
+void epd_forceScreenUpdate(void *args);
 
 #endif /* SRC_INCLUDE_APP_EPD_H_ */

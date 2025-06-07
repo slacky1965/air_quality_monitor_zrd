@@ -11,6 +11,8 @@ static uint16_t real_rotate = EPD_ROTATE_270;
 
 static bool show_logo = false;
 
+static ev_timer_event_t *timerScreenUpdate = NULL;
+
 static epd_screen_variable_t epd_screen_variable = {
         .minutes = 61,
         .temp_in = 0x8001,
@@ -769,6 +771,7 @@ static void epd_screen_var(void *args) {
             }
         }
 
+        led_set_brightness(config.brightness);
         led_on(led_color);
     }
 }
@@ -932,7 +935,7 @@ void app_first_start_epd() {
 
     epd_screen_invar();
     epd_screen_var(NULL);
-    TL_ZB_TIMER_SCHEDULE(epd_screen_varCb, NULL, TIMEOUT_10SEC);
+    timerScreenUpdate = TL_ZB_TIMER_SCHEDULE(epd_screen_varCb, NULL, TIMEOUT_10SEC);
 }
 
 void epd_update_temperature_display_mode() {
@@ -973,4 +976,32 @@ void epd_clearZbIcon() {
 
     epd_displayBW_partial(image_bw);
     epd_enter_deepsleepmode(EPD_DEEPSLEEP_MODE1);
+}
+
+void epd_forceScreenUpdate(void *args) {
+
+    if (timerScreenUpdate) {
+        TL_ZB_TIMER_CANCEL(&timerScreenUpdate);
+    }
+
+    epd_screen_variable.minutes = 61;
+    epd_screen_variable.temp_in = 0x8001;
+    epd_screen_variable.temp_out = 0x8001;
+    epd_screen_variable.humidity_in = 0xfffe;
+    epd_screen_variable.humidity_out = 0xfffe;
+    epd_screen_variable.battery_percent = 0xfe;
+    epd_screen_variable.pressure = 0;
+    epd_screen_variable.co2 = 0;
+    epd_screen_variable.voc = 0;
+    epd_screen_variable.lux = 0;
+    epd_screen_variable.lqi = 256;
+    epd_screen_variable.level = 6;
+    epd_screen_variable.zbIcon = false;
+
+    epd_io_init();
+    epd_init();
+    epd_newimage();
+    epd_clear();
+    epd_init_partial();
+    app_first_start_epd();
 }

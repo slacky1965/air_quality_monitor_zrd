@@ -17,8 +17,9 @@
 #define DEFAULT_ROTATE                  APP_EPD_ROTATE_0
 #define DEFAULT_INVERSION               APP_EPD_INVERSION_OFF
 #define DEFAULT_READ_SENSORS_PERIOD     (READ_SENSORS_PERIOD_MIN * 2)
-#define DEFAULT_BRIGHTNESS              0xFF
+#define DEFAULT_BRIGHTNESS              25
 #define DEFAULT_DISPLAY_MODE            ZCL_DISPLAY_MODE_CELSIUS
+#define DEFAULT_SOUND                   1
 #define DEFAULT_TEMPERATURE_OFFSET      0
 #define DEFAULT_CO2_ONOFF               CO2_ONOFF_DISABLED
 #define DEFAULT_CO2_ONOFF_MIN           CO2_ONOFF_MIN
@@ -41,7 +42,8 @@ typedef struct __attribute__((packed)) {
     uint8_t     co2_onoff;              /* 0 - disabled, 1 - enabled     */
     uint16_t    co2_onoff_low;          /* 400                           */
     uint16_t    co2_onoff_high;         /* 2000                          */
-    int16_t     co2_frc;
+    int16_t     co2_frc;                /* offset co2                    */
+    uint8_t     sound;                  /* 0 - disabled, 1 - enabled     */
     app_reporting_t reporting_co2;
     app_reporting_t reporting_voc;
     app_reporting_t reporting_temp;

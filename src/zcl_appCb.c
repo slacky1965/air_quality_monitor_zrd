@@ -222,6 +222,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
     zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
     uint8_t val;
+    bool save = false;
 
 //    printf("app_zclWriteReqCmd. cluster: 0x%04x\r\n", clusterId);
 
@@ -233,7 +234,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     printf("Set %s\r\n", val?"Fahrenheit":"Celsius");
                     if (config.d_mode != val) {
                         config.d_mode = val;
-                        config_save();
+                        save = true;
                         epd_update_temperature_display_mode();
                     }
                 }
@@ -243,8 +244,8 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     printf("Rotate set: %s\r\n", val?"Vertical":"Horizontal");
                     if (config.rotate != val) {
                         config.rotate = val;
-                        config_save();
-                        TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_2SEC);
+                        save = true;
+                        TL_SCHEDULE_TASK(epd_forceScreenUpdate, NULL);
                     }
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION) {
@@ -253,8 +254,17 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     printf("Inversion set: %s\r\n", val?"Black on white":"White on black");
                     if (config.inversion != val) {
                         config.inversion = val;
-                        config_save();
-                        TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_2SEC);
+                        save = true;
+                        TL_SCHEDULE_TASK(epd_forceScreenUpdate, NULL);
+                    }
+                }
+            } else if (attr[i].attrID == ZCL_ATTRID_HVAC_CUSTOM_SOUND) {
+                val = attr[i].attrData[0];
+                if (val == 0 || val == 1) {
+                    printf("Sound set: %s\r\n", val?"On":"Off");
+                    if (config.sound != val) {
+                        config.sound = val;
+                        save = true;
                     }
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_HVAC_CUSTOM_FEATURES_SENSORS) {
@@ -291,7 +301,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 if (temp >= TEMPERATURE_OFFSET_MIN && temp <= TEMPERATURE_OFFSET_MAX) {
                     if (temp != config.temperature_offset) {
                         config.temperature_offset = temp;
-                        config_save();
+                        save = true;
                     }
                 }
                 epd_update_temperature_display_mode();
@@ -301,7 +311,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 if (ms_period >= READ_SENSORS_PERIOD_MIN && ms_period <= READ_SENSORS_PERIOD_MAX) {
                     if (ms_period != config.read_sensors_period) {
                         config.read_sensors_period = ms_period;
-                        config_save();
+                        save = true;
                         if (g_appCtx.timerMesurementEvt) {
                             TL_ZB_TIMER_CANCEL(&g_appCtx.timerMesurementEvt);
                         }
@@ -317,7 +327,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
             if (attr[i].attrID == ZCL_ATTRID_AI_CUSTOM_VOC_ONOFF) {
                 if (config.voc_onoff != attr[i].attrData[0]) {
                     config.voc_onoff = attr[i].attrData[0];
-                    config_save();
+                    save = true;
 //                    printf("VOC onoff: %d\r\n", config.voc_onoff);
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_AI_CUSTOM_VOC_LOW) {
@@ -327,7 +337,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     if (voc_low < config.voc_onoff_high) {
                         if (config.voc_onoff_low != voc_low) {
                             config.voc_onoff_low = voc_low;
-                            config_save();
+                            save = true;
 //                            printf("VOC low: %d\r\n", config.voc_onoff_low);
                         }
                     } else {
@@ -344,7 +354,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     if (voc_high > config.voc_onoff_low) {
                         if (config.voc_onoff_high != voc_high) {
                             config.voc_onoff_high = voc_high;
-                            config_save();
+                            save = true;
 //                            printf("VOC high: %d\r\n", config.voc_onoff_high);
                         }
                     } else {
@@ -363,7 +373,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
             if (attr[i].attrID == ZCL_ATTRID_CMS_CUSTOM_CO2_ONOFF) {
                 if (config.co2_onoff != attr[i].attrData[0]) {
                     config.co2_onoff = attr[i].attrData[0];
-                    config_save();
+                    save = true;
 //                    printf("CO2 onoff: %d\r\n", config.co2_onoff);
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_CMS_CUSTOM_CO2_LOW) {
@@ -373,7 +383,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     if (co2_low < config.co2_onoff_high) {
                         if (config.co2_onoff_low != co2_low) {
                             config.co2_onoff_low = co2_low;
-                            config_save();
+                            save = true;
 //                            printf("CO2 low: %d\r\n", config.co2_onoff_low);
                         }
                     } else {
@@ -390,7 +400,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     if (co2_high > config.co2_onoff_low) {
                         if (config.co2_onoff_high != co2_high) {
                             config.co2_onoff_high = co2_high;
-                            config_save();
+                            save = true;
 //                            printf("CO2 high: %d\r\n", config.co2_onoff_high);
                         }
                     } else {
@@ -411,6 +421,9 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
             }
         }
     }
+
+    if (save)
+        config_save();
 
 #ifdef ZCL_POLL_CTRL
 	if(clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL){
@@ -455,7 +468,48 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
  */
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-    printf("app_zclCfgReportCmd\r\n");
+//    printf("app_zclCfgReportCmd\r\n");
+
+//    for (uint8_t i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+//        if (reportingTab.reportCfgInfo[i].used) {
+//            printf("clID: 0x%04x, attrID: 0x%04x, change: 0x%08x\r\n",
+//                    reportingTab.reportCfgInfo[i].clusterID,
+//                    reportingTab.reportCfgInfo[i].attrID,
+//                    *((uint32_t*)reportingTab.reportCfgInfo[i].reportableChange));
+//        }
+//    }
+
+//    bool save = false;
+//    reportCfgInfo_t *pEntry = NULL;
+//
+//    for (uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
+//        if (pCfgReportCmd->attrList[i].attrID == ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE) {
+//            for (uint8_t ii = 0; ii < ZCL_REPORTING_TABLE_NUM; ii++) {
+//                pEntry = &reportingTab.reportCfgInfo[ii];
+//                if (reportingTab.reportCfgInfo[ii].used && reportingTab.reportCfgInfo[ii].attrID == ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE) {
+//                    printf("zcl_reportCfgInfoEntryUpdate\r\n");
+//                    zcl_reportCfgInfoEntryUpdate(pEntry, endPoint, HA_PROFILE_ID, ZCL_CLUSTER_MS_CO2_MEASUREMENT, &pCfgReportCmd->attrList[i]);
+//                }
+//            }
+//            save = true;
+//            config.reporting_co2.minInterval = pCfgReportCmd->attrList[i].minReportInt;
+//            config.reporting_co2.maxInterval = pCfgReportCmd->attrList[i].maxReportInt;
+//            memcpy(config.reporting_co2.reportableChange.reportableChange,
+//                    pCfgReportCmd->attrList[i].reportableChange,
+//                    zcl_getDataTypeLen(pCfgReportCmd->attrList[i].dataType));
+//
+//            printf("CO2ValueReport. min: %d, max: %d, change: 0x%08x, size: %d\r\n",
+//                    config.reporting_co2.minInterval,
+//                    config.reporting_co2.maxInterval,
+//                    config.reporting_co2.reportableChange.reportableChange_u32,
+//                    zcl_getDataTypeLen(pCfgReportCmd->attrList[i].dataType));
+//
+//            reportAttrTimerStop();
+//        }
+//    }
+//
+//    if (save)
+//        config_save();
 
 //    for(uint8_t i = 0; i < APS_BINDING_TABLE_NUM; i++) {
 //        if (g_apsBindingTbl[i].used) {

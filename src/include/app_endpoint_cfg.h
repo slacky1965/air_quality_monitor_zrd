@@ -157,6 +157,7 @@ typedef struct {
     uint8_t     display_rotate;                 /* 0 - horizontal, 1 - vertical           */
     uint8_t     dispaly_inversion;              /* 0 - black on white, 1 - white on black */
     features_sensors_t features_sensors;        /* enum in zcl_custom_attr.h file         */
+    uint8_t     sound;                          /* 0 - off, 1 - on                        */
 } zcl_customAttr_t;
 
 typedef struct {

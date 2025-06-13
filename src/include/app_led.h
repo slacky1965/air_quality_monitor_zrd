@@ -6,7 +6,7 @@
 #define LED_RGB_BYTE                    (LED_RGB_BIT / LED_BIT_IN_BYTE)
 #define LED_MAX_LEN                     10
 #define LED_RESET_LEN                   32
-#define LED_LEN                         3
+#define LED_LEN                         4   /* Number of LEDs */
 
 enum led_color_t {
     COLOR_NONE =    0x00,

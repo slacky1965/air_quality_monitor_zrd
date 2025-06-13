@@ -415,122 +415,129 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
  *
  * @return	NULL
  */
-_CODE_ZCL_ void reportAttrs(void)
-{
-	struct report_t{
-		u8 numAttr;
-		zclReport_t attr[2];
-	};
+_CODE_ZCL_ void reportAttrs(void) {
+    struct report_t {
+        u8 numAttr;
+        zclReport_t attr[2];
+    };
 
-	struct report_t report;
+    struct report_t report;
 
-	bool again = 0;
-	u16 profileID = 0xFFFF;
-	u16 clusterID = 0xFFFF;
-	u8 endpoint = 0;
-	reportCfgInfo_t *pEntry = NULL;
-	zclAttrInfo_t *pAttrEntry = NULL;
+    bool again = 0;
+    u16 profileID = 0xFFFF;
+    u16 clusterID = 0xFFFF;
+    u8 endpoint = 0;
+    reportCfgInfo_t *pEntry = NULL;
+    zclAttrInfo_t *pAttrEntry = NULL;
 
-	do{
-		pEntry = NULL;
-		pAttrEntry = NULL;
+    do {
+        pEntry = NULL;
+        pAttrEntry = NULL;
 
-		clusterID = 0xFFFF;
-		endpoint = 0;
-		again = 0;
-		memset((u8 *)&report, 0, sizeof(report));
+        clusterID = 0xFFFF;
+        endpoint = 0;
+        again = 0;
+        memset((u8*) &report, 0, sizeof(report));
 
-		for(u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++){
-			pEntry = &reportingTab.reportCfgInfo[i];
+        for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+            pEntry = &reportingTab.reportCfgInfo[i];
 
-			if(pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
-			   zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
-				pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
-				if(pAttrEntry){
-					bool valid = 0;
-					u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
+            if (pEntry->used && (pEntry->maxInterval != 0xFFFF) && zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
+                pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
+                if (pAttrEntry) {
+                    bool valid = 0;
+                    u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
 
-					if(!pEntry->maxIntCnt){
-						valid = 1;
-					}else if(!pEntry->minIntCnt){
-					    uint8_t *data, *prevData, *reportableChange;
-                        float D, P, R;
-					    if (pEntry->attrID == ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE) {
-					        data = (uint8_t*)&D;
-                            data[0] = pAttrEntry->data[0];
-                            data[1] = pAttrEntry->data[1];
-                            data[2] = pAttrEntry->data[2];
-                            data[3] = pAttrEntry->data[3];
-                            D *= 1000000.0;
+                    uint8_t *data, *prevData, *reportableChange;
+                    float D, P, R;
+                    if (pEntry->attrID == ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE) {
+                        data = (uint8_t*)&D;
+                        data[0] = pAttrEntry->data[0];
+                        data[1] = pAttrEntry->data[1];
+                        data[2] = pAttrEntry->data[2];
+                        data[3] = pAttrEntry->data[3];
+                        D *= 1000000.0;
 
-                            prevData = (uint8_t*)&P;
-                            prevData[0] = pEntry->prevData[0];
-                            prevData[1] = pEntry->prevData[1];
-                            prevData[2] = pEntry->prevData[2];
-                            prevData[3] = pEntry->prevData[3];
-                            P *= 1000000.0;
+                        prevData = (uint8_t*)&P;
+                        prevData[0] = pEntry->prevData[0];
+                        prevData[1] = pEntry->prevData[1];
+                        prevData[2] = pEntry->prevData[2];
+                        prevData[3] = pEntry->prevData[3];
+                        P *= 1000000.0;
 
-                            reportableChange = (uint8_t*)&R;
-                            reportableChange[0] = pEntry->reportableChange[0];
-                            reportableChange[1] = pEntry->reportableChange[1];
-                            reportableChange[2] = pEntry->reportableChange[2];
-                            reportableChange[3] = pEntry->reportableChange[3];
-                            R *= 1000000.0;
-					    } else {
-					        data = pAttrEntry->data;
-					        prevData = pEntry->prevData;
-					        reportableChange = pEntry->reportableChange;
-					    }
-						if((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
-							(zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, data,
-																							  prevData, reportableChange))){
-							valid = 1;
-						}else{
-							pEntry->minIntCnt = pEntry->minInterval;
-						}
-					}
+                        reportableChange = (uint8_t*)&R;
+                        reportableChange[0] = pEntry->reportableChange[0];
+                        reportableChange[1] = pEntry->reportableChange[1];
+                        reportableChange[2] = pEntry->reportableChange[2];
+                        reportableChange[3] = pEntry->reportableChange[3];
+                        R *= 1000000.0;
+                    } else {
+                        data = pAttrEntry->data;
+                        prevData = pEntry->prevData;
+                        reportableChange = pEntry->reportableChange;
+                    }
 
-					if(valid){
-						if(clusterID == 0xFFFF){
-							clusterID = pEntry->clusterID;
-							profileID = pEntry->profileID;
-							endpoint = pEntry->endPoint;
-						}else if((clusterID != pEntry->clusterID) ||
-								 (profileID != pEntry->profileID) ||
-								 (endpoint != pEntry->endPoint)){
-							again = 1;
-							continue;
-						}
+                    if (!pEntry->maxIntCnt) {
+                        if (!pEntry->maxInterval) {
+                            if ((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
+                                 (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, data,
+                                                                                                   prevData, reportableChange))) {
+                                valid = 1;
+                            }
+                        } else {
+                            valid = 1;
+                        }
+                    } else if (!pEntry->minIntCnt) {
+                        if ((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
+                             (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, data,
+                                                                                               prevData, reportableChange))) {
+                            valid = 1;
+                        } else {
+                            pEntry->minIntCnt = pEntry->minInterval;
+                        }
+                    }
 
-						report.attr[report.numAttr].attrID = pAttrEntry->id;
-						report.attr[report.numAttr].dataType = pAttrEntry->type;
-						report.attr[report.numAttr].attrData = pAttrEntry->data;
-						report.numAttr++;
+                    if (valid) {
+                        if (clusterID == 0xFFFF) {
+                            clusterID = pEntry->clusterID;
+                            profileID = pEntry->profileID;
+                            endpoint = pEntry->endPoint;
+                        } else if ((clusterID != pEntry->clusterID)
+                                || (profileID != pEntry->profileID)
+                                || (endpoint != pEntry->endPoint)) {
+                            again = 1;
+                            continue;
+                        }
 
-						//store for next compare
-						memcpy(pEntry->prevData, pAttrEntry->data, dataLen);
-						pEntry->minIntCnt = pEntry->minInterval;
-						pEntry->maxIntCnt = pEntry->maxInterval;
+                        report.attr[report.numAttr].attrID = pAttrEntry->id;
+                        report.attr[report.numAttr].dataType = pAttrEntry->type;
+                        report.attr[report.numAttr].attrData = pAttrEntry->data;
+                        report.numAttr++;
 
-						if(report.numAttr >= 2){
-							again = 1;
-							break;
-						}
-					}
-				}
-			}
-		}
+                        //store for next compare
+                        memcpy(pEntry->prevData, pAttrEntry->data, dataLen);
+                        pEntry->minIntCnt = pEntry->minInterval;
+                        pEntry->maxIntCnt = pEntry->maxInterval;
 
-		if(clusterID != 0xFFFF){
-			epInfo_t dstEpInfo;
-			TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+                        if (report.numAttr >= 2) {
+                            again = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
-			dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
-			dstEpInfo.profileId = profileID;
+        if (clusterID != 0xFFFF) {
+            epInfo_t dstEpInfo;
+            TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
-			zcl_sendReportAttrsCmd(endpoint, &dstEpInfo, TRUE, ZCL_FRAME_SERVER_CLIENT_DIR, clusterID, (zclReportCmd_t *)&report);
-		}
-	}while(again);
+            dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+            dstEpInfo.profileId = profileID;
+
+            zcl_sendReportAttrsCmd(endpoint, &dstEpInfo, TRUE, ZCL_FRAME_SERVER_CLIENT_DIR, clusterID, (zclReportCmd_t* )&report);
+        }
+    } while (again);
 }
 
 /*********************************************************************

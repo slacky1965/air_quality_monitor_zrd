@@ -18,7 +18,7 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
 
 //    printf("color: %d, brightness: %d\r\n", color, brightness);
 
-    uint8_t r, g, b, idx;
+    uint8_t r, g, b, idx, color1, color2, color3;
 
     led_spi_init();
 
@@ -65,14 +65,24 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
     led_dev.brightness = brightness;
     led_dev.color = color;
 
+#if (LED_BIT_SEQUENCE == LED_COLOR_RGB)
+    color1 = r;
+    color2 = g;
+    color3 = b;
+#else
+    color1 = g;
+    color2 = r;
+    color3 = b
+#endif
+
     for (uint8_t len = 0; len < led_dev.len; len++) {
         idx = 7;
         for (uint8_t i = 0; i < 4; i++) {
-            if (g >> idx-- & 0x01)
+            if (color1 >> idx-- & 0x01)
                 led_dev.out_buf.brg_buf[len][i] = LED_BIT_H1;
             else
                 led_dev.out_buf.brg_buf[len][i] = LED_BIT_H0;
-            if (g >> idx-- & 0x01)
+            if (color1 >> idx-- & 0x01)
                 led_dev.out_buf.brg_buf[len][i] |= LED_BIT_L1;
             else
                 led_dev.out_buf.brg_buf[len][i] |= LED_BIT_L0;
@@ -80,11 +90,11 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
 
         idx = 7;
         for (uint8_t i = 4; i < 8; i++) {
-            if (r >> idx-- & 0x01)
+            if (color2 >> idx-- & 0x01)
                 led_dev.out_buf.brg_buf[len][i] = LED_BIT_H1;
             else
                 led_dev.out_buf.brg_buf[len][i] = LED_BIT_H0;
-            if (r >> idx-- & 0x01)
+            if (color2 >> idx-- & 0x01)
                 led_dev.out_buf.brg_buf[len][i] |= LED_BIT_L1;
             else
                 led_dev.out_buf.brg_buf[len][i] |= LED_BIT_L0;
@@ -92,11 +102,11 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
 
         idx = 7;
         for (uint8_t i = 8; i < 12; i++) {
-            if (b >> idx-- & 0x01)
+            if (color3 >> idx-- & 0x01)
                 led_dev.out_buf.brg_buf[len][i] = LED_BIT_H1;
             else
                 led_dev.out_buf.brg_buf[len][i] = LED_BIT_H0;
-            if (b >> idx-- & 0x01)
+            if (color3 >> idx-- & 0x01)
                 led_dev.out_buf.brg_buf[len][i] |= LED_BIT_L1;
             else
                 led_dev.out_buf.brg_buf[len][i] |= LED_BIT_L0;

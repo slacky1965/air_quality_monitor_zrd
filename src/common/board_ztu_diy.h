@@ -117,7 +117,10 @@ enum {
 #define LED_SPI_PIN_GROUP       SPI_GPIO_GROUP_B6B7D2D7
 #define LED_SPI_PIN_CS          LED_CS
 
+#define LED_COLOR_RGB           1
+#define LED_COLOR_GRB           2
 
+#define LED_BIT_SEQUENCE        LED_COLOR_RGB //LED_COLOR_GRB
 
 #endif
 

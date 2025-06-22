@@ -36,5 +36,6 @@ void bind_outside_init();
 void start_bind_scan(uint16_t bindAddr, uint8_t idx);
 uint8_t bind_outside_check(uint16_t addr, uint16_t clId);
 void bind_outside_update_timer();
+void bind_outside_clear();
 
 #endif /* SRC_INCLUDE_APP_SENSORS_H_ */

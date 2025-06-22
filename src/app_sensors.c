@@ -399,3 +399,13 @@ void bind_outside_update_timer() {
 void bind_outside_init() {
     memset(&bind_outside_sensor_tmp, 0, sizeof(bind_outside_sensor_t));
 }
+
+void bind_outside_clear() {
+
+    bind_outside_init();
+
+    if (bind_outside_sensor.checkBindTimerEvt) {
+        TL_ZB_TIMER_CANCEL(&bind_outside_sensor.checkBindTimerEvt);
+    }
+    bind_outside_sensor.checkBindTimerEvt = TL_ZB_TIMER_SCHEDULE(bind_outside_copy_timerCb, NULL, TIMEOUT_250MS);
+}

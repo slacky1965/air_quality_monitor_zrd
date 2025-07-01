@@ -1,11 +1,14 @@
 #ifndef SRC_INCLUDE_APP_SENSORS_H_
 #define SRC_INCLUDE_APP_SENSORS_H_
 
+#define BIND_CLUSTER_NUM    3
+
 typedef enum {
-    OUTSIDE_S_CLUSTER_OK = 0,
-    OUTSIDE_S_NO_CLUSTER,
-    OUTSIDE_S_ADDR_FAIL,
-    OUTSIDE_S_EMPTY
+    OUTSIDE_SRC_CLUSTER_OK = 0,
+    OUTSIDE_SRC_NO_CLUSTER,
+    OUTSIDE_SRC_ADDR_FAIL,
+    OUTSIDE_SRC_TABLE_FULL,
+    OUTSIDE_SRC_EMPTY
 } outside_sensor_err_t;
 
 typedef struct {
@@ -15,10 +18,11 @@ typedef struct {
 
 typedef struct {
     ev_timer_event_t *checkBindTimerEvt;
-    uint8_t used;                               /* 0 - not used, 1, 2, 3 - how many cluster+attr */
+    uint8_t used;                               /* 0 - not used, 1, 2, 3 - how many cluster */
+    uint16_t src_addr;
     bind_ext_addr_t src_extAddr;
     bind_ext_addr_t dst_extAddr;
-    uint16_t cluster_id[3];
+    uint16_t cluster_id[BIND_CLUSTER_NUM];
 } bind_outside_sensor_t;
 
 
@@ -33,9 +37,8 @@ uint8_t app_get_outside_battery();
 
 
 void bind_outside_init();
-void start_bind_scan(uint16_t bindAddr, uint8_t idx);
-uint8_t bind_outside_check(uint16_t addr, uint16_t clId);
+outside_sensor_err_t bind_outsise_proc(uint16_t addr, uint16_t clusterId);
 void bind_outside_update_timer();
-void bind_outside_clear();
+#define bind_outside_clear bind_outside_init
 
 #endif /* SRC_INCLUDE_APP_SENSORS_H_ */

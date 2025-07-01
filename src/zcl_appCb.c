@@ -470,6 +470,9 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
 {
 //    printf("app_zclCfgReportCmd\r\n");
 
+    reportAttrTimerStop();
+
+
 //    for (uint8_t i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
 //        if (reportingTab.reportCfgInfo[i].used) {
 //            printf("clID: 0x%04x, attrID: 0x%04x, change: 0x%08x\r\n",
@@ -590,11 +593,11 @@ static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps
             temp = attrList[i].attrData[0] & 0xFF;
             temp |= (attrList[i].attrData[1] << 8) & 0xFFFF;
 
-            ret = bind_outside_check(addr, clusterId);
-            if (ret == OUTSIDE_S_EMPTY || ret == OUTSIDE_S_NO_CLUSTER) {
-                bind_outside_init();
-                start_bind_scan(addr, 0);
-            } else if (ret == OUTSIDE_S_ADDR_FAIL) {
+            printf("temp: 0x%04x\r\n", (uint16_t)temp);
+
+            ret = bind_outsise_proc(addr, clusterId);
+
+            if (ret != OUTSIDE_SRC_CLUSTER_OK) {
                 continue;
             }
 
@@ -609,13 +612,14 @@ static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps
             hum = attrList[i].attrData[0] & 0xFF;
             hum |= (attrList[i].attrData[1] << 8) & 0xFFFF;
 
-            ret = bind_outside_check(addr, clusterId);
-            if (ret == OUTSIDE_S_EMPTY || ret == OUTSIDE_S_NO_CLUSTER) {
-                bind_outside_init();
-                start_bind_scan(addr, 0);
-            } else if (ret == OUTSIDE_S_ADDR_FAIL) {
+            printf("hum: 0x%04x\r\n", hum);
+
+            ret = bind_outsise_proc(addr, clusterId);
+
+            if (ret != OUTSIDE_SRC_CLUSTER_OK) {
                 continue;
             }
+
             app_set_outside_humidity(hum);
             bind_outside_update_timer();
         }
@@ -624,33 +628,16 @@ static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps
                 attrList[i].attrID == ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING) {
             uint8_t bat_percent = attrList[i].attrData[0];
 
-            ret = bind_outside_check(addr, clusterId);
-            if (ret == OUTSIDE_S_EMPTY || ret == OUTSIDE_S_NO_CLUSTER) {
-                bind_outside_init();
-                start_bind_scan(addr, 0);
-            } else if (ret == OUTSIDE_S_ADDR_FAIL) {
+            ret = bind_outsise_proc(addr, clusterId);
+
+            if (ret != OUTSIDE_SRC_CLUSTER_OK) {
                 continue;
             }
+
             app_set_outside_battery(bat_percent);
             bind_outside_update_timer();
         }
     }
-
-//    for(uint8_t i = 0; i < APS_BINDING_TABLE_NUM; i++) {
-//        if (g_apsBindingTbl[i].used) {
-//            u8 r = irq_disable();
-//            printf("bind_tbl\r\n");
-//            printf("addr_mode: 0x%02x, clId: 0x%04x, ", g_apsBindingTbl[i].dstAddrMode, g_apsBindingTbl[i].clusterId);
-//
-//            printf("addr: ");
-//            for (uint8_t ii = 0; ii < 8; ii++) {
-//                printf("0x%02x:", g_apsBindingTbl[i].dstExtAddrInfo.extAddr[ii]);
-//            }
-//            printf("\r\n");
-//
-//            irq_restore(r);
-//        }
-//    }
 }
 #endif	/* ZCL_REPORT */
 

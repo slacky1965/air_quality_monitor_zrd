@@ -65,7 +65,7 @@ enum {
 #define PD2_INPUT_ENABLE        OFF
 
 /* SPI Clock */
-#define EPD_SPI_CLOCK          400000//400K
+#define EPD_SPI_CLOCK          2400000//2400K
 
 /*
  *  Define pin for SPI interface

@@ -1,6 +1,6 @@
 #include "app_main.h"
 
-#define BIND_TIMEOUT  TIMEOUT_10MIN //TIMEOUT_2HOUR //
+#define BIND_TIMEOUT  TIMEOUT_2HOUR //TIMEOUT_10MIN //
 
 static int16_t  outside_temperature = 0x8000;
 static uint16_t outside_humidity = 0xffff;
@@ -256,7 +256,7 @@ outside_sensor_err_t bind_outsise_proc(uint16_t addr, uint16_t clusterId) {
     outside_sensor_err_t ret = OUTSIDE_SRC_CLUSTER_OK;
 
     if (bind_outside_sensor.used == 0) {
-        printf("New table\r\n");
+//        printf("New table\r\n");
         bind_outside_sensor.src_addr = addr;
         bind_outside_sensor.cluster_id[bind_outside_sensor.used] = clusterId;
         bind_outside_sensor.used++;
@@ -264,26 +264,26 @@ outside_sensor_err_t bind_outsise_proc(uint16_t addr, uint16_t clusterId) {
     }
 
     if (addr != bind_outside_sensor.src_addr) {
-        printf("OUTSIDE_SRC_ADDR_FAIL\r\n");
+//        printf("OUTSIDE_SRC_ADDR_FAIL\r\n");
         return OUTSIDE_SRC_ADDR_FAIL;
     }
 
     for (uint8_t i = 0; i < BIND_CLUSTER_NUM; i++) {
         if (bind_outside_sensor.cluster_id[i] == clusterId) {
-            printf("OUTSIDE_SRC_CLUSTER_OK\r\n");
+//            printf("OUTSIDE_SRC_CLUSTER_OK\r\n");
             return OUTSIDE_SRC_CLUSTER_OK;
         }
     }
 
     if ((bind_outside_sensor.used + 1) > BIND_CLUSTER_NUM) {
-        printf("OUTSIDE_SRC_TABLE_FULL\r\n");
+//        printf("OUTSIDE_SRC_TABLE_FULL\r\n");
         return OUTSIDE_SRC_TABLE_FULL;
     }
 
     bind_outside_sensor.cluster_id[bind_outside_sensor.used] = clusterId;
     bind_outside_sensor.used++;
 
-    printf("used: %d\r\n", bind_outside_sensor.used);
+//    printf("used: %d\r\n", bind_outside_sensor.used);
 
     return ret;
 }

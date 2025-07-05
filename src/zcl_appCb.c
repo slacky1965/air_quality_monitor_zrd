@@ -576,7 +576,7 @@ static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCf
  * @return  None
  */
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps_data_ind_t aps_data_ind) {
-    printf("app_zclReportCmd\r\n");
+//    printf("app_zclReportCmd\r\n");
 
     uint8_t numAttr = pReportCmd->numAttr;
     zclReport_t *attrList = pReportCmd->attrList;
@@ -593,7 +593,7 @@ static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps
             temp = attrList[i].attrData[0] & 0xFF;
             temp |= (attrList[i].attrData[1] << 8) & 0xFFFF;
 
-            printf("temp: 0x%04x\r\n", (uint16_t)temp);
+//            printf("temp: 0x%04x\r\n", (uint16_t)temp);
 
             ret = bind_outsise_proc(addr, clusterId);
 
@@ -612,7 +612,7 @@ static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps
             hum = attrList[i].attrData[0] & 0xFF;
             hum |= (attrList[i].attrData[1] << 8) & 0xFFFF;
 
-            printf("hum: 0x%04x\r\n", hum);
+//            printf("hum: 0x%04x\r\n", hum);
 
             ret = bind_outsise_proc(addr, clusterId);
 

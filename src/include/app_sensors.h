@@ -12,16 +12,9 @@ typedef enum {
 } outside_sensor_err_t;
 
 typedef struct {
-    uint16_t  addr;
-    addrExt_t extAddr;
-} bind_ext_addr_t;
-
-typedef struct {
     ev_timer_event_t *checkBindTimerEvt;
     uint8_t used;                               /* 0 - not used, 1, 2, 3 - how many cluster */
     uint16_t src_addr;
-    bind_ext_addr_t src_extAddr;
-    bind_ext_addr_t dst_extAddr;
     uint16_t cluster_id[BIND_CLUSTER_NUM];
 } bind_outside_sensor_t;
 

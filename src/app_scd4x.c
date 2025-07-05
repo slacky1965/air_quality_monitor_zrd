@@ -132,7 +132,7 @@ uint8_t app_scd4x_init() {
 
 #if UART_PRINTF_MODE && DEBUG_SCD4X
     if (ret == SCD4X_OK) {
-        printf("pressure: %d\r\n", pressure);
+        printf("[scd4x] pressure: %d\r\n", pressure);
     }
 #endif
 
@@ -174,8 +174,8 @@ void app_scd4x_measurement() {
 
     if (ret == SCD4X_OK) {
 
-#if UART_PRINTF_MODE && DEBUG_SCD4X
-        printf("co2: %d, temperature: %d, humidity: %d\r\n", co2, temperature, humidity);
+#if 0 //UART_PRINTF_MODE && DEBUG_SCD4X
+        printf("[scd4x] co2: %d, temperature: %d, humidity: %d\r\n", co2, temperature, humidity);
 #endif
 
         float attrCo2 = (float)co2/1000000;

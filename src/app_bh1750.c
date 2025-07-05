@@ -112,9 +112,9 @@ void app_bh1750_measurement() {
 
         uint16_t value =  10000 * log10(lux) + 1;
 
-#if UART_PRINTF_MODE && DEBUG_BH1750
+#if 0 //UART_PRINTF_MODE && DEBUG_BH1750
         uint32_t ll = lux * 100;
-        printf("raw: %d, lux: %d.%d, zcl: %d\r\n", raw, ll / 100, ll % 100, value);
+        printf("[bh1750] raw: %d, lux: %d.%d, zcl: %d\r\n", raw, ll / 100, ll % 100, value);
 #endif
 
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT, ZCL_ATTRID_MEASURED_VALUE, (uint8_t*)&value);

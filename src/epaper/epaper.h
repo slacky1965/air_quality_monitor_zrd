@@ -108,6 +108,8 @@ void epd_paint_showString(uint16_t x, uint16_t y, uint8_t *chr, sFont *font, uin
 void epd_paint_showNum(uint16_t x, uint16_t y, uint32_t num, uint16_t len, sFont *font, uint16_t color);
 void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color);
 
+uint8_t epd_get_status_busy();
+
 #ifdef __cplusplus
 }
 #endif

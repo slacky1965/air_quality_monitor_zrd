@@ -73,9 +73,9 @@ extern "C" {
 #define DEBUG_REPORTING                 OFF
 #define DEBUG_OTA                       OFF
 #define DEBUG_STA_STATUS                OFF
-#define DEBUG_BME280                    OFF
-#define DEBUG_BH1750                    OFF
-#define DEBUG_SCD4X                     OFF
+#define DEBUG_BME280                    ON
+#define DEBUG_BH1750                    ON
+#define DEBUG_SCD4X                     ON
 #define DEBUG_SGP40                     ON
 #define DEBUG_DS3231                    ON
 #define DEBUG_ONOFF                     ON

@@ -32,6 +32,8 @@ static void buttonKeepPressed(uint8_t btNum) {
         printf("The button was keep pressed for 5 seconds\r\n");
 #endif
 
+        bind_outside_clear();
+
         if (zb_getLocalShortAddr() >= 0xFFF8) {
 //            zb_deviceFactoryNewSet(true);
             printf("1 Factory new: %s\r\n", zb_isDeviceFactoryNew()?"yes":"no");

@@ -259,7 +259,7 @@ scd4x_error_t scd4x_cmd_forced_calibration(int16_t *frc) {
                     ret = SCD4X_ERROR;
                 else
                     frc_t = 0x8000 - out_ppm;
-                printf("outppm: %d, %04x\r\n", out_ppm, out_ppm);
+                printf("[scd4x] outppm: %d, %04x\r\n", out_ppm, out_ppm);
             }
         }
     }

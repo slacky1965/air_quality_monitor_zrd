@@ -44,16 +44,6 @@ typedef struct __attribute__((packed)) {
     uint16_t    co2_onoff_high;         /* 2000                          */
     int16_t     co2_frc;                /* offset co2                    */
     uint8_t     sound;                  /* 0 - disabled, 1 - enabled     */
-    app_reporting_t reporting_co2;
-    app_reporting_t reporting_voc;
-    app_reporting_t reporting_temp;
-    app_reporting_t reporting_hum;
-    app_reporting_t reporting_press;
-    app_reporting_t reporting_illum;
-    app_reporting_t reporting_rotate;
-    app_reporting_t reporting_inversion;
-    app_reporting_t reporting_dMode;
-    app_reporting_t reporting_co2Frc;
     uint8_t     crc;
 } config_t;
 

@@ -7,6 +7,7 @@
 EPD_PAINT EPD_Paint;
 
 static uint8_t _hibernating = 1;
+static uint8_t _status_busy = 0;
 
 static const unsigned char lut_partial[] = { 0x0, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0,
         0x0, 0x0, 0x0, 0x0, 0x0, 0x80, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -77,9 +78,11 @@ uint8_t epd_wait_busy() {
 
     while (epd_is_busy()) {
         timeout++;
-        if (timeout > 4000) {
+        /* about 5 seconds */
+        if (timeout > 5000) {
             printf("timeout exit 1: %d\r\n", timeout);
             epd_reset();
+            _status_busy = 1;
             return 1;
         }
         button_handler();
@@ -95,6 +98,7 @@ void epd_reset(void) {
     epd_res_set();
     epd_delay(50);
     _hibernating = 0;
+    _status_busy = 0;
 }
 
 uint8_t epd_init(void) {
@@ -742,6 +746,9 @@ void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t size
       }
 }
 
+uint8_t epd_get_status_busy() {
+    return _status_busy;
+}
 
 //void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t sizey, const uint8_t BMP[], uint16_t Color) {
 //    uint16_t j = 0;

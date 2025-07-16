@@ -537,6 +537,9 @@ static void epd_screen_var(void *args) {
 
     co2 = app_scd4x_get_co2();
 
+    if (co2 == 0 || co2 > 9999)
+        co2 = epd_screen_variable.co2;
+
     if (co2 != epd_screen_variable.co2) {
 
 //        printf("epd_co2: %d\r\n", co2);
@@ -773,6 +776,11 @@ static void epd_screen_var(void *args) {
 
         led_set_brightness(config.brightness);
         led_on(led_color);
+    }
+
+    if (epd_get_status_busy()) {
+        printf("epd busy. reset\r\n");
+        epd_forceScreenUpdate(NULL);
     }
 }
 

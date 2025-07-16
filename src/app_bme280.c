@@ -140,10 +140,10 @@ void app_bme280_measurement() {
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, ZCL_ATTRID_HUMIDITY_MEASUREDVALUE, (uint8_t*)&rh);
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, ZCL_ATTRID_PRESSURE_MEASUREDVALUE, (uint8_t*)&kpa);
 
-#if UART_PRINTF_MODE && DEBUG_BME280
-        printf("temperature: %d.%d C\r\n", temp/100, temp%100);
-        printf("humidity: %d.%d% rh\r\n", rh/100, rh%100);
-        printf("pressure: %d.%d kPa\r\n", kpa/10, kpa%10);
+#if 0 //UART_PRINTF_MODE && DEBUG_BME280
+        printf("[bme280] temperature: %d.%d C\r\n", temp/100, temp%100);
+        printf("[bme280] humidity: %d.%d% rh\r\n", rh/100, rh%100);
+        printf("[bme280] pressure: %d.%d kPa\r\n", kpa/10, kpa%10);
 #endif
     }
 }

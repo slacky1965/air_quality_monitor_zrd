@@ -20,5 +20,6 @@ int32_t app_time_cmdCb(void *arg);
 bool get_time_sent();
 ftime_t *get_ftime(uint32_t counter);
 void print_time();
+int32_t app_uptimeCb(void *args);
 
 #endif /* SRC_INCLUDE_APP_TIME_H_ */

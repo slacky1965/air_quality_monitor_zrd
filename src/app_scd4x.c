@@ -178,9 +178,11 @@ void app_scd4x_measurement() {
         printf("[scd4x] co2: %d, temperature: %d, humidity: %d\r\n", co2, temperature, humidity);
 #endif
 
-        float attrCo2 = (float)co2/1000000;
+        if (co2 != 0 && co2 < 10000) {
+            float attrCo2 = (float)co2/1000000;
+            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_CO2_MEASUREMENT, ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE, (uint8_t*)&attrCo2);
+        }
 
-        zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_CO2_MEASUREMENT, ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE, (uint8_t*)&attrCo2);
     } else {
         err_cnt++;
     }

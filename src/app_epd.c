@@ -537,8 +537,8 @@ static void epd_screen_var(void *args) {
 
     co2 = app_scd4x_get_co2();
 
-    if (co2 > 9999)
-        co2 = 9999;
+    if (co2 == 0 || co2 > 9999)
+        co2 = epd_screen_variable.co2;
 
     if (co2 != epd_screen_variable.co2) {
 

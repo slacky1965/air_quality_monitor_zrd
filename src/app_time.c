@@ -2,6 +2,7 @@
 
 static bool time_sent = false;
 uint8_t str_time[32] = {0};
+static uint16_t uptime = 0;
 
 static ftime_t ftime;
 
@@ -82,6 +83,13 @@ static int32_t app_clockCb(void *arg) {
 #endif
         }
     }
+
+    return 0;
+}
+
+int32_t app_uptimeCb(void *args) {
+
+    uptime++;
 
     return 0;
 }

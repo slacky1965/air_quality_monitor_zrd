@@ -24,8 +24,6 @@
 #pragma once
 
 
-
-
 #include "lib/include/plic.h"
 #include "lib/include/pm/pm.h"
 #include "lib/include/pm/pm_internal.h"
@@ -63,7 +61,10 @@
 #include "qdec.h"
 #include "plic_sw.h"
 #include "plmt.h"
-#include "lib/include/otp.h"
+#include "pem.h"
+#include "lib/include/otp/otp.h"
+#include "lib/include/otp/otp_internal.h"
 #include "flash/flash_type.h"
 #include "flash/flash_common.h"
 #include "ir_learn.h"
+

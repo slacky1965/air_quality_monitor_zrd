@@ -21,25 +21,26 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef  EMI_INTERNAL_H_
-#define  EMI_INTERNAL_H_
+#ifndef EMI_INTERNAL_H_
+#define EMI_INTERNAL_H_
 
 #include "lib/include/rf/rf_common.h"
 
-#define EMI_ACCESS_CODE_V1                      0x29417671
+#define EMI_ACCESS_CODE_V1 0x29417671
 
 /**
  *  @brief  Define emi_cfg_param_t struct.
  */
-typedef struct{
-   signed char rf_chn;               /**< RF channel number.Default: 2 (Frequency channel 2402 MHz) */
-   unsigned char pkt_type;           /**< The type of data sent (0:pbrs9  1:0x0f  2:0x55  3:0xaa  4:0xf0  5:0x00  6:0xff)*/
-   unsigned char emi_tx_payload_len; /**< Length of the EMI TX payload;Default: 37 */
-   unsigned char emi_pkt_duty_cycle; /**< Duty cycle of the EMI packet;Default: 50 (50% duty cycle) */
-   unsigned int  emi_access_code;    /**< Access code for EMI transmission Default:0x29417671*/
-   rf_mode_e rf_mode;                /**< RF mode setting. */
-   rf_power_level_e power_level;     /**< RF power level.  */
-}emi_cfg_param_t;
+typedef struct
+{
+    signed char      rf_chn;             /**< RF channel number.Default: 2 (Frequency channel 2402 MHz) */
+    unsigned char    pkt_type;           /**< The type of data sent (0:pbrs9  1:0x0f  2:0x55  3:0xaa  4:0xf0  5:0x00  6:0xff)*/
+    unsigned char    emi_tx_payload_len; /**< Length of the EMI TX payload;Default: 37 */
+    unsigned char    emi_pkt_duty_cycle; /**< Duty cycle of the EMI packet;Default: 50 (50% duty cycle) */
+    unsigned int     emi_access_code;    /**< Access code for EMI transmission Default:0x29417671*/
+    rf_mode_e        rf_mode;            /**< RF mode setting. */
+    rf_power_level_e power_level;        /**< RF power level.  */
+} emi_cfg_param_t;
 
 extern emi_cfg_param_t emi_cfg_param;
 
@@ -93,5 +94,11 @@ void rf_emi_tx_burst_loop_v1(void);
  */
 void rf_emi_tx_burst_setup_v1(void);
 
+/**
+ * @brief        This function is used in RF current test configurations where only RF modules work
+ * @param[in]    none.
+ * @return       none.
+ */
+_attribute_ram_code_sec_noinline_ void rf_current_test_cfg(void);
 
 #endif

@@ -50,7 +50,8 @@
 
 .extern gpio_shutdown_flashcode_for_asm
 .extern gpio_shutdown_ramcode_for_asm
-
+.extern adc_anti_aging_mode_flashcode_for_asm
+.extern adc_anti_aging_mode_ramcode_for_asm
 //According to the current internal seal flash model of Telink RISC-V MCU, the maximum time between the flash awakening and the operating flash is 20us, which leaves some margin and is set to 25us.
 //When adding flash later, if tRES1 is greater than 25us, this waiting time needs to be updated. (flash tRES1, which can be viewed in the comments of the variable flash_support_mid.)
 //(add by weihua.zhang 20230811)
@@ -65,7 +66,10 @@
 #define SRAM_256K      2    //256KSRAM, 256KB-IRAM(256KB-Retention)/0KB-DRAM
 #define SRAM_384K      3    //384KSRAM, 256KB-IRAM(256KB-Retention)/128KB-DRAM
 #define SRAM_512K      4    //512KSRAM, 256KB-IRAM(256KB-Retention)/256KB-DRAM
+
+#ifndef SRAM_SIZE
 #define SRAM_SIZE      SRAM_128K
+#endif
 
 #if (SRAM_SIZE == SRAM_256K)
     .equ __IRAM_2_EN,   1
@@ -166,7 +170,6 @@ _START:
     li      t1, 0x01       /* bit0=1 watchdog enable(reset velue 0x00). */
     sb      t1, 0x0(t0)    /* (*(volatile unsigned char*)(0x80140162))= 0x80. */
 
-
     /* Initialize global pointer */
     .option push
     .option norelax
@@ -184,16 +187,27 @@ _START:
     la     t0, _STACK_TOP
     mv     sp, t0
 
-#if 1
-    /* gpio shutdown to decrease current. for power on or deep this function was in flash code segment. */
-    la     t0, gpio_shutdown_flashcode_for_asm
-    jalr   t0
-#endif
-
+    /* This code should be placed before the following gpio_shutdown_flashcode_for_asm interface because 
+    when using the Os compilation option, the gpio_shutdown_flashcode_for_asm will use the EXEC.IT table. */
 #ifdef __nds_execit
     /* Initialize EXEC.IT table */
     la t0, _ITB_BASE_
     csrw uitb, t0
+#endif
+#if 1
+    /*
+    * Since the adc reference voltage decreases over time, resulting in inaccurate sampling, invoking this interface can avoid this problem.
+    * Since the chip experiences aging as soon as it is powered on, it is recommended to place the anti-aging logic as early as possible to prevent such issues.
+    * The A0/A1/A2 versions have aging issues and need to be modified as necessary. the A3 versions, once confirmed to be problem free, should have the logic removed.
+    * (updated by bolong.zhang, confirmed by haitao.gu shiyi.wu at 20250219)
+    */
+    la     t0, adc_anti_aging_mode_flashcode_for_asm
+    jalr   t0
+#endif
+#if 1
+    // Call gpio shutdown to decrease current as soon as possible when power on or wake up from deep sleep.
+    la     t0, gpio_shutdown_flashcode_for_asm
+    jalr   t0
 #endif
 
 #ifdef __riscv_flen
@@ -330,6 +344,7 @@ _IRESET_ENTRY:
     j       _ISTART
 
     .org 0x22
+
 _ISTART:
 #if 0
     // add debug, PB4 output 1
@@ -338,7 +353,7 @@ _ISTART:
     li      t1, 0xef
     li      t2, 0x10
     sb      t1, 0x482(t0)       //0x80140c12  PB oen     =  0xef
-    sb      t2, 0x48c(t0)       //0x80140c1c  PB output  =  0x10
+    sb      t2, 0x48c(t0)       //0x80140c1c  PB set     =  0x10
 #endif
 
     /* timer rst enable. */
@@ -377,16 +392,27 @@ _ISTART:
     la     t0, _STACK_TOP
     mv     sp, t0
 
-#if 1
-    /* gpio shutdown to decrease current. for retention this function was in ram segment which can be called early. */
-    la     t0, gpio_shutdown_ramcode_for_asm
-    jalr   t0
-#endif
-
+    /* This code should be placed before the following gpio_shutdown_ramcode_for_asm interface because 
+    when using the Os compilation option, the gpio_shutdown_ramcode_for_asm will use the EXEC.IT table. */
 #ifdef __nds_execit
     /* Initialize EXEC.IT table */
     la t0, _ITB_BASE_
     csrw uitb, t0
+#endif
+#if 1
+    /*
+    * Since the adc reference voltage decreases over time, resulting in inaccurate sampling, invoking this interface can avoid this problem.
+    * Since the chip experiences aging as soon as it is powered on, it is recommended to place the anti-aging logic as early as possible to prevent such issues.
+    * The A0/A1/A2 versions have aging issues and need to be modified as necessary. the A3 versions, once confirmed to be problem free, should have the logic removed.
+    * (updated by bolong.zhang, confirmed by haitao.gu shiyi.wu at 20250219)
+    */
+    la     t0, adc_anti_aging_mode_ramcode_for_asm
+    jalr   t0
+#endif
+#if 1
+    /* gpio shutdown to decrease current. for retention this function was in ram segment which can be called early. */
+    la     t0, gpio_shutdown_ramcode_for_asm
+    jalr   t0
 #endif
 
 #ifdef __riscv_flen
@@ -455,12 +481,25 @@ _MSPI_WAIT_2:
     sb      t1, 0x78c(t0)       //xip_enable        :0xA3FFFF1c = 0x0a
 
     /*flash wakeup need delay about 20us */
-    /*efuse load need delay about 0us */
+    /*efuse load need delay about 44us */
     li      t0, 0
     li      t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
 _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:
     addi    t0, t0, 1
     bgeu    t1, t0, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
+
+    lui     t0, 0x80140
+    lb      t2, 0x307(t0)      //0x80140307[bit0]:OTP_STATUS-busy
+    andi    t2, t2, 0x01
+    li      t1, 0x00
+    beq     t1, t2, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_END
+
+    li      t0, 0
+    li      t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
+_WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_2:
+    addi    t0, t0, 1
+    bgeu    t1, t0, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_2
+_WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_END:
 
 _MULTI_ADDRESS_BEGIN:
     lui     t0, 0xA3FFF

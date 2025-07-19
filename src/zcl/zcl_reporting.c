@@ -285,6 +285,7 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 			}
 			break;
 		case ZCL_DATA_TYPE_UINT32:
+		case ZCL_DATA_TYPE_UTC:
 			{
 				u32 P = BUILD_U32(prevValue[0], prevValue[1], prevValue[2], prevValue[3]);//*((u32 *)prevValue);
 				u32 C = BUILD_U32(curValue[0], curValue[1], curValue[2], curValue[3]);//*((u32 *)curValue);
@@ -294,6 +295,7 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
+//                printf("ZCL DATA UINT32 or UTC: need: %d, prev: %d, data: %d, change: %d\r\n", needReport, P, C, R);
 			}
 			break;
 		case ZCL_DATA_TYPE_INT8:

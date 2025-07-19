@@ -144,22 +144,23 @@ static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
     uint8_t numAttr = pReadRspCmd->numAttr;
     zclReadRspStatus_t *attrList = pReadRspCmd->attrList;
 
-    uint32_t utc;
+//    uint32_t utc;
     uint32_t time_local;
     bool time_sent = false;
 
     for (uint8_t i = 0; i < numAttr; i++) {
-        if (attrList[i].attrID == ZCL_ATTRID_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
-            utc = attrList[i].data[0] & 0xff;
-            utc |= (attrList[i].data[1] << 8)  & 0x0000ffff;
-            utc |= (attrList[i].data[2] << 16) & 0x00ffffff;
-            utc |= (attrList[i].data[3] << 24) & 0xffffffff;
-            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, (uint8_t*)&utc);
-            time_sent = true;
-#if UART_PRINTF_MODE && DEBUG_TIME
-            printf("Sync UTC:        %d\r\n", utc+UNIX_TIME_CONST);
-#endif
-        } else if (attrList[i].attrID == ZCL_ATTRID_LOCAL_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
+///*        if (attrList[i].attrID == ZCL_ATTRID_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
+//            utc = attrList[i].data[0] & 0xff;
+//            utc |= (attrList[i].data[1] << 8)  & 0x0000ffff;
+//            utc |= (attrList[i].data[2] << 16) & 0x00ffffff;
+//            utc |= (attrList[i].data[3] << 24) & 0xffffffff;
+//            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, (uint8_t*)&utc);
+//            time_sent = true;
+//#if UART_PRINTF_MODE && DEBUG_TIME
+//            printf("Sync UTC:        %d\r\n", utc+UNIX_TIME_CONST);
+//#endif
+//        } else */
+        if (attrList[i].attrID == ZCL_ATTRID_LOCAL_TIME && attrList[i].status == ZCL_STA_SUCCESS) {
             time_local = attrList[i].data[0] & 0xff;
             time_local |= (attrList[i].data[1] << 8)  & 0x0000ffff;
             time_local |= (attrList[i].data[2] << 16) & 0x00ffffff;
@@ -181,8 +182,6 @@ static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
                 t.second = ft->second;
                 app_ds3231_set_time(&t);
             }
-//        } else if (attrList[i].attrID == ZCL_DIAGNOSTICS_ATTRID_LAST_MESSAGE_LQI && attrList[i].status == ZCL_STA_SUCCESS) {
-//            printf("LQI\r\n");
         }
     }
 

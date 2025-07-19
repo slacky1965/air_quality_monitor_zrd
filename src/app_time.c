@@ -1,10 +1,14 @@
 #include "app_main.h"
 
+#define LIFETIME_ADDRESS    (CFG_PRE_INSTALL_CODE + 0x100)
+#define LIFETIME_ID         0x1978
+
 static bool time_sent = false;
 uint8_t str_time[32] = {0};
-static uint16_t uptime = 0;
 
 static ftime_t ftime;
+
+static lifetime_t lifetime;
 
 ftime_t *get_ftime(uint32_t counter) {
 
@@ -40,18 +44,10 @@ ftime_t *get_ftime(uint32_t counter) {
     return &ftime;
 }
 
-void get_time(uint32_t *utc_time, uint32_t *local_time) {
+static void get_time(uint32_t *local_time) {
 
     uint16_t attr_len;
     uint32_t attr_data;
-
-    zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, &attr_len, (uint8_t*)&attr_data);
-
-    if (attr_data != 0xFFFFFFFF) {
-        *utc_time = attr_data;
-    } else {
-        utc_time = NULL;
-    }
 
     zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, &attr_len, (uint8_t*)&attr_data);
 
@@ -64,21 +60,17 @@ void get_time(uint32_t *utc_time, uint32_t *local_time) {
 
 static int32_t app_clockCb(void *arg) {
 
-    uint32_t utc_time, local_time;
-    uint32_t *p_utc_time = &utc_time;
+    uint32_t local_time;
     uint32_t *p_local_time = &local_time;
 
     if (time_sent) {
-        get_time(p_utc_time, p_local_time);
+        get_time(p_local_time);
 
-        if (p_utc_time && p_local_time) {
-            utc_time++;
+        if (p_local_time) {
             local_time++;
-            zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, (uint8_t*)p_utc_time);
             zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_LOCAL_TIME, (uint8_t*)p_local_time);
 
 #if UART_PRINTF_MODE && DEBUG_TIME
-            printf("UTC time  : %d\r\n", (utc_time+UNIX_TIME_CONST));
             printf("Local time: %d\r\n", (local_time+UNIX_TIME_CONST));
 #endif
         }
@@ -87,9 +79,60 @@ static int32_t app_clockCb(void *arg) {
     return 0;
 }
 
-int32_t app_uptimeCb(void *args) {
+void lifetime_restore() {
 
-    uptime++;
+    memset(&lifetime, 0, sizeof(lifetime_t));
+
+#if !DEBUG_UPTIME
+    flash_read(LIFETIME_ADDRESS, sizeof(lifetime_t), (uint8_t*)&lifetime);
+
+    if (lifetime.id == LIFETIME_ID && lifetime.crc == checksum((uint8_t*)&lifetime, (sizeof(lifetime_t)-1))) {
+#if UART_PRINTF_MODE
+        printf("Restored lifetime: %d\r\n", lifetime.counter);
+#endif
+
+    } else {
+        lifetime.id = LIFETIME_ID;
+        lifetime.counter = 0;
+        lifetime_save();
+#if UART_PRINTF_MODE
+        printf("Not restored lifetime: %d\r\n", lifetime.counter);
+#endif
+    }
+
+    g_zcl_timeAttrs.time_utc = lifetime.counter;
+
+#endif
+
+}
+
+void lifetime_save() {
+#if !DEBUG_UPTIME
+    flash_erase(LIFETIME_ADDRESS);
+    lifetime.crc = checksum((uint8_t*)&lifetime, (sizeof(lifetime_t)-1));
+    flash_write(LIFETIME_ADDRESS, sizeof(lifetime_t), (uint8_t*)&lifetime);
+#endif
+}
+
+int32_t app_lifetimeCb(void *args) {
+
+    lifetime.counter++;
+
+    zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME, (uint8_t*)&lifetime.counter);
+
+#if DEBUG_UPTIME
+  #if UART_PRINTF_MODE
+    if ((lifetime.counter % 5) == 0 || lifetime.counter == 1)
+        printf("Uptime: %d\r\n", lifetime.counter);
+  #endif
+#else
+  #if UART_PRINTF_MODE
+    printf("Life time: %d\r\n", lifetime.counter);
+  #endif
+    if ((lifetime.counter % 6) == 0 || lifetime.counter == 1) {
+        lifetime_save();
+    }
+#endif
 
     return 0;
 }
@@ -111,14 +154,13 @@ int32_t app_time_cmdCb(void *arg) {
         dstEpInfo.dstEp = APP_ENDPOINT1;
         dstEpInfo.dstAddr.shortAddr = 0x0;
 #endif
-        zclAttrInfo_t *pAttrEntry;
-        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME);
+//        zclAttrInfo_t *pAttrEntry;
+//        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1, ZCL_CLUSTER_GEN_TIME, ZCL_ATTRID_TIME);
 
-        zclReadCmd_t *pReadCmd = (zclReadCmd_t *)ev_buf_allocate(sizeof(zclReadCmd_t) + (sizeof(uint16_t)*2));
+        zclReadCmd_t *pReadCmd = (zclReadCmd_t *)ev_buf_allocate(sizeof(zclReadCmd_t) + sizeof(uint16_t));
         if(pReadCmd){
-            pReadCmd->numAttr = 2;
-            pReadCmd->attrID[0] = ZCL_ATTRID_TIME;
-            pReadCmd->attrID[1] = ZCL_ATTRID_LOCAL_TIME;
+            pReadCmd->numAttr = 1;
+            pReadCmd->attrID[0] = ZCL_ATTRID_LOCAL_TIME;
 
             zcl_read(APP_ENDPOINT1, &dstEpInfo, ZCL_CLUSTER_GEN_TIME, MANUFACTURER_CODE_NONE, 0, 0, 0, pReadCmd);
 

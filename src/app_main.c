@@ -132,6 +132,7 @@ void user_app_init(void)
 
     zcl_reportingTabInit();
     zcl_onOffCfgAttr_restore();
+    lifetime_restore();
     config_restore();
     led_init();
 
@@ -166,7 +167,11 @@ void user_app_init(void)
     TL_ZB_TIMER_SCHEDULE(app_lqiCb, NULL, TIMEOUT_250MS);
     g_appCtx.timerMesurementEvt = TL_ZB_TIMER_SCHEDULE(app_mesurementCb, NULL, TIMEOUT_100MS);
 
-    TL_ZB_TIMER_SCHEDULE(app_uptimeCb, NULL, TIMEOUT_60MIN);
+#if DEBUG_UPTIME
+    TL_ZB_TIMER_SCHEDULE(app_lifetimeCb, NULL, TIMEOUT_1MIN);
+#else
+    TL_ZB_TIMER_SCHEDULE(app_lifetimeCb, NULL, TIMEOUT_60MIN);
+#endif
 
 }
 
@@ -189,6 +194,7 @@ static void appSysException(void) {
 #endif
 
 #if 1
+    config_save();
     SYSTEM_RESET();
 #else
     led_on(LED_STATUS);

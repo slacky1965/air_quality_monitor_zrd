@@ -67,6 +67,7 @@ const uint16_t app_ep1_inClusterList[] = {
     ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
 #endif
     ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+    ZCL_CLUSTER_GEN_TIME,
 };
 
 /**
@@ -208,14 +209,16 @@ const zclAttrInfo_t scene_attrTbl[] = {
 zcl_timeAttr_t g_zcl_timeAttrs = {
     .time_utc   = 0xffffffff,
     .time_local = 0xffffffff,
+    .time_status = 0,
 };
 
 const zclAttrInfo_t time_attrTbl[] =
 {
-    { ZCL_ATTRID_TIME,                      ZCL_UTC,    RW, (uint8_t*)&g_zcl_timeAttrs.time_utc         },
-    { ZCL_ATTRID_LOCAL_TIME,                ZCL_UINT32, R,  (uint8_t*)&g_zcl_timeAttrs.time_local       },
+    { ZCL_ATTRID_TIME,                      ZCL_UTC,        RWR,    (uint8_t*)&g_zcl_timeAttrs.time_utc         },
+    { ZCL_ATTRID_LOCAL_TIME,                ZCL_UINT32,     R,      (uint8_t*)&g_zcl_timeAttrs.time_local       },
+    { ZCL_ATTRID_TIME_STATUS,               ZCL_BITMAP8,    RW,     (uint8_t*)&g_zcl_timeAttrs.time_status      },
 
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,      (uint8_t*)&zcl_attr_global_clusterRevision  },
 };
 
 #define ZCL_TIME_ATTR_NUM    sizeof(time_attrTbl) / sizeof(zclAttrInfo_t)

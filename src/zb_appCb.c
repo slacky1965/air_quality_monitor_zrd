@@ -355,6 +355,7 @@ void app_otaProcessMsgHandler(uint8_t evt, uint8_t status) {
 #if UART_PRINTF_MODE && DEBUG_OTA
             printf("OTA update successful.\r\n");
 #endif /* UART_PRINTF_MODE */
+            lifetime_save();
             ota_mcuReboot();
         }else{
 #if UART_PRINTF_MODE && DEBUG_OTA

@@ -79,6 +79,7 @@ extern "C" {
 #define DEBUG_SGP40                     ON
 #define DEBUG_DS3231                    ON
 #define DEBUG_ONOFF                     ON
+#define DEBUG_UPTIME                    OFF     /* ON - uptime in minutes (not save cfg). OFF - lifetime in hours (save cfg) */
 
 /* HCI interface */
 #define ZBHCI_UART                      OFF

@@ -252,7 +252,7 @@ const zclAttrInfo_t co2_attrTbl[] = {
         { ZCL_ATTRID_CMS_CUSTOM_CO2_ONOFF,              ZCL_BOOLEAN,    RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff          },
         { ZCL_ATTRID_CMS_CUSTOM_CO2_LOW,                ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff_low      },
         { ZCL_ATTRID_CMS_CUSTOM_CO2_HIGH,               ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_onoff_high     },
-        { ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION, ZCL_UINT16,     RWR,    (uint8_t*)&g_zcl_customAttrs.co2_frc            },
+        { ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION, ZCL_INT16,      RWR,    (uint8_t*)&g_zcl_customAttrs.co2_frc            },
 
         { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,           ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision  },
 };

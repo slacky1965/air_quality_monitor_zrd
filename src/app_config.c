@@ -2,7 +2,7 @@
 
 config_t config;
 
-static uint8_t checksum(uint8_t *data, uint16_t length) {
+uint8_t checksum(uint8_t *data, uint16_t length) {
 
     uint8_t crc8 = 0;
 

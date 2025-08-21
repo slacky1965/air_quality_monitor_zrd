@@ -98,6 +98,11 @@ static void buttonCheckCommand(uint8_t btNum) {
         printf("config d_mode: %d\r\n", config.d_mode);
         zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG, ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE, (uint8_t*)&config.d_mode);
         epd_update_temperature_display_mode();
+    } else if (g_appCtx.button[btNum-1].ctn == 5) {
+#if UART_PRINTF_MODE && DEBUG_BUTTON
+        printf("Button push 5 times. Reboot monitor\r\n");
+#endif
+        TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_100MS);
      }
 
     g_appCtx.button[btNum-1].ctn = 0;

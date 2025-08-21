@@ -49,6 +49,7 @@ typedef struct __attribute__((packed)) {
 
 extern config_t config;
 
+uint8_t checksum(uint8_t *data, uint16_t length);
 nv_sts_t config_save();
 nv_sts_t config_restore();
 

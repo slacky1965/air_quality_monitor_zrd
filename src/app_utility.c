@@ -42,6 +42,7 @@ int32_t poll_rateAppCb(void *arg) {
 int32_t delayedMcuResetCb(void *arg) {
 
     //printf("mcu reset\r\n");
+    lifetime_save();
     zb_resetDevice();
     return -1;
 }

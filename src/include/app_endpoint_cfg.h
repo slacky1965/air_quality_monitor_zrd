@@ -72,6 +72,7 @@ typedef struct {
 typedef struct {
     uint32_t time_utc;
     uint32_t time_local;
+    uint8_t  time_status;
 } zcl_timeAttr_t;
 
 /**
@@ -178,6 +179,7 @@ extern uint8_t APP_EP1_CB_CLUSTER_NUM;
 #define zcl_aInputAttrGet()         &g_zcl_aInputAttrs
 #define zcl_thermostatCfgAttrGet()  &g_zcl_thermostatCfgAttrs
 #define zcl_onOffSwitchCfgAttrGet() &g_zcl_onOffSwitchCfgAttrs
+#define zcl_timeAttrGet()           &g_zcl_timeAttrs;
 
 /* Attributes */
 extern zcl_basicAttr_t g_zcl_basicAttrs;
@@ -191,6 +193,7 @@ extern zcl_levelAttr_t g_zcl_levelAttrs;
 extern zcl_thermostatCfgAttr_t g_zcl_thermostatCfgAttrs;
 extern zcl_customAttr_t g_zcl_customAttrs;
 extern zcl_onOffSwitchCfgAttr_t g_zcl_onOffSwitchCfgAttrs;
+extern zcl_timeAttr_t g_zcl_timeAttrs;
 
 //int32_t app_diagnostics_cmdCb(void *arg);
 

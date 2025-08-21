@@ -72,7 +72,7 @@ static void led_set_values(led_color_t color, uint8_t brightness) {
 #else
     color1 = g;
     color2 = r;
-    color3 = b
+    color3 = b;
 #endif
 
     for (uint8_t len = 0; len < led_dev.len; len++) {

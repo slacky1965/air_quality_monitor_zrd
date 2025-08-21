@@ -120,7 +120,7 @@ enum {
 #define LED_COLOR_RGB           1
 #define LED_COLOR_GRB           2
 
-#define LED_BIT_SEQUENCE        LED_COLOR_RGB //LED_COLOR_GRB
+#define LED_BIT_SEQUENCE        LED_COLOR_GRB //LED_COLOR_RGB //
 
 #endif
 

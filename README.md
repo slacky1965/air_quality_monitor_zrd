@@ -2,15 +2,7 @@
 
 ---
 
-**В процессе**
-
----
-
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screen.jpg"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screenF.jpg"/>
-
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screen90.jpg"/>
+<img src="doc/images/monitor.jpg"/>
 
 ---
 
@@ -58,7 +50,7 @@
 
 ### Схема `Монитора`
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/Schematic_AirQualityMonitor.jpg"/>
+<img src="doc/images/Schematic_AirQualityMonitor.jpg"/>
 
 ---
 
@@ -66,7 +58,7 @@
 
 [Последнюю прошивку](https://github.com/slacky1965/air_quality_monitor_zrd/tree/main/bin)/air_quality_monitor_zrd_Vx.x.xx.bin нужно залить в модуль с помощью [github.com/pvvx/TLSRPGM](https://github.com/pvvx/TLSRPGM) или оригинального программатора от Telink.
 
-<img src="https://raw.githubusercontent.com/slacky1965/watermeter_zed/main/doc/images/telink_pgm.jpg" alt="Telink PGM"/>
+<img src="doc/images/telink_pgm.jpg" alt="Telink PGM"/>
 
 Как сделать недорогой программатор на базе модулей TB-03 или TB-04 можно почитать [тут](https://slacky1965.github.io/electricity_meter_zrd/#%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0-%D0%BF%D1%80%D0%BE%D1%88%D0%B8%D0%B2%D0%BA%D0%B8)
 
@@ -80,13 +72,13 @@
 
 При первом старте, если устройство не в сети, выводится заставка, в которой сообщается, что нужно сделать для подключения к сети. Также там можно увидеть название `Монитора`, логотип автора и номер версии прошивки. Время вывода заставки составляет 5 секунд. Если `Монитор` уже в сети, то заставка не выводится.
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screensaver.jpg"/>
+<img src="doc/images/screensaver.jpg"/>
 
 **Описание экрана**
 
 Параметры на экране выводятся независимо от того, в сети устройство или нет. За исключением внешнего датчика. Обновление экрана происходит каждые 10 секунд.
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/screen_discriprion.jpg"/>
+<img src="doc/images/screen_discriprion.jpg"/>
 
 1. Дата, день недели и время.
 2. Иконка сети `Zigbee`. Выводится, когда устройство присоеденино к сети, иначе иконка отсутсвует.
@@ -164,7 +156,7 @@
 
 **Вкладка `Exposes`**
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_exposes.jpg"/>
+<img src="doc/images/z2m_exposes.jpg"/>
 
 - `CO2` - выводит текущее значение `CO2`.
 - `Voc index` - выводит текущее значение `VOC`.
@@ -195,7 +187,7 @@
 
 **Вкладка `Bind`**
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_bind_onoff.jpg"/>
+<img src="doc/images/z2m_bind_onoff.jpg"/>
 
 Настройка прямого биндинга на исполнительное устройство - реле/вентилятор и т.п., которое будет включаться и выключаться, если включен `Enabling co2 control` и/или `Enabling voc control` и выставлены соответствующие пороги. Нужно только учесть, что если минимальный порог выставлен слишком низким, то внешнее устройство никогда не выключится. Для настройки, нужно выбрать эндпоинт в `Source endpoint`, где на `Мониторе` находится кластер `On-Off` - это 1, далее выбрать внешнее устройство в `Destination` и кластер на внешнем устройстве в `Destination endpoint`, отметить галочкой `OnOff` и нажать на `Bind` справа. Если управление станет не нужным или нужно будет изменить внешнее устройство, нужно нажать `Unbind`.
 
@@ -203,7 +195,7 @@
 
 **Вкладка `Reporting`**
 
-<img src="https://raw.githubusercontent.com/slacky1965/air_quality_monitor_zrd/refs/heads/main/doc/images/z2m_reporting.jpg"/>
+<img src="doc/images/z2m_reporting.jpg"/>
 
 Настройка репортинга.
 
@@ -219,6 +211,7 @@
 - Нажать быстро два раза - экран меняет ориентацию на 90 градусов.
 - Нажать быстро три раза - экран меняет вывод с `черного на белом` на `белое на черном` и наоборот.
 - Нажать быстро четыре раза - изменит вывод температуры с Цельсия на Фаренгейты и наоборот.
+- Нажать быстро пять раз - перезагрузить Монитор.
 
 Каждое нажатие кнопки сопровождается промаргиванием световой индикации красным цветом.
 
@@ -227,6 +220,9 @@
 ## История версий
 - 1.0.01
 	- Начало.
+- 1.0.02
+	- Добавлен параметр `LifeTime` - время наработки `Монитора` в часах.
+	- Добавлена возможность перезагрузки `Монитора` по кнопке.
 
 [Наверх](#Top)
 

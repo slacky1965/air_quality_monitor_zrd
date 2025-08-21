@@ -6,7 +6,11 @@
 
 ---
 
+[Статья на Habr'е](https://habr.com/ru/articles/938388)
+
 [Repository air_quality_monitor_zrd](https://github.com/slacky1965/air_quality_monitor_zrd)
+
+---
 
 * [Описание](#description)
 * [Железо](#hardware)
@@ -233,6 +237,12 @@
 - Нажать быстро пять раз - перезагрузить Монитор.
 
 Каждое нажатие кнопки сопровождается промаргиванием световой индикации красным цветом.
+
+---
+
+Связаться со мной можно в **[Telegram](https://t.me/slacky1965)**.
+
+### Если захотите отблагодарить автора, то это можно сделать через [ЮMoney](https://yoomoney.ru/to/4100118300223495)
 
 ---
 

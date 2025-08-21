@@ -61,11 +61,13 @@
 ### Файлы для производства
 
 [Gerber](doc/board/Gerber_AirQualityMonitor-PCB.zip)
+
 [BOM](doc/board/BOM_AirQualityMonitor.csv)
 
 ### Корпус для печати
 
 [AQM_case_5.stl](doc/box/AQM_case_5.stl)
+
 [AQM_cover_4.stl](doc/box/AQM_cover_4.stl)
 
 ---

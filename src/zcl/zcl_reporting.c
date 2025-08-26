@@ -375,9 +375,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
                 val_u8[2] = reportableChange[2];
                 val_u8[3] = reportableChange[3];
 
-                P = (uint32_t)p;
-                C = (uint32_t)c;
-                R = (uint32_t)r;
+                P = (uint32_t)(p * 1000 * 1000);
+                C = (uint32_t)(c * 1000 * 1000);
+                R = (uint32_t)(r * 1000 * 1000);
 				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else if(P < C){
@@ -450,40 +450,13 @@ _CODE_ZCL_ void reportAttrs(void) {
                     bool valid = 0;
                     u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
 
-                    uint8_t *data, *prevData, *reportableChange;
-                    float D, P, R;
-                    if (pEntry->attrID == ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE) {
-                        data = (uint8_t*)&D;
-                        data[0] = pAttrEntry->data[0];
-                        data[1] = pAttrEntry->data[1];
-                        data[2] = pAttrEntry->data[2];
-                        data[3] = pAttrEntry->data[3];
-                        D *= 1000000.0;
-
-                        prevData = (uint8_t*)&P;
-                        prevData[0] = pEntry->prevData[0];
-                        prevData[1] = pEntry->prevData[1];
-                        prevData[2] = pEntry->prevData[2];
-                        prevData[3] = pEntry->prevData[3];
-                        P *= 1000000.0;
-
-                        reportableChange = (uint8_t*)&R;
-                        reportableChange[0] = pEntry->reportableChange[0];
-                        reportableChange[1] = pEntry->reportableChange[1];
-                        reportableChange[2] = pEntry->reportableChange[2];
-                        reportableChange[3] = pEntry->reportableChange[3];
-                        R *= 1000000.0;
-                    } else {
-                        data = pAttrEntry->data;
-                        prevData = pEntry->prevData;
-                        reportableChange = pEntry->reportableChange;
-                    }
+                    dataLen = (dataLen > REPORTABLE_CHANGE_MAX_ANALOG_SIZE) ? (REPORTABLE_CHANGE_MAX_ANALOG_SIZE) : (dataLen);
 
                     if (!pEntry->maxIntCnt) {
                         if (!pEntry->maxInterval) {
                             if ((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
-                                 (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, data,
-                                                                                                   prevData, reportableChange))) {
+                                 (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data,
+                                                                                                      pEntry->prevData, pEntry->reportableChange))) {
                                 valid = 1;
                             }
                         } else {
@@ -491,8 +464,9 @@ _CODE_ZCL_ void reportAttrs(void) {
                         }
                     } else if (!pEntry->minIntCnt) {
                         if ((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
-                             (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, data,
-                                                                                               prevData, reportableChange))) {
+                             (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data,
+                                                                                                  pEntry->prevData, pEntry->reportableChange))) {
+
                             valid = 1;
                         } else {
                             pEntry->minIntCnt = pEntry->minInterval;

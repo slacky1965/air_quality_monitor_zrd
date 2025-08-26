@@ -155,20 +155,24 @@ static void proc_co2_voc_onoff(void *args) {
 //    printf("sw_onoff: %d, co2_ctrl_off: %d, co2_ctrl_on: %d, voc_ctrl_off: %d, voc_ctrl_on: %d\r\n", sw_onoff, co2_ctrl_off, co2_ctrl_on, voc_ctrl_off, voc_ctrl_on);
 }
 
-static void mesurement_bme280(void *args) {
-    app_bme280_measurement();
-}
-
-static void mesurement_bh1750(void *args) {
-    app_bh1750_measurement();
+static void mesurement_sgp40(void *args) {
+    app_sgp40_measurement();
+    TL_SCHEDULE_TASK(proc_co2_voc_onoff, NULL);
 }
 
 static void mesurement_scd4x(void *args) {
     app_scd4x_measurement();
+    TL_SCHEDULE_TASK(mesurement_sgp40, NULL);
 }
 
-static void mesurement_sgp40(void *args) {
-    app_sgp40_measurement();
+static void mesurement_bh1750(void *args) {
+    app_bh1750_measurement();
+    TL_SCHEDULE_TASK(mesurement_scd4x, NULL);
+}
+
+static void mesurement_bme280(void *args) {
+    app_bme280_measurement();
+    TL_SCHEDULE_TASK(mesurement_bh1750, NULL);
 }
 
 int32_t app_mesurementCb(void *args) {
@@ -177,10 +181,6 @@ int32_t app_mesurementCb(void *args) {
 //    printf("app_mesurementCb\r\n");
 
     TL_SCHEDULE_TASK(mesurement_bme280, NULL);
-    TL_SCHEDULE_TASK(mesurement_bh1750, NULL);
-    TL_SCHEDULE_TASK(mesurement_scd4x, NULL);
-    TL_SCHEDULE_TASK(mesurement_sgp40, NULL);
-    TL_SCHEDULE_TASK(proc_co2_voc_onoff, NULL);
 
     return config.read_sensors_period * 1000;
 }

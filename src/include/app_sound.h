@@ -4,6 +4,8 @@
 typedef struct {
     ev_timer_event_t *timerSoundEvt;
 
+    uint16_t period;
+    uint8_t  volume;
     uint16_t soundOnTime;
     uint16_t soundOffTime;
     uint8_t  times;
@@ -11,5 +13,6 @@ typedef struct {
 } sound_config_t;
 
 void sound_start(uint8_t times, uint16_t soundOnTime, uint16_t soundOffTime);
+void sound_init();
 
 #endif /* SRC_INCLUDE_APP_SOUND_H_ */

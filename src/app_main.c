@@ -215,6 +215,8 @@ void user_init(bool isRetention) {
 
     (void)isRetention;
 
+    sound_init();
+
     start_message();
 
     /* Initialize Stack */

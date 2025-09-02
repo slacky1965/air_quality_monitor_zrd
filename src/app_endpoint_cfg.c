@@ -68,6 +68,7 @@ const uint16_t app_ep1_inClusterList[] = {
 #endif
     ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
     ZCL_CLUSTER_GEN_TIME,
+    ZCL_CLUSTER_GEN_POWER_CFG,
 };
 
 /**

@@ -383,6 +383,8 @@ void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf) {
     if (pLeaveCnf->status == SUCCESS) {
         //SYSTEM_RESET();
 
+        zb_deviceFactoryNewSet(true);
+
         if (switchRejoinBackoffTimerEvt) {
             TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
         }

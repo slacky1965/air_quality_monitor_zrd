@@ -109,7 +109,7 @@ static void proc_co2_voc_onoff(void *args) {
             if (!sw_onoff) {
                 sw_onoff = true;
                 if (config.sound)
-                    sound_start(3, 20, 100);
+                    sound_start(3, 20, 100, SOUND_SAME);
 #if UART_PRINTF_MODE && DEBUG_ONOFF
                 printf("Switch action: 0x0%x\r\n", onoffCfgAttrs->switchActions);
 #endif /* UART_PRINTF_MODE */

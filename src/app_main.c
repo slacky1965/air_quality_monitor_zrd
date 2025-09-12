@@ -179,7 +179,7 @@ void app_task(void) {
 
     button_handler();
 
-    if(BDB_STATE_GET() == BDB_STATE_IDLE){
+    if(BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle()) {
 //    if(bdb_isIdle()) {
         report_handler();
     }
@@ -215,6 +215,8 @@ void user_init(bool isRetention) {
 
     (void)isRetention;
 
+    sound_init();
+
     start_message();
 
     /* Initialize Stack */
@@ -242,78 +244,84 @@ void user_init(bool isRetention) {
 
     bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
-    /* Not worked */
-//    /* Set default reporting configuration */
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_MS_CO2_MEASUREMENT,
-//                            ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE,
-//                            config.reporting_co2.minInterval,
-//                            config.reporting_co2.maxInterval,
-//                            (uint8_t *)&config.reporting_co2.reportableChange.reportableChange_float);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
-//                            ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE,
-//                            config.reporting_voc.minInterval,
-//                            config.reporting_voc.maxInterval,
-//                            (uint8_t *)&config.reporting_voc.reportableChange.reportableChange_float);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
-//                            ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE,
-//                            config.reporting_temp.minInterval,
-//                            config.reporting_temp.maxInterval,
-//                            (uint8_t *)&config.reporting_temp.reportableChange.reportableChange_u16);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
-//                            ZCL_ATTRID_HUMIDITY_MEASUREDVALUE,
-//                            config.reporting_hum.minInterval,
-//                            config.reporting_hum.maxInterval,
-//                            (uint8_t *)&config.reporting_hum.reportableChange.reportableChange_u16);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
-//                            ZCL_ATTRID_PRESSURE_MEASUREDVALUE,
-//                            config.reporting_press.minInterval,
-//                            config.reporting_press.maxInterval,
-//                            (uint8_t *)&config.reporting_press.reportableChange.reportableChange_u16);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT,
-//                            ZCL_ATTRID_MEASURED_VALUE,
-//                            config.reporting_illum.minInterval,
-//                            config.reporting_illum.maxInterval,
-//                            (uint8_t *)&config.reporting_illum.reportableChange.reportableChange_u16);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
-//                            ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE,
-//                            config.reporting_rotate.minInterval,
-//                            config.reporting_rotate.maxInterval,
-//                            (uint8_t *)&config.reporting_rotate.reportableChange.reportableChange_u8);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
-//                            ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION,
-//                            config.reporting_inversion.minInterval,
-//                            config.reporting_inversion.maxInterval,
-//                            (uint8_t *)&config.reporting_inversion.reportableChange.reportableChange_u8);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
-//                            ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE,
-//                            config.reporting_dMode.minInterval,
-//                            config.reporting_dMode.maxInterval,
-//                            (uint8_t *)&config.reporting_dMode.reportableChange.reportableChange_u8);
-//    bdb_defaultReportingCfg(APP_ENDPOINT1,
-//                            HA_PROFILE_ID,
-//                            ZCL_CLUSTER_MS_CO2_MEASUREMENT,
-//                            ZCL_ATTRID_CMS_CUSTOM_CO2_FORCED_CALIBRATION,
-//                            config.reporting_co2Frc.minInterval,
-//                            config.reporting_co2Frc.maxInterval,
-//                            (uint8_t *)&config.reporting_co2Frc.reportableChange.reportableChange_u16);
+    float floatReportableChange = 0.00001;
+    /* Set default reporting configuration */
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_CO2_MEASUREMENT,
+                            ZCL_CO2_MEASUREMENT_ATTRID_MEASUREDVALUE,
+                            10,
+                            3600,
+                            (uint8_t *)&floatReportableChange);
+
+    floatReportableChange = 30.0;
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_GEN_ANALOG_INPUT_BASIC,
+                            ZCL_ANALOG_INPUT_ATTRID_PRESENT_VALUE,
+                            10,
+                            3600,
+                            (uint8_t *)&floatReportableChange);
+
+    uint16_t uint16ReportableChange = 10;
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+                            ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE,
+                            10,
+                            3600,
+                            (uint8_t *)&uint16ReportableChange);
+
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
+                            ZCL_ATTRID_HUMIDITY_MEASUREDVALUE,
+                            10,
+                            3600,
+                            (uint8_t *)&uint16ReportableChange);
+
+    uint16ReportableChange = 5;
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT,
+                            ZCL_ATTRID_PRESSURE_MEASUREDVALUE,
+                            10,
+                            3600,
+                            (uint8_t *)&uint16ReportableChange);
+
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_MS_ILLUMINANCE_MEASUREMENT,
+                            ZCL_ATTRID_MEASURED_VALUE,
+                            10,
+                            3600,
+                            (uint8_t *)&uint16ReportableChange);
+
+    uint8_t uint8ReportableChange = 0;
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                            ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_ROTATE,
+                            0,
+                            65000,
+                            (uint8_t *)&uint8ReportableChange);
+
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                            ZCL_ATTRID_HVAC_CUSTOM_DISPLAY_INVERSION,
+                            0,
+                            65000,
+                            (uint8_t *)&uint8ReportableChange);
+
+    bdb_defaultReportingCfg(APP_ENDPOINT1,
+                            HA_PROFILE_ID,
+                            ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG,
+                            ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE,
+                            0,
+                            65000,
+                            (uint8_t *)&uint8ReportableChange);
+
 
     /* Initialize BDB */
     bdb_init((af_simple_descriptor_t *)&app_ep1Desc, &g_bdbCommissionSetting, &g_zbBdbCb, 1);

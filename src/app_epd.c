@@ -157,7 +157,7 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
 
 static void epd_screen_var(void *args) {
 
-    if (g_appCtx.net_steer_start || led_flashing())
+    if (g_appCtx.net_steer_start || led_flashing() || button_idle() || sound_idle())
         return;
 
 

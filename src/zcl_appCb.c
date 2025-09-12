@@ -58,7 +58,7 @@ static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCf
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd, aps_data_ind_t aps_data_ind);
 #endif
 static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd);
-
+static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveToLvl_t *cmd);
 
 /**********************************************************************
  * GLOBAL VARIABLES
@@ -225,6 +225,17 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
 
 //    printf("app_zclWriteReqCmd. cluster: 0x%04x\r\n", clusterId);
 
+    if (clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL) {
+        for (uint16_t i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_LEVEL_CURRENT_LEVEL) {
+                moveToLvl_t cmd;
+                cmd.level = attr[i].attrData[0];
+                app_displayMoveToLevelProcess(endPoint, ZCL_CMD_LEVEL_MOVE_TO_LEVEL, &cmd);
+            }
+        }
+    }
+
+
     if (clusterId == ZCL_CLUSTER_HAVC_USER_INTERFACE_CONFIG) {
         for (uint16_t i = 0; i < numAttr; i++) {
             if (attr[i].attrID == ZCL_ATTRID_HVAC_TEMPERATURE_DISPLAY_MODE) {
@@ -263,6 +274,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     printf("Sound set: %s\r\n", val?"On":"Off");
                     if (config.sound != val) {
                         config.sound = val;
+                        sound_start(4, 20, 100, val?SOUND_INC:SOUND_DEC);
                         save = true;
                     }
                 }
@@ -1472,6 +1484,8 @@ static void app_displayMoveToLevelProcess(uint8_t endpoint, uint8_t cmdId, moveT
 
     zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_MIN_LEVEL, &len, (uint8_t*)&min_level);
     zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_MAX_LEVEL, &len, (uint8_t*)&max_level);
+
+    printf("level: %d\r\n", cmd->level);
 
     if (cmd->level < min_level || cmd->level > max_level) {
         zcl_setAttrVal(APP_ENDPOINT1,

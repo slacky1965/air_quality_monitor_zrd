@@ -32,10 +32,16 @@ enum {
 
 /*********************** Configure Sound GPIO **************************************/
 
-#define SOUND_PIN               GPIO_PB5
-#define PB5_FUNC                AS_GPIO
-#define PB5_OUTPUT_ENABLE       ON
-#define PB5_INPUT_ENABLE        OFF
+#define SOUND_PIN               GPIO_PB5    // PWM5
+
+#define PWM_SOUND_CHANNEL       PWM5_ID
+#define PWM_SOUND_CHANNEL_SET() do{ \
+                                    gpio_set_func(SOUND_PIN, AS_PWM5); \
+                                }while(0)
+
+//#define PB5_FUNC                AS_GPIO
+//#define PB5_OUTPUT_ENABLE       ON
+//#define PB5_INPUT_ENABLE        OFF
 
 /************************ Configure SPI and other for EPD ***************************/
 

@@ -156,6 +156,13 @@ int32_t forcedReportCb(void *arg) {
         if (pAttrEntry)
             zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
                               ZCL_CLUSTER_GEN_LEVEL_CONTROL, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        pAttrEntry = zcl_findAttribute(APP_ENDPOINT1,
+                                       ZCL_CLUSTER_GEN_TIME,
+                                       ZCL_ATTRID_TIME);
+        if (pAttrEntry)
+            zcl_sendReportCmd(APP_ENDPOINT1, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                               ZCL_CLUSTER_GEN_TIME, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
     }
 
     return -1;

@@ -5,11 +5,19 @@
 #include "app_epd.h"
 #include "app_epd_images.h"
 
+#define CLEAR_TIME_NIGHT_START  180                             // 03:00 in min
+#define CLEAR_TIME_NIGHT_STOP   (CLEAR_TIME_NIGHT_START + 10)   // 03:10 in min
+#define CLEAR_TIME_DAY_START    (CLEAR_TIME_NIGHT_START + 720)  // 15:00 in min
+#define CLEAR_TIME_DAY_STOP     (CLEAR_TIME_DAY_START + 10)     // 15:10 in min
+
 static uint8_t image_bw[EPD_W_BUFF_SIZE * EPD_H];
 
 static uint16_t real_rotate = EPD_ROTATE_270;
 
 static bool show_logo = false;
+
+static bool clear_screen = false;
+static uint16_t clear_time;
 
 static ev_timer_event_t *timerScreenUpdate = NULL;
 
@@ -238,6 +246,7 @@ static void epd_screen_var(void *args) {
             datetime[idx++] = (t.minute / 10) + 0x30;
             datetime[idx++] = (t.minute % 10) + 0x30;
             datetime[idx] = 0;
+            clear_time = t.hour * 60 + t.minute;
         }
     } else {
 
@@ -278,6 +287,8 @@ static void epd_screen_var(void *args) {
                 datetime[idx++] = (ftime->minute / 10) + 0x30;
                 datetime[idx++] = (ftime->minute % 10) + 0x30;
                 datetime[idx] = 0;
+
+                clear_time = ftime->hour * 60 + ftime->minute;
 
                 update_time = true;
             }
@@ -781,6 +792,16 @@ static void epd_screen_var(void *args) {
     if (epd_get_status_busy()) {
         printf("epd busy. reset\r\n");
         epd_forceScreenUpdate(NULL);
+    }
+
+    if ((clear_time >= CLEAR_TIME_NIGHT_START && clear_time <= CLEAR_TIME_NIGHT_STOP) ||
+        (clear_time >= CLEAR_TIME_DAY_START && clear_time <= CLEAR_TIME_DAY_STOP)) {
+        if (!clear_screen) {
+            clear_screen = true;
+            TL_SCHEDULE_TASK(epd_forceScreenUpdate, NULL);
+        }
+    } else {
+        if (clear_screen) clear_screen = false;
     }
 }
 

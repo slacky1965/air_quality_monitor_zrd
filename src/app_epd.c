@@ -44,11 +44,15 @@ static void epd_clear();
 static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t color) {
 
     /* for test */
-//    static int16_t temp_c = 2297;
+//    static uint8_t cnt = 0;
+//    static int16_t temp_c = 12098;
 //
 //    temp_c = -temp_c;
 //
 //    temp = temp_c;
+//    if (cnt & 1) temp = 964;
+//    else temp = 12098;
+//    cnt++;
 //
 //    if (temp_c < 0)
 //        temp_c--;
@@ -58,7 +62,7 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
     int16_t temp_int;
     int16_t temp_rem, temp_remt;
     bool negative = false;
-    uint8_t str_temp[6] = " --  ";
+    uint8_t str_temp[16] = " --  ";
     uint8_t *ptr;
     uint8_t str_celsius[] = "@C"; // replacement in font30 @ -> °
     uint8_t str_fahren[]  = "@F"; // replacement in font30 @ -> °
@@ -81,16 +85,19 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
 
         temp_int = temp / 100;
 
+        if (temp_int > 99) temp_int = 99;
+
         temp_remt = temp % 100;
 
-        if (temp < 5)
+        if (temp_remt < 5 && temp_remt > 0)
             temp_rem = 1;
         else
             if((temp_remt % 10) >= 5 && (temp_remt / 10) == 9 ) {
-                //temp_int++;
                 temp_rem = temp_remt / 10;
             } else
                 temp_rem = temp_remt / 10 + (temp_remt % 10 >= 5?1:0);
+
+        if (temp_rem > 9) temp_rem = 9;
 
         ptr = str_temp;
 
@@ -141,6 +148,13 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
             *ptr++ = 0;
         }
     }
+
+    if (strlen((const char*)str_temp) == 4) {
+        ptr = str_temp + 4;
+        *ptr++ = ' ';
+        *ptr = 0;
+    }
+//    printf("strlen((const char*)str_temp): %d\r\n", strlen((const char*)str_temp));
 
     if (config.rotate == APP_EPD_ROTATE_0) {
         font = &font41;
@@ -388,7 +402,7 @@ static void epd_screen_var(void *args) {
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, &attr_len, (uint8_t*)&temp);
 
-    if (ret == ZCL_STA_SUCCESS && epd_screen_variable.temp_in != temp) {
+//    if (ret == ZCL_STA_SUCCESS && epd_screen_variable.temp_in != temp) {
         epd_screen_variable.temp_in = temp;
 
         if (config.rotate == APP_EPD_ROTATE_0) {
@@ -398,7 +412,7 @@ static void epd_screen_var(void *args) {
         }
 
         refresh |= 0x08;
-    }
+//    }
 
     button_handler();
 
@@ -454,9 +468,9 @@ static void epd_screen_var(void *args) {
         epd_screen_variable.temp_out = temp;
 
         if (config.rotate == APP_EPD_ROTATE_0) {
-            epd_show_temperature(236, 210, temp, color);
+//            epd_show_temperature(236, 210, temp, color);
         } else {
-            epd_show_temperature(36, 330, temp, color);
+//            epd_show_temperature(36, 330, temp, color);
         }
 
         refresh |= 0x20;

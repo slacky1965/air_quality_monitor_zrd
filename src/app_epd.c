@@ -50,7 +50,7 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
 //    temp_c = -temp_c;
 //
 //    temp = temp_c;
-//    if (cnt & 1) temp = 964;
+//    if (cnt & 1) temp = 900;
 //    else temp = 12098;
 //    cnt++;
 //
@@ -402,7 +402,7 @@ static void epd_screen_var(void *args) {
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, &attr_len, (uint8_t*)&temp);
 
-//    if (ret == ZCL_STA_SUCCESS && epd_screen_variable.temp_in != temp) {
+    if (ret == ZCL_STA_SUCCESS && epd_screen_variable.temp_in != temp) {
         epd_screen_variable.temp_in = temp;
 
         if (config.rotate == APP_EPD_ROTATE_0) {
@@ -412,7 +412,7 @@ static void epd_screen_var(void *args) {
         }
 
         refresh |= 0x08;
-//    }
+    }
 
     button_handler();
 
@@ -468,9 +468,9 @@ static void epd_screen_var(void *args) {
         epd_screen_variable.temp_out = temp;
 
         if (config.rotate == APP_EPD_ROTATE_0) {
-//            epd_show_temperature(236, 210, temp, color);
+            epd_show_temperature(236, 210, temp, color);
         } else {
-//            epd_show_temperature(36, 330, temp, color);
+            epd_show_temperature(36, 330, temp, color);
         }
 
         refresh |= 0x20;

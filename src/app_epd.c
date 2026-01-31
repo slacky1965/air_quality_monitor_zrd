@@ -35,6 +35,7 @@ static epd_screen_variable_t epd_screen_variable = {
         .lqi = 256,
         .level = 6,
         .zbIcon = false,
+        .sound = 2,                 /* 0 - off, 1 -  on, 2 - undefined */
 //        .timerZbIcon = NULL,
 };
 
@@ -676,6 +677,14 @@ static void epd_screen_var(void *args) {
         y = 160;
     }
 
+    if (epd_screen_variable.sound != config.sound) {
+        epd_screen_variable.sound = config.sound;
+        uint8_t *pSound = (uint8_t*)image_sound_off;
+        if (epd_screen_variable.sound) pSound = (uint8_t*)image_sound_on;
+        epd_paint_showPicture(x+92, y-24, 17, 17, pSound, color);
+        refresh |= 0x2000;
+    }
+
     if (epd_screen_variable.lux != lux) {
         epd_screen_variable.lux = lux;
 
@@ -1040,6 +1049,7 @@ void epd_forceScreenUpdate(void *args) {
     epd_screen_variable.lqi = 256;
     epd_screen_variable.level = 6;
     epd_screen_variable.zbIcon = false;
+    epd_screen_variable.sound = 2;
 
     epd_io_init();
     epd_init();

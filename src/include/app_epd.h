@@ -30,6 +30,7 @@ typedef struct {
     uint16_t lqi;
     uint8_t  level;
     bool     zbIcon;
+    uint8_t  sound;
 //    ev_timer_event_t *timerZbIcon;
 } epd_screen_variable_t;
 
@@ -38,5 +39,6 @@ void app_first_start_epd();
 void epd_update_temperature_display_mode();
 void epd_clearZbIcon();
 void epd_forceScreenUpdate(void *args);
+int32_t epd_screen_varCb(void *args);
 
 #endif /* SRC_INCLUDE_APP_EPD_H_ */

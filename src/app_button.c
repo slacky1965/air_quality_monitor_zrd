@@ -54,6 +54,9 @@ static void buttonCheckCommand(uint8_t btNum) {
         printf("Button push 1 time\r\n");
 #endif
         TL_ZB_TIMER_SCHEDULE(forcedReportCb, NULL, TIMEOUT_100MS);
+//        /* for test */
+//        uint8_t ota_ana_reg = OTA_ANA_REG_RESET;
+//        analog_write(OTA_ANA_REG, ota_ana_reg);
     } else if (g_appCtx.button[btNum-1].ctn == 2) {
 #if UART_PRINTF_MODE && DEBUG_BUTTON
         printf("Button push 2 times. Rotate\r\n");

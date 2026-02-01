@@ -32,6 +32,13 @@
 #include "app_config.h"
 #include "app_time.h"
 
+#define OTA_ANA_REG  DEEP_ANA_REG1
+
+typedef enum {
+    OTA_ANA_REG_NONE = 0,
+    OTA_ANA_REG_RESET = 2
+} ota_ana_reg_t;
+
 typedef struct {
     uint8_t keyType; /* CERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
                         SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */

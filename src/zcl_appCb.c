@@ -275,6 +275,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                     if (config.sound != val) {
                         config.sound = val;
                         sound_start(4, 20, 100, val?SOUND_INC:SOUND_DEC);
+                        epd_screen_varCb(NULL);
                         save = true;
                     }
                 }

@@ -92,7 +92,7 @@ extern "C" {
 
 /* BDB */
 #define TOUCHLINK_SUPPORT				ON
-#define FIND_AND_BIND_SUPPORT			OFF
+#define FIND_AND_BIND_SUPPORT			ON
 
 /* Board ID */
 #define BOARD_826x_EVK                  0

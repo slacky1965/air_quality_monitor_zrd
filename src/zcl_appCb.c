@@ -608,7 +608,8 @@ status_t app_basicCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdP
 #ifdef ZCL_IDENTIFY
 int32_t app_zclIdentifyTimerCb(void *arg)
 {
-	if(g_zcl_identifyAttrs.identifyTime <= 0){
+	if(g_zcl_identifyAttrs.identifyTime <= 0) {
+	    g_appCtx.bdbFindBindFlg = false;
 		identifyTimerEvt = NULL;
 		return -1;
 	}
@@ -618,6 +619,7 @@ int32_t app_zclIdentifyTimerCb(void *arg)
 
 void app_zclIdentifyTimerStop(void)
 {
+    g_appCtx.bdbFindBindFlg = false;
 	if(identifyTimerEvt){
 		TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
 	}
@@ -634,16 +636,17 @@ void app_zclIdentifyTimerStop(void)
  *
  * @return  None
  */
-void app_zclIdentifyCmdHandler(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime)
-{
+void app_zclIdentifyCmdHandler(uint8_t endpoint, uint16_t srcAddr, uint16_t identifyTime) {
+
 	g_zcl_identifyAttrs.identifyTime = identifyTime;
 
-	if(identifyTime == 0){
+	if(identifyTime == 0) {
 		app_zclIdentifyTimerStop();
-//		light_blink_stop();
+		led_blink_stop();
 	}else{
-		if(!identifyTimerEvt){
-//			light_blink_start(identifyTime, 500, 500);
+		if(!identifyTimerEvt) {
+//	        led_effect_start(90, COLOR_GREEN);
+	        led_blink_start(identifyTime, 500, 500, COLOR_GREEN);
 			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(app_zclIdentifyTimerCb, NULL, 1000);
 		}
 	}

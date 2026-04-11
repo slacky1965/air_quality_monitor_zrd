@@ -87,7 +87,15 @@ static void buttonCheckCommand(uint8_t btNum) {
         epd_update_temperature_display_mode();
     } else if (g_appCtx.button[btNum-1].ctn == 5) {
 #if UART_PRINTF_MODE && DEBUG_BUTTON
-        printf("Button push 5 times. Reboot monitor\r\n");
+        printf("Button push 5 times. Find and bind or target start\r\n");
+#endif
+        if (!g_appCtx.bdbFindBindFlg) {
+            g_appCtx.bdbFindBindFlg = TRUE;
+            TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 1000);
+        }
+    } else if (g_appCtx.button[btNum-1].ctn == 6) {
+#if UART_PRINTF_MODE && DEBUG_BUTTON
+        printf("Button push 6 times. Reboot monitor\r\n");
 #endif
         TL_ZB_TIMER_SCHEDULE(delayedMcuResetCb, NULL, TIMEOUT_100MS);
      }

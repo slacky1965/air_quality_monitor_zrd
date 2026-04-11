@@ -1,6 +1,7 @@
 #include "app_main.h"
 
 //static uint32_t last_light = 0;
+static bool boot_announce_sent = false;
 
 app_ctx_t g_appCtx = {
         .bdbFBTimerEvt = NULL,
@@ -11,6 +12,7 @@ app_ctx_t g_appCtx = {
         .co2_forced_calibration = 0,
         .co2_factory_reset = 0,
         .net_steer_start = false,
+        .bdbFindBindFlg = false,
 };
 
 //uint32_t count_restart = 0;
@@ -41,18 +43,19 @@ const zdo_appIndCb_t appCbLst = {
     NULL,//tc detects that the frame counter is near limit
 };
 
-/**
- *  @brief Definition for BDB finding and binding cluster
- */
-uint16_t bdb_findBindClusterList[] =
-{
-    ZCL_CLUSTER_GEN_ON_OFF,
-};
-
-/**
- *  @brief Definition for BDB finding and binding cluster number
- */
-#define FIND_AND_BIND_CLUSTER_NUM       (sizeof(bdb_findBindClusterList)/sizeof(bdb_findBindClusterList[0]))
+///**
+// *  @brief Definition for BDB finding and binding cluster
+// */
+//uint16_t bdb_findBindClusterList[] = {
+//    ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+//    ZCL_CLUSTER_MS_RELATIVE_HUMIDITY,
+//    ZCL_CLUSTER_GEN_POWER_CFG
+//};
+//
+///**
+// *  @brief Definition for BDB finding and binding cluster number
+// */
+//#define FIND_AND_BIND_CLUSTER_NUM       (sizeof(bdb_findBindClusterList)/sizeof(bdb_findBindClusterList[0]))
 
 /**
  *  @brief Definition for bdb commissioning setting
@@ -177,6 +180,11 @@ void user_app_init(void)
 
 void app_task(void) {
 
+    if (!boot_announce_sent && zb_isDeviceJoinedNwk()) {
+        zb_zdoSendDevAnnance();
+        boot_announce_sent = true;
+    }
+
     button_handler();
 
     if(BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle()) {
@@ -242,7 +250,7 @@ void user_init(bool isRetention) {
         g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_appCtx.tcLinkKey.key;
     }
 
-    bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
+//    bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
     float floatReportableChange = 0.00001;
     /* Set default reporting configuration */

@@ -43,7 +43,8 @@ BOOT_SIZE := $(shell ls -l $(BOOT_FILE) | awk '{print $$5}')
 
 
 TL_CHECK = $(TOOLS_PATH)/tl_check_fw.py
-MAKE_OTA = $(TOOLS_PATH)/make_ota.py
+MAKE_OTA = $(TOOLS_PATH)/zigbee_ota.py
+#MAKE_OTA = $(TOOLS_PATH)/make_ota.py
 
 INCLUDE_PATHS := \
 -I$(SDK_PATH)/platform \
@@ -207,7 +208,7 @@ $(BIN_FILE): $(ELF_FILE)
 	@python3 $(TL_CHECK) $(BIN_FILE)
 	@cp $(BIN_FILE) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
 	@echo 'Create zigbee OTA file'
-	@python3 $(MAKE_OTA) -ot $(PROJECT_NAME) $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin
+	@python3 $(MAKE_OTA) -t $(PROJECT_NAME) -s "Slacky-DIY OTA" $(BIN_PATH)/$(PROJECT_NAME)_$(VERSION_RELEASE).$(VERSION_BUILD).bin 
 	@echo ' '
 	@echo 'Finished building: $@'
 	@echo ' '

@@ -132,15 +132,6 @@ void zb_bdbInitCb(uint8_t status, uint8_t joinedNetwork)
 #ifdef ZCL_OTA
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
-            uint8_t ota_ana_reg = analog_read(OTA_ANA_REG);
-//            u32 r = drv_disable_irq();
-//            printf("ota_ana_reg: %d\r\n", ota_ana_reg);
-//            drv_restore_irq(r);
-            if (ota_ana_reg == OTA_ANA_REG_RESET) {
-                ota_ana_reg = OTA_ANA_REG_NONE;
-                analog_write(OTA_ANA_REG, ota_ana_reg);
-                zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-            }
         } else if (g_appCtx.net_steer_start) {
             heartInterval = 500;
 
@@ -200,9 +191,9 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg)
         ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
-#if FIND_AND_BIND_SUPPORT
-        if (!gLightCtx.bdbFindBindFlg) {
-            gLightCtx.bdbFindBindFlg = TRUE;
+#if FIND_AND_BIND_SUPPORTT
+        if (!g_appCtx.bdbFindBindFlg) {
+            g_appCtx.bdbFindBindFlg = TRUE;
             TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 1000);
         }
 #endif
@@ -274,8 +265,6 @@ void app_otaProcessMsgHandler(uint8_t evt, uint8_t status)
             printf("OTA update successful.\r\n");
 #endif /* UART_PRINTF_MODE */
             lifetime_save();
-            uint8_t ota_ana_reg = OTA_ANA_REG_RESET;
-            analog_write(OTA_ANA_REG, ota_ana_reg);
             ota_mcuReboot();
         } else {
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);

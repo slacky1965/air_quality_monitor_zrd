@@ -435,7 +435,6 @@ static void epd_screen_var(void *args) {
             if (rh > 100)
                 rh = 100;
 
-
             if (!itoa(rh, str_hum)) {
                 uint8_t *ptr = str_hum;
                 *ptr++ = '-';
@@ -444,8 +443,8 @@ static void epd_screen_var(void *args) {
             }
 
             if (strlen((const char*)str_hum) == 2) {
-                str_hum[3] = ' ';
-                str_hum[4] = 0;
+                str_hum[2] = ' ';
+                str_hum[3] = 0;
             }
         }
 
@@ -507,8 +506,8 @@ static void epd_screen_var(void *args) {
             }
 
             if (strlen((const char*)str_hum) == 2) {
-                str_hum[3] = ' ';
-                str_hum[4] = 0;
+                str_hum[2] = ' ';
+                str_hum[3] = 0;
             }
         }
 

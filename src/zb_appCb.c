@@ -200,9 +200,9 @@ void zb_bdbCommissioningCb(uint8_t status, void *arg)
         ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
-#if FIND_AND_BIND_SUPPORT
-        if (!gLightCtx.bdbFindBindFlg) {
-            gLightCtx.bdbFindBindFlg = TRUE;
+#if FIND_AND_BIND_SUPPORTT
+        if (!g_appCtx.bdbFindBindFlg) {
+            g_appCtx.bdbFindBindFlg = TRUE;
             TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 1000);
         }
 #endif

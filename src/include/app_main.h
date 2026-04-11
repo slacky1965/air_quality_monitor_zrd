@@ -69,6 +69,7 @@ typedef struct {
     uint8_t co2_factory_reset;
 
     bool net_steer_start;
+    bool bdbFindBindFlg;
 
     app_linkKey_info_t tcLinkKey;
 } app_ctx_t;
@@ -108,6 +109,7 @@ void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void app_otaProcessMsgHandler(uint8_t evt, uint8_t status);
 bool app_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate);
 void app_wakeupPinLevelChange();
+int32_t app_bdbFindAndBindStart(void *arg);
 
 extern void test_epd();
 

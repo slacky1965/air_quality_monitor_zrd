@@ -1,6 +1,7 @@
 #include "app_main.h"
 
 //static uint32_t last_light = 0;
+static bool boot_announce_sent = false;
 
 app_ctx_t g_appCtx = {
         .bdbFBTimerEvt = NULL,
@@ -178,6 +179,11 @@ void user_app_init(void)
 }
 
 void app_task(void) {
+
+    if (!boot_announce_sent && zb_isDeviceJoinedNwk()) {
+        zb_zdoSendDevAnnance();
+        boot_announce_sent = true;
+    }
 
     button_handler();
 

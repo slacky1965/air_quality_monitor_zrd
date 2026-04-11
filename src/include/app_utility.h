@@ -11,6 +11,8 @@
 #define TIMEOUT_TICK_150MS  150*1000        /* timeout 150 ms   */
 #define TIMEOUT_TICK_200MS  200*1000        /* timeout 200 ms   */
 #define TIMEOUT_TICK_250MS  250*1000        /* timeout 250 ms   */
+#define TIMEOUT_TICK_500MS  500*1000        /* timeout 500 ms   */
+#define TIMEOUT_TICK_750MS  750*1000        /* timeout 750 ms   */
 #define TIMEOUT_TICK_1SEC   1000*1000       /* timeout 1 sec    */
 #define TIMEOUT_TICK_2SEC   2*1000*1000     /* timeout 2 sec    */
 #define TIMEOUT_TICK_2_5SEC 25*100*1000     /* timeout 2.5 sec  */
@@ -22,6 +24,7 @@
 
 /* for TL_ZB_TIMER_SCHEDULE() */
 #define TIMEOUT_10MS               10       /* timeout 10  ms   */
+#define TIMEOUT_20MS               20       /* timeout 20  ms   */
 #define TIMEOUT_100MS              100      /* timeout 100 ms   */
 #define TIMEOUT_250MS              250      /* timeout 250 ms   */
 #define TIMEOUT_500MS              500      /* timeout 900 ms   */

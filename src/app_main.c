@@ -176,6 +176,8 @@ void user_app_init(void)
     TL_ZB_TIMER_SCHEDULE(app_lifetimeCb, NULL, TIMEOUT_60MIN);
 #endif
 
+    TL_ZB_TIMER_SCHEDULE(button_handlerCb, NULL, TIMEOUT_20MS);
+
 }
 
 void app_task(void) {
@@ -185,7 +187,7 @@ void app_task(void) {
         boot_announce_sent = true;
     }
 
-    button_handler();
+//    button_handler();
 
     if(BDB_STATE_GET() == BDB_STATE_IDLE && !button_idle()) {
 //    if(bdb_isIdle()) {

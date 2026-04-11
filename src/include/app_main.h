@@ -55,9 +55,9 @@ typedef struct {
 
     uint32_t timeout;
 
-    button_t button[MAX_BUTTON_NUM];
-    uint8_t  keyPressed;
-
+//    button_t button[MAX_BUTTON_NUM];
+//    uint8_t  keyPressed;
+//
     uint8_t co2_forced_calibration;
     uint8_t co2_factory_reset;
 

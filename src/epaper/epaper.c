@@ -85,7 +85,7 @@ uint8_t epd_wait_busy() {
             _status_busy = 1;
             return 1;
         }
-        button_handler();
+//        button_handler();
         epd_delay(1);
     }
 //    printf("timeout exit 0: %d\r\n", timeout);
@@ -622,7 +622,7 @@ void epd_paint_showChar(uint16_t x, uint16_t y, uint16_t chr, sFont *font, uint1
     x += 1, y += 1;
 
     for (j = 0; j < font->height; j++) {
-        button_handler();
+//        button_handler();
         for (i = 0; i < font->width; i++) {
             if (*ptr & (0x80 >> (i % 8))) {
                 epd_paint_drawPoint(x+i, y+j, color);
@@ -729,7 +729,7 @@ void epd_paint_showPicture(uint16_t x, uint16_t y, uint16_t sizex, uint16_t size
     x += 1, y += 1;
     const unsigned char* prt = BMP;
       for (j = 0; j < sizey; j++) {
-          button_handler();
+//          button_handler();
           for (i = 0; i < sizex; i++) {
             if (* prt & (0x80 >> (i % 8))){
                 epd_paint_drawPoint(x+i, y+j, Color);

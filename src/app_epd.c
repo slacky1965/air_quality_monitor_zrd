@@ -71,7 +71,7 @@ static void epd_show_temperature(uint16_t x, uint16_t y, int32_t temp, uint16_t 
     sFont *font = NULL;
     uint16_t xx, yy;
 
-    button_handler();
+//    button_handler();
 
     if ((uint16_t)temp != 0x8000) {
 
@@ -218,7 +218,7 @@ static void epd_screen_var(void *args) {
     led_color_t led_color = led_get_color();
 
     epd_io_init();
-    button_handler();
+//    button_handler();
     epd_reset();
 
     if (config.inversion == APP_EPD_INVERSION_OFF) {
@@ -322,7 +322,7 @@ static void epd_screen_var(void *args) {
 
     }
 
-    button_handler();
+//    button_handler();
 
     uint16_t sh_addr = zb_getLocalShortAddr();
 
@@ -365,7 +365,7 @@ static void epd_screen_var(void *args) {
 
     }
 
-    button_handler();
+//    button_handler();
 
     uint8_t lqi = app_get_lqi();
 
@@ -399,7 +399,7 @@ static void epd_screen_var(void *args) {
         refresh |= 0x04;
     }
 
-    button_handler();
+//    button_handler();
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE, &attr_len, (uint8_t*)&temp);
 
@@ -415,7 +415,7 @@ static void epd_screen_var(void *args) {
         refresh |= 0x08;
     }
 
-    button_handler();
+//    button_handler();
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_RELATIVE_HUMIDITY, ZCL_ATTRID_HUMIDITY_MEASUREDVALUE, &attr_len, (uint8_t*)&rh);
 
@@ -460,7 +460,7 @@ static void epd_screen_var(void *args) {
 
     }
 
-    button_handler();
+//    button_handler();
 
     /* outsize temperature */
     temp = app_get_outside_temperature();
@@ -477,7 +477,7 @@ static void epd_screen_var(void *args) {
 
     }
 
-    button_handler();
+//    button_handler();
 
     /* outside humidity */
     rh = app_get_outside_humidity();
@@ -524,7 +524,7 @@ static void epd_screen_var(void *args) {
 
     }
 
-    button_handler();
+//    button_handler();
 
     /* outside battery */
     bat = app_get_outside_battery();
@@ -558,7 +558,7 @@ static void epd_screen_var(void *args) {
         refresh |= 0x80;
     }
 
-    button_handler();
+//    button_handler();
 
     co2 = app_scd4x_get_co2();
 
@@ -612,7 +612,7 @@ static void epd_screen_var(void *args) {
         }
     }
 
-    button_handler();
+//    button_handler();
 
     voc = app_sgp40_get_voc();
 
@@ -659,7 +659,7 @@ static void epd_screen_var(void *args) {
         }
     }
 
-    button_handler();
+//    button_handler();
 
     lux = app_bh1750_get_lux();
 
@@ -705,7 +705,7 @@ static void epd_screen_var(void *args) {
         }
     }
 
-    button_handler();
+//    button_handler();
 
     ret = zcl_getAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_MS_PRESSURE_MEASUREMENT, ZCL_ATTRID_PRESSURE_MEASUREDVALUE, &attr_len, (uint8_t*)&kpa);
     y += 26;
@@ -754,7 +754,7 @@ static void epd_screen_var(void *args) {
         y += 26;
     }
 
-    button_handler();
+//    button_handler();
 
     y += 26;
 
@@ -779,7 +779,7 @@ static void epd_screen_var(void *args) {
     }
 
 
-    button_handler();
+//    button_handler();
 
     if (refresh) {
         epd_displayBW_partial(image_bw);
@@ -971,7 +971,7 @@ void app_epd_init() {
 #if 0
     epd_logo();
     while(1) {
-        button_handler();
+//        button_handler();
     }
 #endif
 
